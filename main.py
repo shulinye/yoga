@@ -11,12 +11,15 @@ import random
 def speak(text):
     subprocess.call('espeak -v en-gb \"' + text +'\"', shell=True)
 
-def countdown(n, *args):
+def countdown(n, *args, **kwargs):
     while n > 0:
         sys.stdout.write(str(n) + "...")
         sys.stdout.flush()
-        if n <4: speak(str(n))
-        time.sleep(1)
+        if n <4:
+            speak(str(n))
+            time.sleep(1)
+        else:
+            time.sleep(1)
         n -= 1
     sys.stdout.write("0\n")
     sys.stdout.flush()
@@ -36,14 +39,18 @@ class Move(object):
     def addMove(self, *args):
         self.nextMove.update(args)
     def play(self, **kwargs):
+        """Tells me which pose I'm supposed to do and how I'm supposed to do it. Also figures out next pose."""
+        print("")
         print(self.title)
         if "nextMove" in kwargs:
             nextMove = kwargs["nextMove"]
         else:
             nextMove = random.choice(tuple(self.nextMove))
         print("Next Move: " + nextMove.title)
-        speak(self.audio)
+        speak(self.audio + ". " + str(self.time) + " seconds")
+        if "bind" in self.kwargs and self.kwargs["bind"]: speak("Bind if you want to")
         countdown(self.time)
+        if "bind" in self.kwargs and self.kwargs["bind"]: speak("Release bind")
         return nextMove
     def __repr__(self):
         return "Move(%s)" % self.title
@@ -54,33 +61,100 @@ class Move(object):
 
 def twoSides(title, audio, time, *args, **kwargs):
     """Hey, you have two legs."""
-    R = Move(title+ ", Right", "Right", audio % "Right Side", time, *args, **kwargs)
-    L = Move(title+ ", Left", "Left", audio % "Left Side", time, *args, **kwargs)
+    if "%s" in audio:
+        R = Move(title+ ", Right", "Right", audio % "Right", time, *args, **kwargs)
+        L = Move(title+ ", Left", "Left", audio % "Left", time, *args, **kwargs)
+    else:
+        R = Move(title+ ", Right", "Right", audio, time, *args, **kwargs)
+        L = Move(title+ ", Left", "Left", audio, time, *args, **kwargs)
     R.addOtherSide(L)
     L.addOtherSide(R)
     return (R,L)
 
+def doubleAdd(move, *args, inverted=False):
+    if inverted:
+        for i in args:
+            move[0].addMove(i[1])
+            move[1].addMove(i[0])
+    else:
+        for i in args:
+            move[0].addMove(i[0])
+            move[1].addMove(i[1])
 #Begin list of moves
 
-catCow = Move("Cat Cow", None, "Cat Cow", 10)
-table = Move("Table Pose", None, "Table Pose", 5, catCow)
+balancingTable = twoSides("Balancing Table", "When you are ready, extend the opposite arm", 10)
+balancingTableLegOnly = twoSides("Balancing Table, Leg Only", "Extend %s leg behind you", 5)
+catCow = Move("Cat Cow", None, "Cat Cow", 10, *balancingTableLegOnly)
+table = Move("Table Pose", None, "Table Pose", 5, catCow, *balancingTableLegOnly)
 vinyasa = Move("Vinayasa", None, "Vinyasa", 5)
 child = Move("Child's Pose", None, "Child's Pose", 5, table)
-threeleggeddog = twoSides("Three Legged Dog", "Three Legged Dog, %s", 10)
-downwardsDog = Move("Downwards Dog", None, "Downwards Dog", 5, *threeleggeddog)
-warrior1 = twoSides("Warrior 1", "Warrior One, %s", 10, vinyasa)
-warrior2 = twoSides("Warrior 2", "Warrior Two, %s", 10, vinyasa)
-warrior3 = twoSides("Warrior 3", "Warrior Three, %s", 10, vinyasa)
+lowLunge = twoSides("Low Lunge", "Bring your %s foot down and set it between your hands. Low Lunge", 8)
+threeLeggedDog = twoSides("Three Legged Dog", "Raise your %s foot up. Three Legged Dog", 10)
+standingLegLift1 = twoSides("Standing Leg Lift", "Raise your %s foot up and grab it. Standing Leg Lift. Hold", 20)
+standingLegLift2 = twoSides("Standing Leg Lift, Leg to Side", "Now take your %s foot and move it out to the side. Hold", 20)
+standingLegLift3 = twoSides("Standing Leg Lift, Both Hands", "Return %s foot to center. Grab with both hands, head to knee or chin to shin. Hold.", 20)
+standingLegLift4 = twoSides("Standing Leg Lift, No Hands", "Release %s foot. Hold.", 25)
+backBend = Move("Back Bend", None, "Bend Backwards", 10)
+mountainPose = Move("Mountain Pose", None, "Mountain Pose", 5, backBend, *standingLegLift1)
+forwardFold = Move("Forward Fold", None, "Forward Fold", 5, mountainPose)
+downwardsDog = Move("Downwards Dog", None, "Downwards Dog", 5, forwardFold, *threeLeggedDog)
+humbleWarrior = twoSides("Humble Warrior", "Intertwine your hands behind you. Lean forward. Humble Warrior", 5)
+warrior1 = twoSides("Warrior 1", "Warrior One, %s Side", 10, vinyasa)
+warrior2 = twoSides("Warrior 2", "Warrior Two, %s Side", 10, vinyasa)
+warrior3 = twoSides("Warrior 3", "Warrior Three, %s Side", 10, vinyasa)
+standingSplits = twoSides("Standing Splits", "Raise your %s foot up towards the ceiling",20, vinyasa)
+cresent = twoSides("Cresent Lunge", "Cresent Lunge, %s foot forward", 10, early="Feel free to lower your other knee down to the ground")
+cresentTwist = twoSides("Cresent Twist", "Twist to the %s side. Crest Twist", 15, bind=True)
 chairTwist = twoSides("Chair Twist", "Twist to the %s", 15)
-chair = Move("Chair Pose", None, "Chair Pose", 15, *chairTwist)
+chair = Move("Chair Pose", None, "Chair Pose", 15, vinyasa, *chairTwist, bind=True)
+crow = Move("Crow Pose", None, "Crow Pose", 30, vinyasa)
+sideCrow = twoSides("Side Crow", "Side Crow, %s Side", 30, vinyasa)
+boat = Move("Boat Pose", None, "Boat Pose", 30)
+halfMoon = twoSides("Half Moon", "Half Moon, %s Side", 20)
+sideAngle = twoSides("Side Angle", "Lower your %s hand to the ground and raise the other hand up towards the ceiling. Side Angle", 10, vinyasa, *halfMoon)
+triangle = twoSides("Triangle Pose", "Triangle Pose, %s side", 15, vinyasa, *halfMoon)
+revolvedTriangle = twoSides("Revolved Triangle", "Revolved Triangle Pose, %s side", 15)
+reverseWarrior = twoSides("Reverse Warrior", "Take your %s hand and raise it towards the back of the room. Reverse Warrior", 5)
+bridge = Move("Bridge Pose", None, "Bridge Pose", 20)
+wheel = Move("Wheel Pose", None, "Wheel Pose", 30)
 
 #Begin linking moves to each other
 vinyasa.addMove(downwardsDog)
+table.addMove(downwardsDog)
+catCow.addMove(downwardsDog)
+mountainPose.addMove(forwardFold, chair)
+backBend.addMove(mountainPose)
+for i in balancingTable: i.addMove(table)
+for i in standingLegLift4: i.addMove(mountainPose, forwardFold)
+for i in chairTwist: i.addMove(chair, forwardFold)
+
+doubleAdd(warrior1, warrior2, warrior3, humbleWarrior)
+doubleAdd(humbleWarrior, warrior1)
+doubleAdd(warrior2, sideAngle)
+doubleAdd(threeLeggedDog, lowLunge)
+doubleAdd(lowLunge, warrior1, warrior2, warrior3, cresent)
+doubleAdd(warrior3, standingLegLift1, inverted=True)
+doubleAdd(cresent, warrior1, cresentTwist)
+doubleAdd(cresentTwist, cresent, chairTwist)
+doubleAdd(balancingTableLegOnly, balancingTable)
+doubleAdd(sideAngle, reverseWarrior)
+doubleAdd(reverseWarrior, sideAngle)
+doubleAdd(standingLegLift1, standingLegLift2)
+doubleADd(standingLegLift1, warrior3, inverted=True)
+doubleAdd(standingLegLift2, standingLegLift3)
+doubleAdd(standingLegLift3, standingLegLift4)
+doubleAdd(triangle, revolvedTriangle)
+doubleAdd(chairTwist, sideCrow)
+
 
 if __name__== "__main__":
     start = datetime.datetime.now()
     speak("Beginning in")
     countdown(3)
-    nextPose = child.play()
-    nextPose.play()
-
+    pose = child.play()
+    try:
+        while True:
+            nextPose = pose.play()
+            pose = nextPose
+    except KeyboardInterrupt:
+        print("\nTotal Time: " +str(datetime.datetime.now()-start))
