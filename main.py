@@ -8,6 +8,8 @@ import sys
 import datetime
 import random
 
+debug=True
+
 def speak(text):
     subprocess.call('espeak -v en-gb \"' + text +'\"', shell=True)
 
@@ -17,9 +19,9 @@ def countdown(n, *args, **kwargs):
         sys.stdout.flush()
         if n <4:
             speak(str(n))
-            time.sleep(1)
+            if not debug:time.sleep(1)
         else:
-            time.sleep(1)
+            if not debug:time.sleep(1)
         n -= 1
     sys.stdout.write("0\n")
     sys.stdout.flush()
@@ -87,9 +89,11 @@ balancingTableLegOnly = twoSides("Balancing Table, Leg Only", "Extend %s leg beh
 catCow = Move("Cat Cow", None, "Cat Cow", 10, *balancingTableLegOnly)
 table = Move("Table Pose", None, "Table Pose", 5, catCow, *balancingTableLegOnly)
 vinyasa = Move("Vinayasa", None, "Vinyasa", 5)
+staff = Move("Staff Pose", None, "Staff Pose",10, vinyasa)
 child = Move("Child's Pose", None, "Child's Pose", 5, table)
 lowLunge = twoSides("Low Lunge", "Bring your %s foot down and set it between your hands. Low Lunge", 8)
 threeLeggedDog = twoSides("Three Legged Dog", "Raise your %s foot up. Three Legged Dog", 10)
+kneeToElbow = twoSides("Knee To Elbow", "Take your %s knee and bring it to your elbow. Hold", 15)
 standingLegLift1 = twoSides("Standing Leg Lift", "Raise your %s foot up and grab it. Standing Leg Lift. Hold", 20)
 standingLegLift2 = twoSides("Standing Leg Lift, Leg to Side", "Now take your %s foot and move it out to the side. Hold", 20)
 standingLegLift3 = twoSides("Standing Leg Lift, Both Hands", "Return %s foot to center. Grab with both hands, head to knee or chin to shin. Hold.", 20)
@@ -97,7 +101,7 @@ standingLegLift4 = twoSides("Standing Leg Lift, No Hands", "Release %s foot. Hol
 backBend = Move("Back Bend", None, "Bend Backwards", 10)
 mountainPose = Move("Mountain Pose", None, "Mountain Pose", 5, backBend, *standingLegLift1)
 forwardFold = Move("Forward Fold", None, "Forward Fold", 5, mountainPose)
-downwardsDog = Move("Downwards Dog", None, "Downwards Dog", 5, forwardFold, *threeLeggedDog)
+downwardsDog = Move("Downwards Dog", None, "Downwards Dog", 5, forwardFold, staff, *threeLeggedDog)
 humbleWarrior = twoSides("Humble Warrior", "Intertwine your hands behind you. Lean forward. Humble Warrior", 5)
 warrior1 = twoSides("Warrior 1", "Warrior One, %s Side", 10, vinyasa)
 warrior2 = twoSides("Warrior 2", "Warrior Two, %s Side", 10, vinyasa)
@@ -105,18 +109,20 @@ warrior3 = twoSides("Warrior 3", "Warrior Three, %s Side", 10, vinyasa)
 standingSplits = twoSides("Standing Splits", "Raise your %s foot up towards the ceiling",20, vinyasa)
 cresent = twoSides("Cresent Lunge", "Cresent Lunge, %s foot forward", 10, early="Feel free to lower your other knee down to the ground")
 cresentTwist = twoSides("Cresent Twist", "Twist to the %s side. Crest Twist", 15, bind=True)
-chairTwist = twoSides("Chair Twist", "Twist to the %s", 15)
-chair = Move("Chair Pose", None, "Chair Pose", 15, vinyasa, *chairTwist, bind=True)
+chairTwist = twoSides("Chair Twist", "Twist to the %s", 15, bind=True)
+chair = Move("Chair Pose", None, "Chair Pose", 15, vinyasa, *chairTwist, extended_time=[40])
 crow = Move("Crow Pose", None, "Crow Pose", 30, vinyasa)
 sideCrow = twoSides("Side Crow", "Side Crow, %s Side", 30, vinyasa)
-boat = Move("Boat Pose", None, "Boat Pose", 30)
-halfMoon = twoSides("Half Moon", "Half Moon, %s Side", 20)
+boat = Move("Boat Pose", None, "Boat Pose", 30, staff)
+revolvedHalfMoon = twoSides("Revolved Half Moon", "Revolved Half Moon, %s Side", 20)
+halfMoon = twoSides("Half Moon", "Half Moon, %s Side", 20, *revolvedHalfMoon)
 sideAngle = twoSides("Side Angle", "Lower your %s hand to the ground and raise the other hand up towards the ceiling. Side Angle", 10, vinyasa, *halfMoon)
 triangle = twoSides("Triangle Pose", "Triangle Pose, %s side", 15, vinyasa, *halfMoon)
 revolvedTriangle = twoSides("Revolved Triangle", "Revolved Triangle Pose, %s side", 15)
 reverseWarrior = twoSides("Reverse Warrior", "Take your %s hand and raise it towards the back of the room. Reverse Warrior", 5)
 bridge = Move("Bridge Pose", None, "Bridge Pose", 20)
 wheel = Move("Wheel Pose", None, "Wheel Pose", 30)
+lieOnBack = Move("LieOnBack", None, "Lie on Your Back", 5)
 
 #Begin linking moves to each other
 vinyasa.addMove(downwardsDog)
@@ -124,32 +130,46 @@ table.addMove(downwardsDog)
 catCow.addMove(downwardsDog)
 mountainPose.addMove(forwardFold, chair)
 backBend.addMove(mountainPose)
+staff.addMove(lieOnBack)
 for i in balancingTable: i.addMove(table)
 for i in standingLegLift4: i.addMove(mountainPose, forwardFold)
 for i in chairTwist: i.addMove(chair, forwardFold)
+for i in halfMoon: i.addMove(forwardFold)
+for i in revolvedHalfMoon: i.addMove(forwardFold)
 
 doubleAdd(warrior1, warrior2, warrior3, humbleWarrior)
 doubleAdd(humbleWarrior, warrior1)
 doubleAdd(warrior2, sideAngle)
-doubleAdd(threeLeggedDog, lowLunge)
+doubleAdd(threeLeggedDog, lowLunge, kneeToElbow)
+doubleAdd(kneeToElbow, lowLunge)
 doubleAdd(lowLunge, warrior1, warrior2, warrior3, cresent)
-doubleAdd(warrior3, standingLegLift1, inverted=True)
+doubleAdd(warrior3, standingLegLift1, standingSplits, inverted=True)
 doubleAdd(cresent, warrior1, cresentTwist)
 doubleAdd(cresentTwist, cresent, chairTwist)
 doubleAdd(balancingTableLegOnly, balancingTable)
 doubleAdd(sideAngle, reverseWarrior)
 doubleAdd(reverseWarrior, sideAngle)
 doubleAdd(standingLegLift1, standingLegLift2)
-doubleADd(standingLegLift1, warrior3, inverted=True)
+doubleAdd(standingLegLift1, warrior3, inverted=True)
 doubleAdd(standingLegLift2, standingLegLift3)
 doubleAdd(standingLegLift3, standingLegLift4)
+doubleAdd(standingLegLift4, warrior3, inverted=True)
+doubleAdd(standingLegLift4, standingSplits)
 doubleAdd(triangle, revolvedTriangle)
 doubleAdd(chairTwist, sideCrow)
 
+def later():
+    """These moves are reserved for later in a practice."""
+    pass
+
+def cooldown():
+    """These are cooldown-moves added for very late in a practice"""
+    pass
 
 if __name__== "__main__":
     start = datetime.datetime.now()
     speak("Beginning in")
+    print("Beginning in:")
     countdown(3)
     pose = child.play()
     try:
