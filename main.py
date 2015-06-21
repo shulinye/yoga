@@ -169,7 +169,7 @@ headToKnee = twoSides("Head To Knee", "With your %(same)s knee straight and your
 child = Move("Child's Pose", None, "Child's Pose", 4, table, extended_time=[10,15], lateMove=set([catCow]))
 seatedTwist = twoSides("Seated Twist", "Twist to the %(same)s side", 10, vinyasa)
 scale = Move("Scale Pose", None, "Push upwards with your hands. Try to get your entire body off the ground. Scale Pose", 15, vinyasa)
-seatedMeditation = Move("Seated Meditation", None, "Seated Meditation", 4, child, butterflyStretch, staff, *seatedTwist ,extended_time=[20,30,40], lateMove=set([scale, vinyasa]))
+seatedMeditation = Move("Seated Meditation", None, "Seated Meditation", 4, child, table, catCow, butterflyStretch, staff, *seatedTwist ,extended_time=[20,30,40], lateMove=set([scale, vinyasa]))
 childsPoseSideStretch = twoSides("Child's Pose, Side Stretch", "Reach your fingers over to your %(same)s side. You should feel a stretch across your %(other)s side body", 8, child, table, seatedMeditation)
 lowLunge = twoSides("Low Lunge", "Bring your %(same)s foot down and set it between your hands. Low Lunge", 4)
 threeLeggedDog = twoSides("Three Legged Dog", "Raise your %(same)s foot up. Three Legged Dog", 4, extended_time=[15,30])
@@ -395,8 +395,8 @@ def linkSavasana():
 def unlinkWarmup():
     mountainPose.removeMove(*standingTwist)
     mountainPose.removeMove(*standingSideStretch)
-    backbend.removeMove(*standingSideStretch)
-    seatedMeditation.removeMove(*seatedTwist)
+    backBend.removeMove(*standingSideStretch)
+    seatedMeditation.removeMove(table, catCow, *seatedTwist)
     child.removeMove(*childsPoseSideStrech)
 
 def linkCooldown():
