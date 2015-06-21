@@ -49,11 +49,18 @@ class Move(object):
     def addMove(self, *args):
         self.nextMove.update(args)
     def removeMove(self, *args):
-        self.nextMove.difference_update(*args)
+        self.nextMove.difference_update(args)
     def addLateMove(self, *args):
         if "lateMove" not in self.kwargs:
             self.kwargs["lateMove"] = set()
         self.kwargs["lateMove"].update(args)
+    def notLast(self):
+        if self.last and len(self.nextMove)>1:
+            movesCopy = self.nextMove.copy()
+            movesCopy.remove(self.last)
+            return random.choice(tuple(movesCopy))
+        else:
+            return random.choice(tuple(self.nextMove))
     def play(self, **kwargs):
         """Tells me which pose I'm supposed to do and how I'm supposed to do it. Also figures out next pose."""
         print("")
@@ -69,14 +76,9 @@ class Move(object):
                     break
             else:
                 print("no match found: [" + "; ".join(str(i) for i in imbalance)+"]")
-                nextMove = random.choice(tuple(self.nextMove))
+                nextMove = self.notLast()
         else:
-            if self.last and len(self.nextMove) > 1:
-                movesCopy = self.nextMove.copy()
-                movesCopy.remove(self.last)
-                nextMove = random.choice(tuple(movesCopy))
-            else:
-                nextMove = random.choice(tuple(self.nextMove))
+            nextMove = self.notLast()
         if nextMove is not None:
             print("Next Move: " + nextMove.title)
             print("My options were: " + "; ".join(str(i) for i in self.nextMove))
@@ -168,7 +170,7 @@ child = Move("Child's Pose", None, "Child's Pose", 4, table, extended_time=[10,1
 seatedTwist = twoSides("Seated Twist", "Twist to the %(same)s side", 10, vinyasa)
 scale = Move("Scale Pose", None, "Push upwards with your hands. Try to get your entire body off the ground. Scale Pose", 15, vinyasa)
 seatedMeditation = Move("Seated Meditation", None, "Seated Meditation", 4, child, butterflyStretch, staff, *seatedTwist ,extended_time=[20,30,40], lateMove=set([scale, vinyasa]))
-childsPoseSideStretch = twoSides("Child's Pose, Side Stretch", "Reach your fingers over to your %(same)s side. You should feel a stretch across your %(other)s side body", 8, child)
+childsPoseSideStretch = twoSides("Child's Pose, Side Stretch", "Reach your fingers over to your %(same)s side. You should feel a stretch across your %(other)s side body", 8, child, table, seatedMeditation)
 lowLunge = twoSides("Low Lunge", "Bring your %(same)s foot down and set it between your hands. Low Lunge", 4)
 threeLeggedDog = twoSides("Three Legged Dog", "Raise your %(same)s foot up. Three Legged Dog", 4, extended_time=[15,30])
 kneeToNose = twoSides("Knee To Nose", "Take your %(same)s knee and bring it towards your nose. Hold.", 15)
@@ -377,7 +379,7 @@ doubleAdd(dancer, standingLegLift1, standingSplits, warrior3)
 if aerobics:
     jumpingJacks = Move("Jumping Jacks", None, "Jumping Jacks!", 60, mountainPose)
     runInPlace = Move("Running In Place", None, "Run In Place", 60, mountainPose, jumpingJacks)
-    burpies = Move("Burpies!", None, "Burpies", 60, vinyasa, forwardFold, plank, extended=[75,90])
+    burpies = Move("Burpies!", None, "Burpies", 45, vinyasa, forwardFold, plank, extended=[60,75,90])
     jumpingSquats = Move("Jumping Squats", None, "Jumping Squats", 30, chair, forwardFold)
     situps = Move("Situps", None, "Situps", 30, vinyasa, extended=[45,60])
     chair.addLateMove(jumpingSquats)
@@ -433,11 +435,14 @@ if __name__== "__main__":
                 if imbalance:
                     print(imbalance)
                 nextPose = pose.play(nextMove = downwardDog)
-            elif pose == forwardFold:
+            elif pose == forwardFold or pose == staff:
                 nextPose = pose.play(nextMove = vinyasa)
+            elif pose == seatedMeditation:
+                nextPose = pose.play(nextMove = table)
             else:
                 nextPose = pose.play()
             pose = nextPose
+        speak("Alright, warmup over.")
         unlinkWarmup()
         pose = pose.play(nextMove=plank)
         pose = pose.play(extended = True)
