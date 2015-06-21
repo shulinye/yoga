@@ -10,7 +10,7 @@ import random
 
 debug=False
 
-aerobics = True
+aerobics = False
 
 imbalance = []
 def speak(text):
@@ -213,7 +213,7 @@ supportedShoulderStand = Move("Supported Shoulder Stand", None, "Supported Shoul
 plow = Move("Plow Pose", None, "Plow Pose", 30, supportedShoulderStand)
 lieOnBack = Move("Lie On Back", None, "Lie on Your Back", 5, supportedShoulderStand, vinyasa)
 spinalTwist = twoSides("Spinal Twist","Bring your knees up to your chest, and then let them fall to the %(same)s. Look towards your %(other)s hand. Spinal Twist", 20, lieOnBack)
-lieOnFront = Move("Lie On Front", None, "Lie on Your Stomach", 5, superMan, bow, lieOnBack)
+lieOnFront = Move("Lie On Front", None, "Lie on Your Stomach", 5, superMan, bow, lieOnBack, vinyasa)
 yogaBicycles = Move("Bicycles", None, "Bicycles", 30, lieOnBack, vinyasa, extended_time=[45, 60])
 savasana = Move("Savasana", None, "Savahsana", 30, None)
 starPose = Move('Star Pose', None, "Star Pose", 10, mountainPose, *warrior1)
@@ -223,8 +223,10 @@ pigeon = twoSides('Pigeon Pose', "Pigeon Pose, %(same)s side", 30)
 kingPigeon = twoSides('King Pigeon', "King Pigeon, %(same)s side", 15)
 birdOfParadise = twoSides('Bird of Paradise', 'Bird of Paradise', 30)
 handstandHops = Move('Handstand Hops', None, "Handstand Hops", 30, vinyasa)
-twoLeggedDog = twoSides('Two Legged Dog', "Now raise your %(other)s hand. Hold", 30, vinyasa)
+twoLeggedDog = twoSides('Two Legged Dog', "Now raise your %(other)s hand. Hold", 20, vinyasa)
 flippedDog = twoSides('Flipped Dog', "Flipped Dog, %(same)s side", 30)
+feetUpAWall = Move("Feet Up A Wall", None, "Feet Up A Wall", 5, lowBoat, boat)
+hero = Move("Hero Pose", None, "Tuck both feet under your glutes. Lean back as far as possible", 20, seatedMeditation)
 
 #Begin linking moves to each other
 wideLegStance.addMove(mountainPose, starPose, wideLegForwardFold, *warrior2)
@@ -234,10 +236,10 @@ catCow.addMove(table)
 mountainPose.addMove(forwardFold, chair, *standingTwist)
 mountainPose.addMove(*dancer)
 backBend.addMove(mountainPose, forwardFold)
-staff.addMove(lieOnBack, butterflyStretch, camel)
+staff.addMove(lieOnBack, butterflyStretch, camel, hero)
 downwardDog.addMove(plank)
 flatBack.addMove(forwardFold)
-lieOnBack.addMove(yogaBicycles, staff, seatedMeditation, lieOnFront, *spinalTwist)
+lieOnBack.addMove(yogaBicycles, staff, seatedMeditation, lieOnFront, feetUpAWall, *spinalTwist)
 plow.addMove(fish)
 supportedShoulderStand.addMove(plow)
 plank.addMove(vinyasa)
@@ -272,6 +274,7 @@ for i in warrior2: i.addMove(starPose)
 for i in seatedTwist: i.addMove(seatedMeditation)
 for i in dancer: i.addMove(forwardFold)
 for i in warrior3: i.addMove(forwardFold)
+for i in headToKnee: i.addMove(hero)
 
 doubleAdd(oneLeggedChair, standingLegLift1)
 doubleAdd(sidePlank, sideAngle, cresentTwist, sidePlankLegUp)
