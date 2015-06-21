@@ -39,6 +39,7 @@ class Move(object):
         self.side=side
         self.audio=audio
         self.time=time
+        self.last = None
         self.nextMove = set(args)
         self.kwargs = kwargs
     def update(self, **kwargs):
@@ -70,10 +71,16 @@ class Move(object):
                 print("no match found: [" + "; ".join(str(i) for i in imbalance)+"]")
                 nextMove = random.choice(tuple(self.nextMove))
         else:
-            nextMove = random.choice(tuple(self.nextMove))
+            if self.last and len(self.nextMove) > 1:
+                movesCopy = self.nextMove.copy()
+                movesCopy.remove(self.last)
+                nextMove = random.choice(tuple(movesCopy))
+            else:
+                nextMove = random.choice(tuple(self.nextMove))
         if nextMove is not None:
             print("Next Move: " + nextMove.title)
             print("My options were: " + "; ".join(str(i) for i in self.nextMove))
+            self.last = nextMove
         #Tell me what to do
         speak(self.audio)
         if "harder" in kwargs and kwargs["harder"] and "harder" in self.kwargs:
@@ -198,12 +205,12 @@ humbleWarrior = twoSides("Humble Warrior", "Intertwine your hands behind you. Le
 warrior1 = twoSides("Warrior 1", "Warrior One, %(same)s Side", 10, vinyasa, extended_time=[30])
 warrior2 = twoSides("Warrior 2", "Warrior Two, %(same)s Side", 10, vinyasa, extended_time=[30])
 warrior3 = twoSides("Warrior 3", "Warrior Three, %(same)s Side", 10, vinyasa, harder="Bring your elbows to your knee, and then extend! Repeat", extended_time=[30])
-standingSplits = twoSides("Standing Splits", "Raise your %(same)s foot up towards the ceiling",20, vinyasa)
+standingSplits = twoSides("Standing Splits", "Raise your %(same)s foot up towards the ceiling. Standing Splits",20, vinyasa)
 lizard = twoSides("Lizard Pose", "Lizard Pose, %(same)s side", 30, vinyasa, bind=True, harder="Lower yourself onto your forearms")
 runningMan = twoSides("Running Man", "Running Man, %(same)s side", 30, vinyasa)
 revolvedRunningMan = twoSides("Revolved Running Man", "Revolved Running Man, %(same)s side", 30, vinyasa)
 cresent = twoSides("Cresent Lunge", "Cresent Lunge, %(same)s foot forward", 10, early="Feel free to lower your other knee down to the ground")
-cresentTwist = twoSides("Cresent Twist", "Twist to the %(same)s side. Crest Twist", 15, bind=True)
+cresentTwist = twoSides("Cresent Twist", "Twist to the %(same)s side. Cresent Twist", 15, bind=True)
 chairTwist = twoSides("Chair Twist", "Twist to the %(same)s", 15, bind=True)
 chair = Move("Chair Pose", None, "Chair Pose", 15, vinyasa, *chairTwist, extended_time=[40, 60])
 oneLeggedChair = twoSides("One Legged Chair", "Shift all your weight to your %(other)s foot. Grab your %(same)s foot with your %(same)s hand. Raise %(same)s foot", 15, chair, extended_time=[20,30])
@@ -215,7 +222,7 @@ boatTwist = Move("Boat Twist", None, "Point your fingers towards the right and y
 lowBoat = Move("Low Boat Pose", None, "Lower down into Low Boat Pose", 15, boat, vinyasa, extended_time=[20,30])
 revolvedHalfMoon = twoSides("Revolved Half Moon", "Revolved Half Moon, %(same)s Side", 20)
 halfMoon = twoSides("Half Moon", "Half Moon, %(same)s Side", 20, harder="Try to take your hand off the ground!")
-sideAngle = twoSides("Side Angle", "Lower your %(same)s hand to the ground and raise the other hand up towards the ceiling. Side Angle", 10, vinyasa)
+sideAngle = twoSides("Side Angle", "Side Angle", 10, vinyasa)
 sidePlank = twoSides("Side Plank", "Side Plank, %(same)s side", 15, plank, vinyasa, extended_time=[30,40])
 sidePlankLegUp = twoSides("Side Plank, Leg Up", "Now raise your %(same)s leg up and hold", 15)
 triangle = twoSides("Triangle Pose", "Triangle Pose, %(same)s side", 15, vinyasa,bind=True)
@@ -250,7 +257,7 @@ handstandHops = Move('Handstand Hops', None, "Handstand Hops", 30, vinyasa)
 twoLeggedDog = twoSides('Two Legged Dog', "Now raise your %(other)s hand. Hold", 20, vinyasa)
 flippedDog = twoSides('Flipped Dog', "Flipped Dog, %(same)s side", 20)
 feetUpAWall = Move("Feet Up A Wall", None, "Feet Up A Wall", 4, lowBoat, boat, extended_time=[15,30])
-hero = Move("Hero Pose", None, "Tuck both feet under your glutes. Lean back as far as possible", 20, seatedMeditation)
+hero = Move("Hero Pose", None, "Tuck both feet under your glutes. Lean back as far as possible. Hero Pose", 20, seatedMeditation)
 deepSquat = Move("Deep Squat", None, "Squat as deeply as you can", 30, vinyasa)
 
 #Begin linking moves to each other
@@ -421,7 +428,7 @@ if __name__== "__main__":
         if imbalance:
             print("imbalance remains: [" + "; ".join(str(i) for i in imbalance) + "]") #deal with this somehow?
         print("transition")
-        while not pose == table or pose == downwardDog:
+        while (not pose == table or pose == downwardDog):
             if pose == child:
                 if imbalance:
                     print(imbalance)
@@ -435,7 +442,7 @@ if __name__== "__main__":
         pose = pose.play(nextMove=plank)
         pose = pose.play(extended = True)
         #starting main part of workout
-        while datetime.datetime.now() -start < datetime.timedelta(seconds=total_time//2):
+        while datetime.datetime.now() - start < datetime.timedelta(seconds=total_time//2):
             nextPose = pose.play()
             pose = nextPose
         #add harder poses in here
@@ -443,7 +450,7 @@ if __name__== "__main__":
         frog = Move("Frog Pose", None, "Frog Pose", 30, seatedMeditation, vinyasa)
         seatedMeditation.addMove(frog)
         #end adding harder poses
-        while datetime.datetime.now() < end - datetime.timedelta(seconds=max(30, total_time//10)):
+        while datetime.datetime.now() < (end - datetime.timedelta(seconds=max(30, total_time//10))):
             extendedChance = (datetime.datetime.now() - start)/total_time
             extended = random.random() < extendedChance
             nextPose = pose.play(harder=True, extended=extended)
