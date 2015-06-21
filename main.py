@@ -10,21 +10,25 @@ import random
 
 debug=False
 
-aerobics = False
+aerobics=True
 
 imbalance = []
 def speak(text):
     subprocess.call('espeak -v en-gb \"' + text +'\"', shell=True)
 
 def countdown(n, *args, **kwargs):
+    incremental = n>30
     while n > 0:
         sys.stdout.write(str(n) + "...")
         sys.stdout.flush()
         if n <4:
             speak(str(n))
-            if not debug:time.sleep(1)
-        else:
-            if not debug:time.sleep(1)
+        elif incremental:
+            if n ==30:
+                speak("30 seconds remaining")
+            if n ==15:
+                speak("15 seconds remaining")
+        if not debug:time.sleep(1)
         n -= 1
     sys.stdout.write("0\n")
     sys.stdout.flush()
@@ -82,7 +86,7 @@ class Move(object):
         else:
             t = self.time
         if "bind" in self.kwargs and self.kwargs["bind"]: speak("Bind if you want to")
-        speak(str(t) + "seconds")
+        if t>5: speak(str(t) + "seconds")
         countdown(t)
         if "bind" in self.kwargs and self.kwargs["bind"]: speak("Release bind")
         #Make myself harder next time
@@ -140,22 +144,24 @@ def doubleAdd(move, *args, inverted=False, late=False):
 
 lowPlank = Move("Low Plank", None, "Lower down into Low Plank. Hold", 10)
 plank = Move("Plank", None, "Plank. Hold",30, lowPlank, extended_time=[60], harder="Throw in a few pushups!")
-balancingTable = twoSides("Balancing Table", "When you are ready, extend the opposite arm", 10)
-balancingTableLegOnly = twoSides("Balancing Table, Leg Only", "Extend %(same)s leg behind you", 5)
+balancingTable = twoSides("Balancing Table", "When you are ready, extend the opposite arm", 10, harder="Want a challenge? Extend the same arm.")
+balancingTableLegOnly = twoSides("Balancing Table, Leg Only", "Extend %(same)s leg behind you", 4)
 catCow = Move("Cat Cow", None, "Cat Cow", 10, plank, *balancingTableLegOnly)
-table = Move("Table Pose", None, "Table Pose", 5, catCow, *balancingTableLegOnly)
+table = Move("Table Pose", None, "Table Pose", 4, catCow, *balancingTableLegOnly)
 threadTheNeedle = twoSides("Thread The Needle", "Take your %(same)s hand and reach it towards the ceiling. On an exhale, slide it under your other shoulder.", 20, table)
-oneHandedTiger = twoSides("One-Handed Tiger", "Reach back and catch your %(same)s foot with your %(other)s hand. Lean into your hand", 15, table)
-vinyasa = Move("Vinyasa", None, "Vinyasa", 5, harder="Add in a push up!")
+oneHandedTiger = twoSides("One-Handed Tiger", "Reach back and catch your %(same)s foot with your %(other)s hand. Lean into your hand", 15, table, catCow)
+vinyasa = Move("Vinyasa", None, "Vinyasa", 4, harder="Add in a push up!")
 seatedForwardFold = Move("Seated Forward Fold", None, "Seated Forward Fold", 15, vinyasa)
-staff = Move("Staff Pose", None, "Staff Pose",10, vinyasa, seatedForwardFold)
-butterflyStretch = Move("Butterfly Stretch", None, "Butterfly Stretch", 15, vinyasa, staff)
+flyingStaff = Move("Flying Staff Pose", None, "Press down on the ground. Try to lift your body off the ground", 20, vinyasa)
+staff = Move("Staff Pose", None, "Staff Pose", 10, vinyasa, seatedForwardFold, lateMove=set([flyingStaff]))
+archer = twoSides("Archer Pose", "Grab each foot with hand. Try to straighten the %(same)s leg and bind the %(other)s leg, lifting both legs off the ground. Archer Pose.", 30, staff, vinyasa)
+butterflyStretch = Move("Butterfly Stretch", None, "Butterfly Stretch", 15, vinyasa, staff,lateMove=set(archer))
 headToKnee = twoSides("Head To Knee", "With your %(same)s knee straight and your %(other)s knee bent, reach toward the toes of your %(same)s foot.", 15, staff, butterflyStretch)
-child = Move("Child's Pose", None, "Child's Pose", 5, table, extended_time=[20])
+child = Move("Child's Pose", None, "Child's Pose", 4, table, extended_time=[20], lateMove=set([catCow]))
 seatedTwist = twoSides("Seated Twist", "Twist to the %(same)s side", 10, vinyasa)
 scale = Move("Scale Pose", None, "Push upwards with your hands. Try to get your entire body off the ground. Scale Pose", 15, vinyasa)
-seatedMeditation = Move("Seated Meditation", None, "Seated Meditation", 5, child, butterflyStretch, staff, *seatedTwist ,extended_time=[20,30,40], lateMove=set([scale, vinyasa]))
-childsPoseSideStretch = twoSides("Child's Pose, Side Stretch", "Reach your fingers over to your %(same)s side. You should feel a stretch across your %(other)s side body", 10, child)
+seatedMeditation = Move("Seated Meditation", None, "Seated Meditation", 4, child, butterflyStretch, staff, *seatedTwist ,extended_time=[20,30,40], lateMove=set([scale, vinyasa]))
+childsPoseSideStretch = twoSides("Child's Pose, Side Stretch", "Reach your fingers over to your %(same)s side. You should feel a stretch across your %(other)s side body", 8, child)
 lowLunge = twoSides("Low Lunge", "Bring your %(same)s foot down and set it between your hands. Low Lunge", 5)
 threeLeggedDog = twoSides("Three Legged Dog", "Raise your %(same)s foot up. Three Legged Dog", 10)
 kneeToNose = twoSides("Knee To Nose", "Take your %(same)s knee and bring it towards your nose. Hold.", 15)
@@ -164,18 +170,22 @@ kneeToOtherElbow = twoSides("Knee To Other Elbow", "Take your %(same)s knee and 
 standingLegLift1 = twoSides("Standing Leg Lift", "Raise your %(same)s foot up and grab it with your %(same) hand. Standing Leg Lift. Hold", 20)
 standingLegLift2 = twoSides("Standing Leg Lift, Leg to Side", "Now take your %(same)s foot and move it out to the side. Hold", 20)
 standingLegLift3 = twoSides("Standing Leg Lift, Both Hands", "Return %(same)s foot to center. Grab with both hands, head to knee or chin to shin. Hold.", 20)
-standingLegLift4 = twoSides("Standing Leg Lift, No Hands", "Release %(same)s foot. Hold.", 25)
+standingLegLift4 = twoSides("Standing Leg Lift, No Hands", "Release %(same)s foot. Hold foot up towards ceiling.", 25)
 eagle = twoSides("Eagle Pose", "Take your %(same)s foot and twist it over your %(other)s leg. Twine your arms, %(same) arm lower. Eagle Pose", 25, extended_time=[40],\
         harder="Bring your elbows to your knees, and then straighten. Repeat")
 treePose = twoSides("Tree Pose", "Tree Pose, %(same)s side", 25, vinyasa)
 halfBoundStandingLotus = twoSides("Half-Bound Standing Lotus", "Take your %(same)s foot and put it at the top of your %(other)s thigh. With your %(same)s hand, reach behind you and grab your %(same)s foot", 15, \
         vinyasa, harder="Lean forwards and touch the ground with your free hand.")
+standingLotusSquat = twoSides("Standing Lotus Squat", "Bend your %(other)s thigh and squat down", 15, vinyasa)
+toestand = twoSides("Toestand", "Continue bending down, rise up onto the toes of your %(other)s foot", 15, vinyasa, harder="Try to get your hands to your heart!")
+flyingPigeon = twoSides("Flying Pigeon", "Plant your hands on the ground and lift your %(same)s foot. Flying Pigeon", 30, vinyasa)
 dancer = twoSides("Dancer Pose", "Dancer Pose, %(same)s side", 25, vinyasa)
-backBend = Move("Back Bend", None, "Bend Backwards", 10)
+backBend = Move("Back Bend", None, "Raise your hands towards the ceiling and bend backwards", 10)
 wideLegStance = Move("Wide Leg Stance", None, "Wide Leg Stance", 5)
 wideLegForwardFold = Move("Wide Leg Forward Fold", None, "Wide Leg Forward Fold",15, wideLegStance)
 standingLegStretch = twoSides("Standing Leg Stretch", "Reach for your %(same)s foot",10, wideLegStance, wideLegForwardFold)
 mountainPose = Move("Mountain Pose", None, "Mountain Pose", 5, backBend, wideLegStance, *standingLegLift1)
+standingSideStretch = twoSides("Standing Side Stretch", "Lean to the %(same)s side", 10, backBend, mountainPose)
 standingTwist = twoSides("Standing Twist", "Bring your arms up to shoulder level and twist to the %(same)s", 15, mountainPose)
 forwardFoldShoulderStretch = Move("Forward Fold, Shoulder Stretch", None, "Clasp your hands together behind your head and allow gravity to drag your pinkies towards the floor", 15)
 forwardFold = Move("Forward Fold", None, "Forward Fold", 5, mountainPose, forwardFoldShoulderStretch)
@@ -184,7 +194,7 @@ forearmBalance = Move("Forearm Balance", None, "Forearm Balance", 45, child)
 dolphin = Move("Dolphin Pose", None, "Dolphin Pose", 30, vinyasa, lateMove = set([forearmBalance]))
 downwardDog = Move("Downwards Dog", None, "Downwards Dog", 5, forwardFold, staff, plank, dolphin, *threeLeggedDog)
 upwardDog = Move("Upward Dog", None, "Upward Dog", 20, downwardDog)
-humbleWarrior = twoSides("Humble Warrior", "Intertwine your hands behind you. Lean forward. Humble Warrior", 5)
+humbleWarrior = twoSides("Humble Warrior", "Intertwine your hands behind you. Lean forward. Humble Warrior", 5, vinyasa)
 warrior1 = twoSides("Warrior 1", "Warrior One, %(same)s Side", 10, vinyasa, extended_time=[30])
 warrior2 = twoSides("Warrior 2", "Warrior Two, %(same)s Side", 10, vinyasa, extended_time=[30])
 warrior3 = twoSides("Warrior 3", "Warrior Three, %(same)s Side", 10, vinyasa, harder="Bring your elbows to your knee, and then extend! Repeat", extended_time=[30])
@@ -197,22 +207,23 @@ cresentTwist = twoSides("Cresent Twist", "Twist to the %(same)s side. Crest Twis
 chairTwist = twoSides("Chair Twist", "Twist to the %(same)s", 15, bind=True)
 chair = Move("Chair Pose", None, "Chair Pose", 15, vinyasa, *chairTwist, extended_time=[40, 60])
 oneLeggedChair = twoSides("One Legged Chair", "Shift all your weight to your %(other)s foot. Grab your %(same)s foot with your %(same)s hand. Raise %(same)s foot", 15, chair, extended_time=[20,30])
-crow = Move("Crow Pose", None, "Crow Pose", 30, vinyasa)
+crow = Move("Crow Pose", None, "Crow Pose", 30, vinyasa, harder="Try to straigten your arms")
 sideCrow = twoSides("Side Crow", "Side Crow, %(same)s Side", 30, vinyasa)
 boat = Move("Boat Pose", None, "Boat Pose", 30, staff)
 lowBoat = Move("Low Boat Pose", None, "Lower down into Low Boat Pose", 15, boat, vinyasa, extended_time=[20,30])
 revolvedHalfMoon = twoSides("Revolved Half Moon", "Revolved Half Moon, %(same)s Side", 20)
-halfMoon = twoSides("Half Moon", "Half Moon, %(same)s Side", 20)
-sideAngle = twoSides("Side Angle", "Lower your %(same)s hand to the ground and raise the other hand up towards the ceiling. Side Angle", 10, vinyasa, *halfMoon)
+halfMoon = twoSides("Half Moon", "Half Moon, %(same)s Side", 20, harder="Try to take your hand off the ground!")
+sideAngle = twoSides("Side Angle", "Lower your %(same)s hand to the ground and raise the other hand up towards the ceiling. Side Angle", 10, vinyasa)
 sidePlank = twoSides("Side Plank", "Side Plank, %(same)s side", 15, plank, vinyasa, extended_time=[30,40])
 sidePlankLegUp = twoSides("Side Plank, Leg Up", "Now raise your %(same)s leg up and hold", 15)
-triangle = twoSides("Triangle Pose", "Triangle Pose, %(same)s side", 15, vinyasa)
+triangle = twoSides("Triangle Pose", "Triangle Pose, %(same)s side", 15, vinyasa,bind=True)
 pyramid = twoSides("Pyramid Pose", "Pyramid Pose, %(same)s side", 15, vinyasa)
 revolvedTriangle = twoSides("Revolved Triangle", "Revolved Triangle Pose, %(same)s side", 15, vinyasa)
 reverseWarrior = twoSides("Reverse Warrior", "Take your %(same)s hand and raise it towards the back of the room. Reverse Warrior", 5)
 bridge = Move("Bridge Pose", None, "Bridge Pose", 20)
 bridgeWithRaisedLeg = twoSides("Bridge, with Raised Leg", "Raise your %(same)s leg into the air", 15, bridge, extended_time =[20,30])
-wheel = Move("Wheel Pose", None, "Wheel Pose", 30, vinyasa, extended_time=[45,60], harder="Try to straighten your legs")
+wheelWithRaisedLeg = twoSides("Wheel, with Raised Leg", "Raise your %(same)s leg into the air", 15)
+wheel = Move("Wheel Pose", None, "Wheel Pose", 30, vinyasa, extended_time=[45,60], harder="Try to straighten your legs", lateMove=set(wheelWithRaisedLeg))
 camel = Move("Camel Pose", None, "Camel Pose", 30, vinyasa)
 superMan = Move("Super Man", None, "Raise both your hands and your feet off the ground at the same time. Hold", 15, vinyasa)
 bow = Move("Bow Pose", None, "Grab your feet with both hands and raise upwards", 15, vinyasa, extended_time=[20,30,40])
@@ -221,17 +232,18 @@ supportedShoulderStand = Move("Supported Shoulder Stand", None, "Supported Shoul
 plow = Move("Plow Pose", None, "Plow Pose", 30, supportedShoulderStand)
 upwardPlank = Move("Upward Plank", None, "Upward Plank", 30, vinyasa)
 upwardPlankLiftedLeg = twoSides("Upward Plank, Lifted Leg", "Lift your %(same)s leg. Upward Plank, %(same)s leg lifted", 15, upwardPlank, vinyasa)
-lieOnBack = Move("Lie On Back", None, "Lie on Your Back", 5, supportedShoulderStand, upwardPlank, vinyasa)
+lieOnBack = Move("Lie On Back", None, "Lie on Your Back", 4, supportedShoulderStand, upwardPlank, vinyasa)
 spinalTwist = twoSides("Spinal Twist","Bring your knees up to your chest, and then let them fall to the %(same)s. Look towards your %(other)s hand. Spinal Twist", 20, lieOnBack)
-lieOnFront = Move("Lie On Front", None, "Lie on Your Stomach", 5, superMan, bow, lieOnBack, vinyasa)
+lieOnFront = Move("Lie On Front", None, "Lie on Your Stomach", 4, superMan, bow, lieOnBack, vinyasa, lateMove=set([plank]))
 yogaBicycles = Move("Bicycles", None, "Bicycles", 30, lieOnBack, vinyasa, extended_time=[45, 60])
 savasana = Move("Savasana", None, "Savahsana", 30, None)
 starPose = Move('Star Pose', None, "Star Pose", 10, mountainPose, *warrior1)
 goddessSquat = Move('Goddess Squat', None, "Goddess Squat", 5, starPose)
 supportedHeadstand = Move('Supported Headstand', None, "Supported Headstand", 30, child)
-pigeon = twoSides('Pigeon Pose', "Pigeon Pose, %(same)s side", 30)
-kingPigeon = twoSides('King Pigeon', "King Pigeon, %(same)s side", 15)
+pigeon = twoSides('Pigeon Pose', "Pigeon Pose, %(same)s side", 30, vinyasa)
+kingPigeon = twoSides('King Pigeon', "King Pigeon, %(same)s side", 15, vinyasa)
 birdOfParadise = twoSides('Bird of Paradise', 'Bird of Paradise', 30)
+boundHalfMoon = twoSides('Bound Half Moon', 'Bound Half Moon', 30)
 handstandHops = Move('Handstand Hops', None, "Handstand Hops", 30, vinyasa)
 twoLeggedDog = twoSides('Two Legged Dog', "Now raise your %(other)s hand. Hold", 20, vinyasa)
 flippedDog = twoSides('Flipped Dog', "Flipped Dog, %(same)s side", 20)
@@ -245,25 +257,30 @@ vinyasa.addMove(downwardDog)
 table.addMove(*threadTheNeedle)
 catCow.addMove(table)
 mountainPose.addMove(forwardFold, chair, *standingTwist)
-mountainPose.addMove(*dancer)
-backBend.addMove(mountainPose, forwardFold)
-staff.addMove(lieOnBack, butterflyStretch, camel, hero)
+mountainPose.addMove(*standingSideStretch)
+mountainPose.addLateMove(*dancer)
+backBend.addMove(mountainPose, forwardFold, *standingSideStretch)
+staff.addMove(lieOnBack, butterflyStretch, camel, hero, boat)
+staff.addLateMove(yogaBicycles)
 downwardDog.addMove(plank)
 flatBack.addMove(forwardFold)
-lieOnBack.addMove(yogaBicycles, staff, seatedMeditation, lieOnFront, feetUpAWall,*spinalTwist)
+lieOnBack.addMove(yogaBicycles, bridge, staff, seatedMeditation, lieOnFront, feetUpAWall,*spinalTwist)
+lieOnBack.addLateMove(wheel)
 plow.addMove(fish)
 upwardPlank.addMove(lieOnBack)
 upwardPlank.addLateMove(*upwardPlankLiftedLeg)
 supportedShoulderStand.addMove(plow)
 plank.addMove(vinyasa)
 lowPlank.addMove(upwardDog, plank, vinyasa)
-child.addMove(seatedMeditation, *childsPoseSideStretch)
+child.addMove(*childsPoseSideStretch)
+child.addLateMove(seatedMeditation)
 boat.addMove(lowBoat)
 lowBoat.addMove(yogaBicycles)
 chair.addMove(deepSquat, *oneLeggedChair)
 starPose.addMove(goddessSquat, deepSquat)
 bridge.addMove(lieOnBack, *bridgeWithRaisedLeg)
 fish.addMove(lieOnBack)
+seatedMeditation.addLateMove(mountainPose,boat,yogaBicycles)
 seatedForwardFold.addMove(seatedMeditation, *headToKnee)
 forwardFoldShoulderStretch.addMove(forwardFold, chair)
 butterflyStretch.addMove(*headToKnee)
@@ -274,9 +291,13 @@ seatedTwist[0].addMove(seatedTwist[1])
 seatedTwist[1].addMove(seatedTwist[0])
 childsPoseSideStretch[0].addMove(childsPoseSideStretch[1])
 childsPoseSideStretch[1].addMove(childsPoseSideStretch[0])
+headToKnee[0].addMove(headToKnee[1])
+headToKnee[1].addMove(headToKnee[0])
 wideLegForwardFold.addMove(*standingLegStretch)
+forwardFold.addMove(flatBack)
 for i in halfBoundStandingLotus: i.addMove(forwardFold)
 for i in bridgeWithRaisedLeg: i.addMove(lieOnBack)
+for i in wheelWithRaisedLeg: i.addMove(lieOnBack, wheel)
 for i in eagle: i.addMove(forwardFold)
 for i in balancingTable: i.addMove(table, child)
 for i in standingLegLift4: i.addMove(mountainPose, forwardFold)
@@ -289,62 +310,82 @@ for i in seatedTwist: i.addMove(seatedMeditation)
 for i in dancer: i.addMove(forwardFold)
 for i in warrior3: i.addMove(forwardFold)
 for i in headToKnee: i.addLateMove(hero)
+for i in standingSplits: i.addLateMove(handstandHops)
 
 doubleAdd(oneLeggedChair, standingLegLift1)
 doubleAdd(sidePlank, sideAngle, sidePlankLegUp)
 doubleAdd(sidePlank, cresentTwist, late=True)
 doubleAdd(sidePlankLegUp, sidePlank, sideAngle, cresentTwist)
-doubleAdd(warrior1, warrior2, warrior3, humbleWarrior)
+doubleAdd(warrior1, warrior2, warrior3, humbleWarrior, cresent)
 doubleAdd(humbleWarrior, warrior1)
 doubleAdd(humbleWarrior, warrior3, late=True)
-doubleAdd(warrior2, sideAngle, triangle, reverseWarrior)
+doubleAdd(warrior2, sideAngle, triangle, reverseWarrior, cresent)
 doubleAdd(threeLeggedDog, lowLunge, kneeToElbow, pigeon, kneeToNose, warrior1, warrior2, twoLeggedDog, flippedDog)
-doubleAdd(threeLeggedDog, runningMan, revolvedRunningMan, pidgeon, late=True)
+doubleAdd(threeLeggedDog, runningMan, revolvedRunningMan, pigeon, late=True)
 doubleAdd(flippedDog, threeLeggedDog)
 doubleAdd(pigeon, threeLeggedDog, kingPigeon)
 doubleAdd(kingPigeon, threeLeggedDog)
 doubleAdd(kneeToNose, threeLeggedDog)
 doubleAdd(kneeToElbow, kneeToOtherElbow, threeLeggedDog, lowLunge, runningMan)
 doubleAdd(kneeToOtherElbow, threeLeggedDog, revolvedRunningMan)
-doubleAdd(lowLunge, warrior1, warrior2, warrior3, cresent, lizard, standingSplits)
+doubleAdd(lowLunge, warrior1, warrior2, cresent, lizard, standingSplits)
+doubleAdd(lowLunge, warrior3, late=True)
+doubleAdd(eagle, standingSplits)
+doubleAdd(eagle, warrior3, late=True, inverted=True)
 doubleAdd(warrior3, standingLegLift1, standingSplits, treePose, eagle, inverted=True)
 doubleAdd(warrior3, warrior2)
 doubleAdd(cresent, warrior1, cresentTwist, warrior3)
 doubleAdd(cresentTwist, cresent, chairTwist, sidePlank)
 doubleAdd(balancingTableLegOnly, balancingTable)
-doubleAdd(sideAngle, reverseWarrior, sidePlank, warrior2, birdOfParadise)
+doubleAdd(sideAngle, reverseWarrior, sidePlank, warrior2, birdOfParadise, halfMoon)
+doubleAdd(boundHalfMoon, late=True)
 doubleAdd(birdOfParadise, sideAngle)
 doubleAdd(reverseWarrior, sideAngle, warrior2)
+doubleAdd(reverseWarrior, sidePlank, late=True)
 doubleAdd(standingLegLift1, standingLegLift2, eagle, treePose)
 doubleAdd(treePose, halfBoundStandingLotus, eagle, standingLegLift1)
 doubleAdd(treePose, warrior3, inverted=True)
 doubleAdd(halfBoundStandingLotus, standingLegLift1, treePose)
+doubleAdd(halfBoundStandingLotus, standingLotusSquat, late=True)
+doubleAdd(standingLotusSquat, flyingPigeon, toestand)
 doubleAdd(standingLegLift1, warrior3, inverted=True)
 doubleAdd(standingLegLift2, standingLegLift3)
 doubleAdd(standingLegLift3, standingLegLift4)
 doubleAdd(standingLegLift4, warrior3, inverted=True)
 doubleAdd(standingLegLift4, standingSplits, eagle, treePose)
-doubleAdd(triangle, revolvedTriangle, halfMoon, pyramid, sideAngle)
+doubleAdd(triangle, revolvedTriangle, pyramid, sideAngle)
+doubleAdd(triangle, halfMoon, late=True)
 doubleAdd(pyramid, revolvedTriangle)
 doubleAdd(standingLegStretch, pyramid)
 doubleAdd(chairTwist, sideCrow)
 doubleAdd(lizard, runningMan)
 doubleAdd(halfMoon, revolvedHalfMoon, warrior3, warrior2)
 doubleAdd(revolvedHalfMoon, halfMoon, warrior3, warrior1, cresent)
-doubleAdd(revolvedTriangle, revolvedHalfMoon, pyramid)
+doubleAdd(revolvedTriangle, revolvedHalfMoon, pyramid, cresentTwist)
 doubleAdd(dancer, standingLegLift1, standingSplits, warrior3)
 
 if aerobics:
     jumpingJacks = Move("Jumping Jacks", None, "Jumping Jacks!", 60, mountainPose)
     runInPlace = Move("Running In Place", None, "Run In Place", 60, mountainPose, jumpingJacks)
-    burpies = Move("Burpies!", None, "Burpies", 60, vinyasa)
+    burpies = Move("Burpies!", None, "Burpies", 60, vinyasa, forwardFold, plank, extended=[75,90])
     jumpingSquats = Move("Jumping Squats", None, "Jumping Squats", 30, chair, forwardFold)
-    chair.addMove(jumpingSquats)
-    mountainPose.addMove(jumpingJacks, runInPlace, burpies)
-    jumpingJacks.addMove(runInPlace)
-    downwardDog.addMove(burpies)
+    chair.addLateMove(jumpingSquats)
+    mountainPose.addLateMove(jumpingJacks, runInPlace, burpies)
+    jumpingJacks.addLateMove(runInPlace)
+    downwardDog.addLateMove(burpies)
 
 def linkSavasana():
+    child.addMove(savasana)
+    raise NotImplemented
+
+def unlinkWarmup():
+    mountainPose.removeMove(*standingTwist)
+    mountainPose.removeMove(*standingSideStretch)
+    backbend.removeMove(*standingSideStretch)
+    seatedMeditation.removeMove(*seatedTwist)
+    child.removeMove(*childsPoseSideStrech)
+
+def linkCooldown():
     raise NotImplemented
 
 def routine(li):
@@ -373,7 +414,7 @@ if __name__== "__main__":
         table.addMove(downwardDog, plank)
         catCow.addMove(downwardDog, plank)
         if imbalance:
-            print("imbalance remains") #deal with this somehow?
+            print("imbalance remains: [" + "; ".join(str(i) for i in imbalance) + "]") #deal with this somehow?
         print("transition")
         while not pose == table or pose == downwardDog:
             if pose == child:
@@ -385,6 +426,7 @@ if __name__== "__main__":
             else:
                 nextPose = pose.play()
             pose = nextPose
+        unlinkWarmup()
         pose = pose.play(nextMove=plank)
         pose = pose.play(extended = True)
         #starting main part of workout
@@ -392,16 +434,27 @@ if __name__== "__main__":
             nextPose = pose.play()
             pose = nextPose
         #add harder poses in here
+        print("We have reached the halfway point")
         frog = Move("Frog Pose", None, "Frog Pose", 30, seatedMeditation, vinyasa)
         seatedMeditation.addMove(frog)
         #end adding harder poses
-        while datetime.datetime.now() < end - datetime.timedelta(seconds=30):
-            nextPose = pose.play()
+        while datetime.datetime.now() < end - datetime.timedelta(seconds=max(30, total_time//10)):
+            extendedChance = (datetime.datetime.now() - start)/total_time
+            extended = random.random.() < extendedChance
+            nextPose = pose.play(harder=True, extended=extended)
+            pose = nextPose
+        #add in more restorative poses here
+        downwardDog.addMove(table, child, lieOnBack)
+        vinyasa.addMove(child, lieOnBack)
+        #move into a more restorative poses....
+        while datetime.datetime.now() < end:
+            nextPose = pose.play(extended=True)
             pose = nextPose
         #deal with imbalances, somehow
         pose = pose.play(nextMove=savasana) #Somehow, get seamlessly to savasana
+        pose.play()
     except KeyboardInterrupt:
-        print(imbalance)
         savasana.play()
     finally:
+        print(imbalance)
         print("\nTotal Time: " +str(datetime.datetime.now()-start))
