@@ -63,7 +63,7 @@ class Move(object):
                     nextMove = i
                     break
             else:
-                print("no match found")
+                print("no match found: [" + "; ".join(str(i) for i in imbalance)+"]")
                 nextMove = random.choice(tuple(self.nextMove))
         else:
             nextMove = random.choice(tuple(self.nextMove))
@@ -89,10 +89,8 @@ class Move(object):
         if self.side:
             if self in imbalance:
                 imbalance.remove(self)
-                print(imbalance)
             else:
                 imbalance.append(self.otherside)
-                print(imbalance)
         return nextMove
     def __repr__(self):
         return "Move(%s)" % self.title
@@ -146,7 +144,7 @@ staff = Move("Staff Pose", None, "Staff Pose",10, vinyasa, seatedForwardFold)
 butterflyStretch = Move("Butterfly Stretch", None, "Butterfly Stretch", 15, vinyasa, staff)
 headToKnee = twoSides("Head To Knee", "With your %(same)s knee straight and your %(other)s knee bent, reach toward the toes of your %(same)s foot.", 15, staff, butterflyStretch)
 child = Move("Child's Pose", None, "Child's Pose", 5, table, extended_time=[20])
-seatedTwist = twoSides("Seated Twist", "Twist to the %(same)s side", 10)
+seatedTwist = twoSides("Seated Twist", "Twist to the %(same)s side", vinyasa, 10)
 scale = Move("Scale Pose", None, "Push upwards with your hands. Try to get your entire body off the ground. Scale Pose", 15, vinyasa)
 seatedMeditation = Move("Seated Meditation", None, "Seated Meditation", 5, child, butterflyStretch, scale, staff, vinyasa, *seatedTwist ,extended_time=[20,30,40])
 childsPoseSideStretch = twoSides("Child's Pose, Side Stretch", "Reach your fingers over to your %(same)s side. You should feel a stretch across your %(other)s side body", 10, child)
@@ -162,10 +160,13 @@ standingLegLift4 = twoSides("Standing Leg Lift, No Hands", "Release %(same)s foo
 eagle = twoSides("Eagle Pose", "Take your %(same)s foot and twist it over your %(other)s leg. Twine your arms, %(same) arm lower. Eagle Pose", 25, extended_time=[40],\
         harder="Bring your elbows to your knees, and then straighten. Repeat")
 treePose = twoSides("Tree Pose", "Tree Pose, %(same)s side", 25, vinyasa)
+halfBoundStandingLotus = twoSides("Half-Bound Standing Lotus", "Take your %(same)s foot and put it at the top of your %(other)s thigh. With your %(same)s hand, reach behind you and grab your %(same)s foot", 15, \
+        forwardFold, vinyasa, harder="Lean forwards and touch the ground with your free hand.")
 dancer = twoSides("Dancer Pose", "Dancer Pose, %(same)s side", 25, vinyasa)
 backBend = Move("Back Bend", None, "Bend Backwards", 10)
 wideLegStance = Move("Wide Leg Stance", None, "Wide Leg Stance", 5)
 wideLegForwardFold = Move("Wide Leg Forward Fold", None, "Wide Leg Forward Fold",15, wideLegStance)
+standingLegStretch = twoSides("Standing Leg Stretch", "Reach for your %(same)s foot",10, wideLegStance, wideLegForwardFold)
 mountainPose = Move("Mountain Pose", None, "Mountain Pose", 5, backBend, wideLegStance, *standingLegLift1)
 standingTwist = twoSides("Standing Twist", "Bring your arms up to shoulder level and twist to the %(same)s", 15, mountainPose)
 forwardFoldShoulderStretch = Move("Forward Fold, Shoulder Stretch", None, "Clasp your hands together behind your head and allow gravity to drag your pinkies towards the floor", 15)
@@ -196,9 +197,10 @@ revolvedHalfMoon = twoSides("Revolved Half Moon", "Revolved Half Moon, %(same)s 
 halfMoon = twoSides("Half Moon", "Half Moon, %(same)s Side", 20)
 sideAngle = twoSides("Side Angle", "Lower your %(same)s hand to the ground and raise the other hand up towards the ceiling. Side Angle", 10, vinyasa, *halfMoon)
 sidePlank = twoSides("Side Plank", "Side Plank, %(same)s side", 15, plank, vinyasa, extended_time=[30,40])
+sidePlankLegUp = twoSides("Side Plank, Leg Up", "Now raise your %(same)s leg up and hold", 15)
 triangle = twoSides("Triangle Pose", "Triangle Pose, %(same)s side", 15, vinyasa)
-pyramid = Move("Pyramid Pose", None, "Pyramid Pose", 15, vinyasa, *triangle)
-revolvedTriangle = twoSides("Revolved Triangle", "Revolved Triangle Pose, %(same)s side", vinyasa, pyramid, 15)
+pyramid = twoSides("Pyramid Pose", "Pyramid Pose, %(same)s side", 15, vinyasa)
+revolvedTriangle = twoSides("Revolved Triangle", "Revolved Triangle Pose, %(same)s side", 15, vinyasa)
 reverseWarrior = twoSides("Reverse Warrior", "Take your %(same)s hand and raise it towards the back of the room. Reverse Warrior", 5)
 bridge = Move("Bridge Pose", None, "Bridge Pose", 20)
 bridgeWithRaisedLeg = twoSides("Bridge, with Raised Leg", "Raise your %(same)s leg into the air", 15, bridge, extended_time =[20,30])
@@ -220,6 +222,9 @@ supportedHeadstand = Move('Supported Headstand', None, "Supported Headstand", 30
 pigeon = twoSides('Pigeon Pose', "Pigeon Pose, %(same)s side", 30)
 kingPigeon = twoSides('King Pigeon', "King Pigeon, %(same)s side", 15)
 birdOfParadise = twoSides('Bird of Paradise', 'Bird of Paradise', 30)
+handstandHops = Move('Handstand Hops', None, "Handstand Hops", 30, vinyasa)
+twoLeggedDog = twoSides('Two Legged Dog', "Now raise your %(other)s hand. Hold", 30, vinyasa)
+flippedDog = twoSides('Flipped Dog', "Flipped Dog, %(same)s side", 30)
 
 #Begin linking moves to each other
 wideLegStance.addMove(mountainPose, starPose, wideLegForwardFold, *warrior2)
@@ -233,16 +238,16 @@ staff.addMove(lieOnBack, butterflyStretch, camel)
 downwardDog.addMove(plank)
 flatBack.addMove(forwardFold)
 lieOnBack.addMove(yogaBicycles, staff, seatedMeditation, lieOnFront, *spinalTwist)
+plow.addMove(fish)
 supportedShoulderStand.addMove(plow)
 plank.addMove(vinyasa)
-lowPlank.addMove(vinyasa)
+lowPlank.addMove(upwardDog, plank, vinyasa)
 child.addMove(seatedMeditation, *childsPoseSideStretch)
 boat.addMove(lowBoat)
 lowBoat.addMove(yogaBicycles)
 chair.addMove(*oneLeggedChair)
 starPose.addMove(goddessSquat)
-pyramid.addMove(*revolvedTriangle)
-bridge.addMove(lieOnBack)
+bridge.addMove(lieOnBack, *bridgeWithRaisedLeg)
 fish.addMove(lieOnBack)
 seatedForwardFold.addMove(seatedMeditation)
 forwardFoldShoulderStretch.addMove(forwardFold, chair)
@@ -254,6 +259,7 @@ seatedTwist[0].addMove(seatedTwist[1])
 seatedTwist[1].addMove(seatedTwist[0])
 childsPoseSideStretch[0].addMove(childsPoseSideStretch[1])
 childsPoseSideStretch[1].addMove(childsPoseSideStretch[0])
+wideLegForwardFold.addMove(*standingLegStretch)
 for i in bridgeWithRaisedLeg: i.addMove(lieOnBack)
 for i in eagle: i.addMove(forwardFold)
 for i in balancingTable: i.addMove(table, child)
@@ -264,16 +270,17 @@ for i in revolvedHalfMoon: i.addMove(forwardFold)
 for i in warrior1: i.addMove(starPose)
 for i in warrior2: i.addMove(starPose)
 for i in seatedTwist: i.addMove(seatedMeditation)
-for i in triangle: i.addMove(pyramid)
 for i in dancer: i.addMove(forwardFold)
 for i in warrior3: i.addMove(forwardFold)
 
 doubleAdd(oneLeggedChair, standingLegLift1)
-doubleAdd(sidePlank, sideAngle, cresentTwist)
+doubleAdd(sidePlank, sideAngle, cresentTwist, sidePlankLegUp)
+doubleAdd(sidePlankLegUp, sidePlank, sideAngle, cresentTwist)
 doubleAdd(warrior1, warrior2, warrior3, humbleWarrior)
 doubleAdd(humbleWarrior, warrior1)
 doubleAdd(warrior2, sideAngle, triangle)
-doubleAdd(threeLeggedDog, lowLunge, kneeToElbow, pigeon, runningMan, revolvedRunningMan, kneeToNose, warrior1, warrior2)
+doubleAdd(threeLeggedDog, lowLunge, kneeToElbow, pigeon, runningMan, revolvedRunningMan, kneeToNose, warrior1, warrior2, twoLeggedDog, flippedDog)
+doubleAdd(flippedDog, threeLeggedDog)
 doubleAdd(pigeon, threeLeggedDog, kingPigeon)
 doubleAdd(kingPigeon, threeLeggedDog)
 doubleAdd(kneeToNose, threeLeggedDog)
@@ -289,17 +296,21 @@ doubleAdd(sideAngle, reverseWarrior, sidePlank, warrior2, birdOfParadise)
 doubleAdd(birdOfParadise, sideAngle)
 doubleAdd(reverseWarrior, sideAngle, warrior2)
 doubleAdd(standingLegLift1, standingLegLift2, eagle, treePose)
+doubleAdd(treePose, halfBoundStandingLotus)
+doubleAdd(halfBoundStandingLotus, standingLegLift1, treePose)
 doubleAdd(standingLegLift1, warrior3, inverted=True)
 doubleAdd(standingLegLift2, standingLegLift3)
 doubleAdd(standingLegLift3, standingLegLift4)
 doubleAdd(standingLegLift4, warrior3, inverted=True)
 doubleAdd(standingLegLift4, standingSplits, eagle, treePose)
-doubleAdd(triangle, revolvedTriangle, halfMoon)
+doubleAdd(triangle, revolvedTriangle, halfMoon, pyramid)
+doubleAdd(pyramid, revolvedTriangle)
+doubleAdd(standingLegStretch, pyramid)
 doubleAdd(chairTwist, sideCrow)
 doubleAdd(lizard, runningMan)
 doubleAdd(halfMoon, revolvedHalfMoon, warrior3, warrior2)
 doubleAdd(revolvedHalfMoon, halfMoon, warrior3, warrior1, cresent)
-doubleAdd(revolvedTriangle, revolvedHalfMoon)
+doubleAdd(revolvedTriangle, revolvedHalfMoon, pyramid)
 doubleAdd(dancer, standingLegLift1, standingSplits, warrior3)
 
 if aerobics:
@@ -329,7 +340,7 @@ if __name__== "__main__":
     total_time = 60*int(sys.argv[-1])
     start = datetime.datetime.now()
     end = start + datetime.timedelta(seconds=total_time)
-    pose = child.play(extended=True, nextMove=catCow)
+    pose = child.play(extended=True)
     try:
         #warmup
         print("warmup")
@@ -337,11 +348,11 @@ if __name__== "__main__":
             nextPose = pose.play()
             pose = nextPose
         #get me to table:
-        child.addMove(downwardDog)
+        child.addMove(downwardDog, plank)
         table.addMove(downwardDog, plank)
         catCow.addMove(downwardDog, plank)
         if imbalance:
-            pose = routine(imbalance)
+            print("imbalance remains") #deal with this somehow?
         print("transition")
         while not pose == table or pose == downwardDog:
             if pose == child:
@@ -355,7 +366,15 @@ if __name__== "__main__":
             pose = nextPose
         pose = pose.play(nextMove=plank)
         pose = pose.play(extended = True)
+        #starting main part of workout
         while datetime.datetime.now() -start < datetime.timedelta(seconds=total_time//2):
+            nextPose = pose.play()
+            pose = nextPose
+        #add harder poses in here
+        frog = Move("Frog Pose", None, "Frog Pose", 30, seatedMeditation, vinyasa)
+        seatedMeditation.addMove(frog)
+        #end adding harder poses
+        while datetime.datetime.now() < end - datetime.timedelta(seconds=30):
             nextPose = pose.play()
             pose = nextPose
         #deal with imbalances, somehow
