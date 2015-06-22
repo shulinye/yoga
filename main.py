@@ -298,12 +298,16 @@ butterflyStretch.addMove(*headToKnee)
 superMan.addMove(lieOnFront)
 bow.addMove(lieOnFront)
 scale.addMove(seatedMeditation)
-seatedTwist[0].addMove(seatedTwist[1])
-seatedTwist[1].addMove(seatedTwist[0])
-childsPoseSideStretch[0].addMove(childsPoseSideStretch[1])
-childsPoseSideStretch[1].addMove(childsPoseSideStretch[0])
-headToKnee[0].addMove(headToKnee[1])
-headToKnee[1].addMove(headToKnee[0])
+
+def moveReverse(*args, late=False):
+    f = Move.addLateMove if late else Move.addMove
+    for i in args:
+        f(i[0],i[1])
+        f(i[1],i[0])
+
+moveReverse(seatedTwist, childsPoseSideStretch, threadTheNeedle)
+moveReverse(headToKnee)
+
 wideLegForwardFold.addMove(*standingLegStretch)
 forwardFold.addMove(flatBack)
 forwardFold.addLateMove(chair)
@@ -397,7 +401,7 @@ def unlinkWarmup():
     mountainPose.removeMove(*standingSideStretch)
     backBend.removeMove(*standingSideStretch)
     seatedMeditation.removeMove(table, catCow, *seatedTwist)
-    child.removeMove(*childsPoseSideStrech)
+    child.removeMove(*childsPoseSideStretch)
 
 def linkCooldown():
     raise NotImplemented
@@ -435,16 +439,16 @@ if __name__== "__main__":
                 if imbalance:
                     print(imbalance)
                 nextPose = pose.play(nextMove = downwardDog)
-            elif pose == forwardFold or pose == staff:
+            elif vinyasa in pose.nextMove:
                 nextPose = pose.play(nextMove = vinyasa)
             elif pose == seatedMeditation:
                 nextPose = pose.play(nextMove = table)
             else:
                 nextPose = pose.play()
             pose = nextPose
-        speak("Alright, warmup over.")
         unlinkWarmup()
         pose = pose.play(nextMove=plank)
+        speak("Alright, warmup over.")
         pose = pose.play(extended = True)
         #starting main part of workout
         while datetime.datetime.now() - start < datetime.timedelta(seconds=total_time//2):
