@@ -55,6 +55,7 @@ class Move(object):
             self.kwargs["lateMove"] = set()
         self.kwargs["lateMove"].update(args)
     def notLast(self):
+        print("Last was: " + repr(self.last))
         if self.last and len(self.nextMove)>1:
             movesCopy = self.nextMove.copy()
             movesCopy.remove(self.last)
@@ -75,7 +76,6 @@ class Move(object):
                     nextMove = i
                     break
             else:
-                print("no match found: [" + "; ".join(str(i) for i in imbalance)+"]")
                 nextMove = self.notLast()
         else:
             nextMove = self.notLast()
@@ -189,7 +189,7 @@ standingLotusSquat = twoSides("Standing Lotus Squat", "Bend your %(other)s thigh
 toestand = twoSides("Toestand", "Continue bending down, rise up onto the toes of your %(other)s foot", 15, vinyasa, harder="Try to get your hands to your heart!")
 flyingPigeon = twoSides("Flying Pigeon", "Plant your hands on the ground and lift your %(same)s foot. Flying Pigeon", 30, vinyasa)
 dancer = twoSides("Dancer Pose", "Dancer Pose, %(same)s side", 25, vinyasa)
-backBend = Move("Back Bend", None, "Raise your hands towards the ceiling and bend backwards", 10)
+backBend = Move("Back Bend", None, "Raise your hands towards the ceiling and bend backwards", 10, vinyasa)
 wideLegStance = Move("Wide Leg Stance", None, "Wide Leg Stance", 4)
 wideLegForwardFold = Move("Wide Leg Forward Fold", None, "Wide Leg Forward Fold",15, wideLegStance)
 armPressurePose = Move("Arm Pressure Pose", None, "Wrap legs around shoulders. Attempt to balance on arms.", 30, wideLegForwardFold)
@@ -214,8 +214,8 @@ lizard = twoSides("Lizard Pose", "Lizard Pose, %(same)s side", 30, vinyasa, bind
 runningMan = twoSides("Running Man", "Running Man, %(same)s side", 30, vinyasa)
 revolvedRunningMan = twoSides("Revolved Running Man", "Revolved Running Man, %(same)s side", 30, vinyasa)
 cresent = twoSides("Cresent Lunge", "Cresent Lunge, %(same)s foot forward", 10, early="Feel free to lower your other knee down to the ground")
-cresentTwist = twoSides("Cresent Twist", "Twist to the %(same)s side. Cresent Twist", 15, bind=True)
-chairTwist = twoSides("Chair Twist", "Twist to the %(same)s", 15, bind=True)
+cresentTwist = twoSides("Cresent Twist", "Cresent Twist. Twist to the %(same)s side.", 15, bind=True)
+chairTwist = twoSides("Chair Twist", "Chair Twist. Twist to the %(same)s side", 15, bind=True)
 chair = Move("Chair Pose", None, "Chair Pose", 15, vinyasa, *chairTwist, extended_time=[40, 60])
 oneLeggedChair = twoSides("One Legged Chair", "Shift all your weight to your %(other)s foot. Grab your %(same)s foot with your %(same)s hand. Raise %(same)s foot", 15, chair, extended_time=[20,30])
 crow = Move("Crow Pose", None, "Crow Pose", 30, vinyasa, harder="Try to straigten your arms")
@@ -285,8 +285,9 @@ plow.addMove(fish)
 upwardPlank.addMove(lieOnBack)
 upwardPlank.addLateMove(*upwardPlankLiftedLeg)
 supportedShoulderStand.addMove(plow)
-plank.addMove(vinyasa)
-lowPlank.addMove(upwardDog, plank, vinyasa)
+plank.addMove(vinyasa, *sidePlank)
+lowPlank.addMove(upwardDog, vinyasa)
+lowPlank.addLateMove(plank)
 child.addMove(*childsPoseSideStretch)
 child.addLateMove(seatedMeditation)
 boat.addMove(lowBoat, boatLift, boatTwist)
@@ -411,7 +412,8 @@ def unlinkWarmup():
     child.removeMove(*childsPoseSideStretch)
 
 def linkCooldown():
-    raise NotImplemented
+    moveReverse(runningMan, sideCrow, flyingPigeon) #Allow me to just go from one arm balance to the opposite side, to increase the chances I get balanced
+    child.addMove(*childsPoseSideStretch)
 
 def routine(li):
     li_copy = li.copy()
