@@ -63,7 +63,7 @@ class Move(object):
         else:
             return random.choice(tuple(self.nextMove))
     def play(self, **kwargs):
-        """Tells me which pose I'm supposed to do and how I'm supposed to do it. Also figures out next pose."""
+        """Tells me which pose I'm supposed to do and how I'm supposed to do it. Also figures out next pose and deals with adding late moves"""
         print("")
         print(self.title)
         #What is my next move?
@@ -85,7 +85,9 @@ class Move(object):
             self.last = nextMove
         #Tell me what to do
         speak(self.audio)
-        if "harder" in kwargs and kwargs["harder"] and "harder" in self.kwargs:
+        if "early" in kwargs and kwargs["early"] and "early" in self.kwargs:
+            speak(self.kwargs["early"])
+        elif "harder" in kwargs and kwargs["harder"] and "harder" in self.kwargs:
             speak(self.kwargs["harder"])
         #How long am I supposed to do it?
         if "time" in kwargs:
@@ -151,7 +153,7 @@ def doubleAdd(move, *args, inverted=False, late=False):
             f(move[1],i[1])
 #Begin list of moves
 
-lowPlank = Move("Low Plank", None, "Lower down into Low Plank. Hold", 10)
+lowPlank = Move("Low Plank", None, "Lower down into Low Plank. Hold", 10, extended_time=[15,20])
 plank = Move("Plank", None, "Plank. Hold",30, lowPlank, extended_time=[60], harder="Throw in a few pushups!")
 balancingTable = twoSides("Balancing Table", "When you are ready, extend the opposite arm", 10, harder="Want a challenge? Extend the same arm.")
 balancingTableLegOnly = twoSides("Balancing Table, Leg Only", "Extend %(same)s leg behind you", 4)
@@ -173,16 +175,16 @@ seatedMeditation = Move("Seated Meditation", None, "Seated Meditation", 4, child
 childsPoseSideStretch = twoSides("Child's Pose, Side Stretch", "Reach your fingers over to your %(same)s side. You should feel a stretch across your %(other)s side body", 8, child, table, seatedMeditation)
 lowLunge = twoSides("Low Lunge", "Bring your %(same)s foot down and set it between your hands. Low Lunge", 4)
 threeLeggedDog = twoSides("Three Legged Dog", "Raise your %(same)s foot up. Three Legged Dog", 4, extended_time=[15,30])
-kneeToNose = twoSides("Knee To Nose", "Take your %(same)s knee and bring it towards your nose. Hold.", 15)
-kneeToElbow = twoSides("Knee To Elbow", "Take your %(same)s knee and bring it to your %(same)s elbow. Hold", 15, harder="Try to bring your knee up to your forearm!")
+kneeToNose = twoSides("Knee To Nose", "Take your %(same)s knee and bring it towards your nose. Hold.", 15, extended_time=[20,30])
+kneeToElbow = twoSides("Knee To Elbow", "Take your %(same)s knee and bring it to your %(same)s elbow. Hold", 15, harder="Try to bring your knee up to your forearm!", extended_time=[20,30])
 kneeToOtherElbow = twoSides("Knee To Other Elbow", "Take your %(same)s knee and bring it across your body to your %(other)s elbow", 15, vinyasa, extended_time=[20,30])
-standingLegLift1 = twoSides("Standing Leg Lift", "Raise your %(same)s foot up and grab it with your %(same) hand. Standing Leg Lift. Hold", 20)
-standingLegLift2 = twoSides("Standing Leg Lift, Leg to Side", "Now take your %(same)s foot and move it out to the side. Hold", 20)
-standingLegLift3 = twoSides("Standing Leg Lift, Both Hands", "Return %(same)s foot to center. Grab with both hands, head to knee or chin to shin. Hold.", 20)
-standingLegLift4 = twoSides("Standing Leg Lift, No Hands", "Release %(same)s foot. Hold foot up towards ceiling.", 25)
+standingLegLift1 = twoSides("Standing Leg Lift", "Raise your %(same)s foot up and grab it with your %(same) hand. Standing Leg Lift. Hold", 20, extended_time=[30,45,60])
+standingLegLift2 = twoSides("Standing Leg Lift, Leg to Side", "Now take your %(same)s foot and move it out to the side. Hold", 20, extended_time=[30,45,60])
+standingLegLift3 = twoSides("Standing Leg Lift, Both Hands", "Return %(same)s foot to center. Grab with both hands, head to knee or chin to shin. Hold.", 20, extended_time=[30,45,60])
+standingLegLift4 = twoSides("Standing Leg Lift, No Hands", "Release %(same)s foot. Hold foot up towards ceiling.", 25, extended_time=[30,45,60])
 eagle = twoSides("Eagle Pose", "Take your %(same)s foot and twist it over your %(other)s leg. Twine your arms, %(same) arm lower. Eagle Pose", 25, extended_time=[40],\
         harder="Bring your elbows to your knees, and then straighten. Repeat")
-treePose = twoSides("Tree Pose", "Tree Pose, %(same)s side", 25, vinyasa)
+treePose = twoSides("Tree Pose", "Tree Pose, %(same)s side", 25, vinyasa, extended_time=[45,60])
 halfBoundStandingLotus = twoSides("Half-Bound Standing Lotus", "Take your %(same)s foot and put it at the top of your %(other)s thigh. With your %(same)s hand, reach behind you and grab your %(same)s foot", 15, \
         vinyasa, harder="Lean forwards and touch the ground with your free hand.")
 standingLotusSquat = twoSides("Standing Lotus Squat", "Bend your %(other)s thigh and squat down", 15, vinyasa)
@@ -414,13 +416,8 @@ def unlinkWarmup():
 def linkCooldown():
     moveReverse(runningMan, sideCrow, flyingPigeon) #Allow me to just go from one arm balance to the opposite side, to increase the chances I get balanced
     child.addMove(*childsPoseSideStretch)
-
-def routine(li):
-    li_copy = li.copy()
-    for i in range(len(li)-1):
-        current_pose, next_pose = li_copy[i], li_copy[i+1]
-        current_pose.play(nextMove=next_pose)
-    return li_copy[-1]
+    downwardDog.addMove(table, child, lieOnBack)
+    vinyasa.addMove(child, lieOnBack, staff)
 
 if __name__== "__main__":
     speak("Beginning in")
@@ -434,7 +431,7 @@ if __name__== "__main__":
         #warmup
         print("warmup")
         while datetime.datetime.now() - start < datetime.timedelta(seconds=max(60,total_time//10)):
-            nextPose = pose.play(extended=True) #start slower
+            nextPose = pose.play(extended=True, early=True) #start slower
             pose = nextPose
         #get me to table:
         child.addMove(downwardDog, plank)
@@ -467,6 +464,7 @@ if __name__== "__main__":
         speak("We have reached the halfway point")
         frog = Move("Frog Pose", None, "Frog Pose", 30, seatedMeditation, vinyasa)
         seatedMeditation.addMove(frog)
+        staff.addMove(frog)
         #end adding harder poses
         while datetime.datetime.now() < (end - datetime.timedelta(seconds=max(30, total_time//10))):
             extendedChance = (datetime.datetime.now() - start).seconds/total_time
@@ -474,9 +472,8 @@ if __name__== "__main__":
             nextPose = pose.play(harder=True, extended=extended)
             pose = nextPose
         #add in more restorative poses here
-        downwardDog.addMove(table, child, lieOnBack)
-        vinyasa.addMove(child, lieOnBack, staff)
-        #move into a more restorative poses....
+        linkCooldown()
+        #move into more restorative poses....
         while datetime.datetime.now() < end:
             nextPose = pose.play(extended=True)
             pose = nextPose
