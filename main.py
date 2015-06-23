@@ -1,44 +1,47 @@
 #!/usr/bin/python3
 
-"""An attempt to make a command-line based yoga program. NOTE: uses espeak for audio"""
+"""An attempt to make a command-line based yoga program.
+NOTE: uses espeak for audio"""
 
 import subprocess
 import time
 import sys
 import datetime
 import random
+import dijkstras
 
-debug=False
-
-aerobics=True
+debug = False
+aerobics = True
 
 imbalance = []
+
+
 def speak(text):
-    subprocess.call('espeak -v en-gb \"' + text +'\"', shell=True)
+    subprocess.call('espeak -v en-gb \"' + text + '\"', shell=True)
 
 def countdown(n, *args, **kwargs):
     incremental = n>30
     while n > 0:
         sys.stdout.write(str(n) + "...")
         sys.stdout.flush()
-        if n <4:
+        if n<4:
             speak(str(n))
         elif incremental:
-            if n ==30:
+            if n==30:
                 speak("30 seconds remaining")
-            if n ==15:
+            if n==15:
                 speak("15 seconds remaining")
-        if not debug:time.sleep(1)
+        if not debug: time.sleep(1)
         n -= 1
     sys.stdout.write("0\n")
     sys.stdout.flush()
 
 class Move(object):
     def __init__(self, title, side, audio, time, *args, **kwargs):
-        self.title=title
-        self.side=side
-        self.audio=audio
-        self.time=time
+        self.title = title
+        self.side = side
+        self.audio = audio
+        self.time = time
         self.last = None
         self.nextMove = set(args)
         self.kwargs = kwargs
@@ -55,7 +58,6 @@ class Move(object):
             self.kwargs["lateMove"] = set()
         self.kwargs["lateMove"].update(args)
     def notLast(self):
-        print("Last was: " + repr(self.last))
         if self.last and len(self.nextMove)>1:
             movesCopy = self.nextMove.copy()
             movesCopy.remove(self.last)
@@ -63,7 +65,8 @@ class Move(object):
         else:
             return random.choice(tuple(self.nextMove))
     def play(self, **kwargs):
-        """Tells me which pose I'm supposed to do and how I'm supposed to do it. Also figures out next pose and deals with adding late moves"""
+        """Tells me which pose I'm supposed to do and how I'm supposed to do it.
+        Also figures out next pose and deals with adding late moves"""
         print("")
         print(self.title)
         #What is my next move?
@@ -124,7 +127,7 @@ class Move(object):
         return self.title == other.title
     def __ne__(self, other):
         return self.title != other.title
-    def __le__(self, other):
+    def __lt__(self, other):
         return self.title < other.title
 
 def twoSides(title, audio, time, *args, **kwargs):
@@ -351,7 +354,8 @@ doubleAdd(pigeon, threeLeggedDog, kingPigeon)
 doubleAdd(kingPigeon, threeLeggedDog)
 doubleAdd(kneeToNose, threeLeggedDog)
 doubleAdd(kneeToElbow, kneeToOtherElbow, threeLeggedDog, lowLunge, runningMan)
-doubleAdd(kneeToOtherElbow, threeLeggedDog, revolvedRunningMan)
+doubleAdd(kneeToOtherElbow, threeLeggedDog)
+doubleAdd(kneeToOtherElbow, revolvedRunningMan, late=True)
 doubleAdd(lowLunge, warrior1, warrior2, cresent, lizard, standingSplits)
 doubleAdd(lowLunge, warrior3, late=True)
 doubleAdd(eagle, standingSplits)
@@ -439,6 +443,8 @@ if __name__== "__main__":
         catCow.addMove(downwardDog, plank)
         if imbalance:
             print("imbalance remains: [" + "; ".join(str(i) for i in imbalance) + "]") #deal with this somehow?
+            n = dijkstras.dijkstra(pose,*imbalance)
+            print(n)
         print("transition")
         while (not pose == table or pose == downwardDog):
             if pose == child:
