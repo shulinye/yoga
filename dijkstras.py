@@ -35,9 +35,9 @@ def dijkstra(start, *goal, limit=None):
         for i,j in frontier_copy:
             if j not in explored:
                 if j in node.nextMove:
-                    if i > newcost:
+                    if i > new_cost:
                         frontier.remove((i,j))
-                        frontier.append((newcost, j))
+                        frontier.append((new_cost, j))
                         prev[j] = node
                 elif has_late and j in node.kwargs["lateMove"]:
                     if i > late_cost:
@@ -46,10 +46,10 @@ def dijkstra(start, *goal, limit=None):
                         prev[j] = node
         heapq.heapify(frontier)
         for i in not_seen:
-            heapq.heappush(frontier, (newcost,i))
+            heapq.heappush(frontier, (new_cost,i))
             seen.add(i)
             prev[i] = node
         for i in late_not_seen:
-            heapq.heappush(frontier, (latecost,i))
+            heapq.heappush(frontier, (late_cost,i))
             seen.add(i)
             prev[i] = node

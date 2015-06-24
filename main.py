@@ -11,7 +11,7 @@ import random
 import dijkstras
 
 debug = False
-aerobics = True
+aerobics = False
 
 imbalance = []
 
@@ -168,7 +168,7 @@ vinyasa = Move("Vinyasa", None, "Vinyasa", 4, harder="Add in a push up!")
 seatedForwardFold = Move("Seated Forward Fold", None, "Seated Forward Fold", 15, vinyasa)
 flyingStaff = Move("Flying Staff Pose", None, "Press down on the ground. Try to lift your body off the ground", 20, vinyasa)
 staff = Move("Staff Pose", None, "Staff Pose", 10, vinyasa, seatedForwardFold, lateMove=set([flyingStaff]))
-archer = twoSides("Archer Pose", "Grab each foot with hand. Try to straighten the %(same)s leg and bind the %(other)s leg, lifting both legs off the ground. Archer Pose.", 30, staff, vinyasa)
+archer = twoSides("Archer Pose", "Grab each foot with hand. Try to straighten the %(same)s leg and bend the %(other)s leg, lifting both legs off the ground. Archer Pose.", 30, staff, vinyasa)
 butterflyStretch = Move("Butterfly Stretch", None, "Butterfly Stretch", 15, vinyasa, staff,lateMove=set(archer))
 headToKnee = twoSides("Head To Knee", "With your %(same)s knee straight and your %(other)s knee bent, reach toward the toes of your %(same)s foot.", 15, staff, butterflyStretch)
 child = Move("Child's Pose", None, "Child's Pose", 4, table, extended_time=[10,15], lateMove=set([catCow]))
