@@ -4,38 +4,18 @@
 call with python3 main.py [length of routine wanted, in minutes]
 NOTE: uses espeak for audio"""
 
-import subprocess
 import time
 import sys
 import random
+
 import dijkstras
+import utils
 
 debug = False
 aerobics = False
 DEFAULT_TIME = 15 #minutes
 
 imbalance = []
-
-def speak(text):
-    subprocess.call('espeak -v en-gb \"' + text + '\"', shell=True)
-
-def countdown(n, *args, **kwargs):
-    incremental = n>30
-    while n > 0:
-        sys.stdout.write(str(n) + "...")
-        sys.stdout.flush()
-        if n < 4:
-            speak(str(n))
-        elif incremental:
-            if n == 30:
-                speak("30 seconds remaining")
-            if n == 15:
-                speak("15 seconds remaining")
-        if not debug: time.sleep(1)
-        n -= 1
-    sys.stdout.write("0\n")
-    sys.stdout.flush()
-
 
 class Move(object):
     def __init__(self, title, side, audio, time, *args, **kwargs):
@@ -94,11 +74,11 @@ class Move(object):
             print("My options were: " + "; ".join(str(i) for i in self.nextMove))
             self.last = nextMove
         #Tell me what to do
-        speak(self.audio)
+        utils.speak(self.audio)
         if "early" in kwargs and kwargs["early"] and "early" in self.kwargs:
-            speak(self.kwargs["early"])
+            utils.speak(self.kwargs["early"])
         elif "harder" in kwargs and kwargs["harder"] and "harder" in self.kwargs:
-            speak(self.kwargs["harder"])
+            utils.speak(self.kwargs["harder"])
         #How long am I supposed to do it?
         if "time" in kwargs:
             t = kwargs["time"]
@@ -106,10 +86,10 @@ class Move(object):
             t = random.choice(self.kwargs["extended_time"])
         else:
             t = self.time
-        if "bind" in self.kwargs and self.kwargs["bind"]: speak("Bind if you want to")
-        if t > 5: speak(str(t) + "seconds")
-        countdown(t)
-        if "bind" in self.kwargs and self.kwargs["bind"]: speak("Release bind")
+        if "bind" in self.kwargs and self.kwargs["bind"]: utils.speak("Bind if you want to")
+        if t > 5: utils.speak(str(t) + "seconds")
+        utils.countdown(t)
+        if "bind" in self.kwargs and self.kwargs["bind"]: utils.speak("Release bind")
         #Add in options for harder followup moves next time
         if "lateMove" in self.kwargs:
             try:
@@ -490,6 +470,7 @@ def fixImbalance(pose, imbalance, maxImbalance=8, maxTime = 60, **kwargs):
         while imbalance and time.time() < end:
             pose = routine(dijkstras.dijkstra(pose,*imbalance,imbalance=imbalance))
         if imbalance: print("imbalance remains: [" + "; ".join(str(i) for i in imbalance) + "]")
+    return pose
 
 def prettyTime(time):
     """takes a time, in seconds, and formats it for display"""
@@ -500,9 +481,9 @@ def prettyTime(time):
     else: return "%s minute(s), %s second(s)" % (m,s)
 
 def main():
-    speak("Beginning in")
+    utils.speak("Beginning in")
     print("Beginning in:")
-    countdown(3)
+    utils.countdown(3)
     try:
         total_time = 60*int(sys.argv[-1])
     except ValueError:
@@ -534,7 +515,7 @@ def main():
             nextPose = pose.play()
             pose = nextPose
         #add harder poses in here
-        speak("We have reached the halfway point")
+        utils.speak("We have reached the halfway point")
         linkHarder()
         #end adding harder poses
         while time.time() < (end - max(30, total_time//10)):
@@ -557,7 +538,7 @@ def main():
         savasana.play()
     finally:
         print(imbalance)
-        print("\nTotal Time: " + prettyTime(time.time()-start))
+        print("\nTotal Time: " + utils.prettyTime(time.time()-start))
 
 if __name__== "__main__":
     main()
