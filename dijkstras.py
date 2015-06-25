@@ -21,7 +21,7 @@ def dijkstra(start, *goal, limit=None, imbalance=[]):
     seen = set()
     explored = set()
     prev = {}
-    if start in goal: return start
+    if start in goal: return [start]
     while True:
         if len(frontier) == 0:
             raise ValueError("frontier is empty")
