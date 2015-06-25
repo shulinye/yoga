@@ -10,10 +10,11 @@ class TimeExceededError(Exception):
     def __init__(self, value):
         self.value = value
 
-def bounty(node, imbalance, cost):
+def bounty(node : int, imbalance : list , cost : int ) -> int:
+    """Awards a bounty to a node that's currently in the imbalanced list"""
     return cost - IMBALANCE_BOUNTY if node in imbalance else cost
 
-def dijkstra(start, *goal, limit=None, imbalance=[]):
+def dijkstra(start, *goal, limit=None, imbalance=[]) -> list:
     """Uses dijkstra's algorithm to find the shortest path to a target move.
     If multiple targets are entered, use the first one found."""
     node = start

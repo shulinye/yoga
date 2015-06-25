@@ -119,7 +119,7 @@ class Move(object):
 
 
 def twoSides(title, audio, time, *args, **kwargs):
-    """Hey, you have two legs."""
+    """Hey, you have two legs. Convenience method to generate both left and right sides for a move"""
     dicR = {"same": "Right", "other": "Left"}
     dicL = {"same": "Left", "other": "Right"}
     if "%" in audio:
@@ -134,15 +134,16 @@ def twoSides(title, audio, time, *args, **kwargs):
 
 
 def doubleAdd(move, *args, inverted=False, late=False):
+    """Convenience method to help link moves that have sides
+    inverted: if True, causes L to be linked to R and R to be linked to L
+    late: if True, causes move to be linked as a late move"""
     f = Move.addLateMove if late else Move.addMove
     if inverted:
-        for i in args:
-            f(move[0], i[1])
-            f(move[1], i[0])
+        f(move[0], *[i[1] for i in args])
+        f(move[1], *[i[0] for i in args])
     else:
-        for i in args:
-            f(move[0],i[0])
-            f(move[1],i[1])
+        f(move[0], *[i[0] for i in args])
+        f(move[1], *[i[1] for i in args])
 
 #Begin list of moves
 lowPlank = Move("Low Plank", 0, "Lower down into Low Plank. Hold", 10, extended_time=[15,20])
@@ -425,11 +426,11 @@ doubleAdd(dancer, eagle, late=True)
 
 
 # Aerobics
-jumpingJacks = Move("Jumping Jacks", None, "Jumping Jacks!", 60, mountainPose)
-runInPlace = Move("Running In Place", None, "Run In Place", 60, mountainPose, jumpingJacks)
-burpies = Move("Burpies!", None, "Burpies", 45, vinyasa, forwardFold, plank, extended=[60,75,90])
-jumpingSquats = Move("Jumping Squats", None, "Jumping Squats", 30, chair, forwardFold)
-situps = Move("Situps", None, "Situps", 30, vinyasa, extended=[45,60])
+jumpingJacks = Move("Jumping Jacks", 0, "Jumping Jacks!", 60, mountainPose)
+runInPlace = Move("Running In Place", 0, "Run In Place", 60, mountainPose, jumpingJacks)
+burpies = Move("Burpies!", 0, "Burpies", 45, vinyasa, forwardFold, plank, extended=[60,75,90])
+jumpingSquats = Move("Jumping Squats", 0, "Jumping Squats", 30, chair, forwardFold)
+situps = Move("Situps", 0, "Situps", 30, vinyasa, extended=[45,60])
 
 
 def linkAerobics():
@@ -451,7 +452,7 @@ def unlinkWarmup():
     seatedMeditation.removeMove(table, catCow, *seatedTwist)
     child.removeMove(*childsPoseSideStretch)
 
-    #Remove these impossible moves from warmup
+    #Remove these impossible moves from imbalances
     moves = set(standingTwist+standingSideStretch+seatedTwist+childsPoseSideStretch)
     for i in range(len(imbalance),0,-1):
         if i in moves: imbalances.pop(i)
