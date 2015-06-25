@@ -453,7 +453,7 @@ def unlinkWarmup():
 
     #Remove these impossible moves from warmup
     moves = set(standingTwist+standingSideStretch+seatedTwist+childsPoseSideStretch)
-    for i in range(imbalance,0,-1):
+    for i in range(len(imbalance),0,-1):
         if i in moves: imbalances.pop(i)
 
 def linkHarder():
@@ -482,13 +482,15 @@ def fixImbalance(pose, imbalance, maxImbalance=8, maxTime = 60, **kwargs):
         while imbalance and time.time() < end:
             print("Current imbalance is:", imbalance)
             try:
-                pose = routine(dijkstras.dijkstra(pose,*imbalance,imbalance=imbalance))
+                r = dijkstras.dijkstra(pose,*imbalance,imbalance=imbalance)
+                pose = routine(r)
+                pose = pose.play()
             except dijkstras.TimeExceededError:
-                print("got TimeExceededError, resetting imbalance to []")
-                imbalance = []
+                print("got TimeExceededError")
+                break
             except ValueError:
-                print("imbalance remains:",imbalance)
-                imbalance = []
+                print("probably impossible...", imbalance)
+                break
         if imbalance: print("Timeout: imbalance remains:", imbalance)
     return pose
 
