@@ -472,6 +472,7 @@ def fixImbalance(pose, imbalance, maxImbalance=8, maxTime = 60, **kwargs):
     """Might try to fix the imbalance. Might not. Depends on how big the imbalance is"""
     fixImbalanceChance = len(imbalance)/maxImbalance
     if random.random() < fixImbalanceChance:
+        print("trying to fix imbalance")
         end = time.time() + maxTime
         while imbalance and time.time() < end:
             try:
@@ -522,7 +523,7 @@ def main():
         utils.speak("We have reached the halfway point")
         linkHarder()
         #end adding harder poses
-        while time.time() < (end - max(30, total_time//10)):
+        while time.time() < (end - max(45, total_time//10)):
             extendedChance = (time.time() - start)/total_time
             extended = random.random() < extendedChance
             pose = fixImbalance(pose, imbalance, maxImbalance=8, maxTime=max(90,total_time//10))
@@ -531,15 +532,17 @@ def main():
         #add in more restorative poses here
         linkCooldown()
         #move into more restorative poses....
-        while time.time() < end:
+        while time.time() < (end-30):
             nextPose = pose.play(extended=True)
             pose = nextPose
         #deal with imbalances, somehow
         linkSavasana()
-        pose = routine(dijkstras.dijkstra(pose,savasana, imbalances=imbalances)) #Somehow, get seamlessly to savasana
+        pose = routine(dijkstras.dijkstra(pose,savasana, imbalance=imbalance)) #Somehow, get seamlessly to savasana
         pose.play()
     except KeyboardInterrupt:
-        savasana.play()
+        linkSavasana()
+        pose = routine(dijkstras.dijkstra(pose,savasana))
+        pose.play()
     finally:
         print(imbalance)
         print("\nTotal Time: " + utils.prettyTime(time.time()-start))
