@@ -4,9 +4,14 @@ import heapq
 import time
 
 LATEPENALTY = 250
+IMBALANCE_BOUNTY = 3
 
+def bounty(node, imbalance, cost):
+    return cost - IMBALANCE_BOUNTY if node in imbalance else cost
 
-def dijkstra(start, *goal, limit=None):
+def dijkstra(start, *goal, limit=None, imbalance=[]):
+    """Uses dijkstra's algorithm to find the shortest path to a target move.
+    If multiple targets are entered, use the first one found."""
     node = start
     frontier = [(0, start)]
     seen = set()
@@ -35,21 +40,25 @@ def dijkstra(start, *goal, limit=None):
         for i,j in frontier_copy:
             if j not in explored:
                 if j in node.nextMove:
-                    if i > new_cost:
+                    my_cost = bounty(j, imbalance, new_cost)
+                    if i > my_cost:
                         frontier.remove((i,j))
                         frontier.append((new_cost, j))
                         prev[j] = node
                 elif has_late and j in node.kwargs["lateMove"]:
+                    my_cost = bounty(j, imbalance, late_cost)
                     if i > late_cost:
                         frontier.remove((i,j))
                         frontier.append((late_cost,j))
                         prev[j] = node
         heapq.heapify(frontier)
         for i in not_seen:
-            heapq.heappush(frontier, (new_cost,i))
+            my_cost = bounty(i, imbalance, new_cost)
+            heapq.heappush(frontier, (my_cost,i))
             seen.add(i)
             prev[i] = node
         for i in late_not_seen:
-            heapq.heappush(frontier, (late_cost,i))
+            my_cost = bounty(i, imbalance, Late_cost)
+            heapq.heappush(frontier, (my_cost,i))
             seen.add(i)
             prev[i] = node
