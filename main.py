@@ -18,7 +18,7 @@ DEFAULT_TIME = 15 #minutes
 imbalance = []
 
 class Move(object):
-    def __init__(self, title, side, audio, time, *args, **kwargs):
+    def __init__(self, title : str , side : int , audio : str , time : int , *args, **kwargs):
         """Creates a Move. Arguments are: title, side (-1 for left, 0 for None, 1 for Right)
         audio (for espeak), and time (in seconds)
         
@@ -50,11 +50,24 @@ class Move(object):
             return random.choice(tuple(movesCopy))
         else:
             return random.choice(tuple(self.nextMove))
-    def play(self, **kwargs):
+    def promoteLate(self):
+         if "lateMove" in self.kwargs:
+            try:
+                move = self.kwargs["lateMove"].pop()
+                self.addMove(move)
+            except KeyError:
+                pass
+    def play(self, **kwargs) -> "Move" :
         """Tells me which pose I'm supposed to do and how I'm supposed to do it.
         Also figures out next pose and deals with adding late moves"""
         print("")
         print(self.title)
+        #Deal with imbalances
+        if self.side:
+            if self in imbalance:
+                imbalance.remove(self)
+            else:
+                imbalance.append(self.otherside)
         #What is my next move?
         if "nextMove" in kwargs:
             # Assume the caller knows what they're doing right now.
@@ -90,19 +103,7 @@ class Move(object):
         if t > 5: utils.speak(str(t) + "seconds")
         utils.countdown(t)
         if "bind" in self.kwargs and self.kwargs["bind"]: utils.speak("Release bind")
-        #Add in options for harder followup moves next time
-        if "lateMove" in self.kwargs:
-            try:
-                move = self.kwargs["lateMove"].pop()
-                self.addMove(move)
-            except KeyError:
-                pass
-        #Deal with imbalances
-        if self.side:
-            if self in imbalance:
-                imbalance.remove(self)
-            else:
-                imbalance.append(self.otherside)
+        self.promoteLate() #Add in options for harder followup moves next time
         return nextMove
     def __repr__(self):
         return "Move(%s)" % self.title
@@ -118,7 +119,7 @@ class Move(object):
         return self.title < other.title
 
 
-def twoSides(title, audio, time, *args, **kwargs):
+def twoSides(title : str , audio : str , time : int , *args, **kwargs):
     """Hey, you have two legs. Convenience method to generate both left and right sides for a move"""
     dicR = {"same": "Right", "other": "Left"}
     dicL = {"same": "Left", "other": "Right"}
@@ -298,6 +299,7 @@ feetUpAWall = Move("Feet Up A Wall", 0, "Feet Up A Wall", 4, lowBoat, boat, exte
 hero = Move("Hero Pose", 0, "Tuck both feet under your glutes. Lean back as far as possible. Hero Pose", 20, seatedMeditation)
 deepSquat = Move("Deep Squat", 0, "Squat as deeply as you can", 30, vinyasa, chair, lateMove=set([crow]))
 frog = Move("Frog Pose", 0, "Frog Pose", 30, seatedMeditation, vinyasa)
+cowFace = twoSides('Cow-Facing Pose', 'Cow-Facing Pose', 30, seatedMeditation, child) #TODO: more useful instructions
 
 #Begin linking moves to each other
 wideLegStance.addMove(mountainPose, starPose, wideLegForwardFold, *warrior2)
@@ -309,7 +311,7 @@ mountainPose.addMove(forwardFold, chair, *standingTwist)
 mountainPose.addMove(*standingSideStretch)
 mountainPose.addLateMove(*dancer)
 backBend.addMove(mountainPose, forwardFold, *standingSideStretch)
-staff.addMove(lieOnBack, butterflyStretch, camel, hero, boat)
+staff.addMove(lieOnBack, butterflyStretch, camel, boat)
 staff.addLateMove(yogaBicycles, mountainPose)
 downwardDog.addMove(plank)
 flatBack.addMove(forwardFold)
@@ -347,6 +349,7 @@ def moveReverse(*args, late=False):
 
 moveReverse(seatedTwist, childsPoseSideStretch, threadTheNeedle)
 moveReverse(headToKnee)
+moveReverse(cowFace)
 
 wideLegForwardFold.addMove(*standingLegStretch)
 forwardFold.addMove(flatBack)
@@ -367,6 +370,7 @@ for i in dancer: i.addMove(forwardFold)
 for i in warrior3: i.addMove(forwardFold)
 for i in headToKnee: i.addLateMove(hero)
 for i in standingSplits: i.addLateMove(handstandHops)
+for i in threadTheNeedle: i.addLateMove(child)
 
 doubleAdd(oneLeggedChair, standingLegLift1)
 doubleAdd(sidePlank, sideAngle, sidePlankLegUp)
@@ -430,8 +434,9 @@ jumpingJacks = Move("Jumping Jacks", 0, "Jumping Jacks!", 60, mountainPose)
 runInPlace = Move("Running In Place", 0, "Run In Place", 60, mountainPose, jumpingJacks)
 burpies = Move("Burpies!", 0, "Burpies", 45, vinyasa, forwardFold, plank, extended=[60,75,90])
 jumpingSquats = Move("Jumping Squats", 0, "Jumping Squats", 30, chair, forwardFold)
-situps = Move("Situps", 0, "Situps", 30, vinyasa, extended=[45,60])
+situps = Move("Situps", 0, "Situps", 30, vinyasa, extended=[45,60], lateMove=set([boat]))
 
+# Strength
 
 def linkAerobics():
     chair.addLateMove(jumpingSquats)
@@ -441,7 +446,8 @@ def linkAerobics():
     lieOnBack.addLateMove(situps)
 
 def linkSavasana(*args):
-    moves = [child, downwardDog, staff, seatedMeditation, mountainPose, table] + list(args)
+    moves = [child, downwardDog, staff, seatedMeditation, mountainPose, table, \
+            lieOnBack, lieOnFront] + list(args)
     for i in moves:
         i.addMove(savasana)
 
@@ -451,11 +457,12 @@ def unlinkWarmup():
     backBend.removeMove(*standingSideStretch)
     seatedMeditation.removeMove(table, catCow, *seatedTwist)
     child.removeMove(*childsPoseSideStretch)
-
     #Remove these impossible moves from imbalances
     moves = set(standingTwist+standingSideStretch+seatedTwist+childsPoseSideStretch)
     for i in range(len(imbalance),0,-1):
         if i in moves: imbalances.pop(i)
+    #Also, add these harder moves
+    downwardDog.addLateMove(handstandHops)
 
 def linkHarder():
     seatedMeditation.addMove(frog)
@@ -466,9 +473,11 @@ def linkCooldown():
     child.addMove(*childsPoseSideStretch)
     downwardDog.addMove(table, child, lieOnBack)
     vinyasa.addMove(child, lieOnBack, staff)
+    staff.addMove(hero)
+    seatedMeditation.addMove(*cowFace)
 
-def routine(li, playLast = True, **kwargs):
-    print("Running rouine:",li)
+def routine(li : list, playLast = True, **kwargs):
+    """Plays a list of moves. if playLast = False, returns last move instead of playing it"""
     li_copy = li.copy()
     for i in range(len(li)-1):
         current_pose, next_pose = li_copy[i], li_copy[i+1]
@@ -476,11 +485,11 @@ def routine(li, playLast = True, **kwargs):
     if not playLast: return li_copy[-1]
     return li_copy[-1].play(**kwargs)
 
-def fixImbalance(pose, imbalance, maxImbalance=8, maxTime = 60, **kwargs):
-    """Might try to fix the imbalance. Might not. Depends on how big the imbalance is"""
+def fixImbalance(pose, imbalance, maxImbalance=1, maxTime = 60, **kwargs):
+    """Might try to fix the imbalance. Might not. Depends on how big the imbalance is.
+    (Set maxImbalance to 1 to ensure imbalance gets fixed)"""
     fixImbalanceChance = len(imbalance)/maxImbalance
     if random.random() < fixImbalanceChance:
-        print("trying to fix imbalance")
         end = time.time() + maxTime
         while imbalance and time.time() < end:
             print("Current imbalance is:", imbalance)
@@ -506,10 +515,10 @@ def main():
         total_time = DEFAULT_TIME*60
     start = time.time()
     end = start + total_time
-    pose = child.play(time=20)
+    pose = child.play(time=15)
     try:
         #warmup
-        while time.time() - start < max(60,total_time//12):
+        while time.time() - start < max(45,total_time//12):
             nextPose = pose.play(extended=True, early=True) #start slower
             pose = nextPose
         #get me to table:
@@ -517,30 +526,32 @@ def main():
         table.addMove(downwardDog, plank)
         catCow.addMove(downwardDog, plank)
         if aerobics: linkAerobics()
-        pose = fixImbalance(pose,imbalance,maxImbalance=1,maxTime=max(45,total_time//12))
-        print(imbalance)
+        pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12))
         pose = routine(dijkstras.dijkstra(pose, downwardDog), playLast=False) #get me to downwards dog
         unlinkWarmup()
         pose = pose.play(nextMove=plank)
         utils.speak("Alright, warmup over.")
-        pose = pose.play(extended = True)
+        pose = pose.play()
         #starting main part of workout
         while time.time() - start < total_time//2:
             pose = fixImbalance(pose,imbalance,maxImbalance=10,maxTime=max(60,total_time//12))
             nextPose = pose.play()
             pose = nextPose
         #add harder poses in here
-        utils.speak("We have reached the halfway point")
         linkHarder()
+        pose = fixImbalance(pose, imbalance, maxTime=max(60, total_time//12))
+        utils.speak("We have reached the halfway point")
         #end adding harder poses
-        while time.time() < (end - max(45, total_time//10)):
+        while time.time() < (end - max(60, total_time//10)):
             extendedChance = (time.time() - start)/total_time
             extended = random.random() < extendedChance
-            pose = fixImbalance(pose, imbalance, maxImbalance=8, maxTime=max(90,total_time//10))
+            pose = fixImbalance(pose, imbalance, maxImbalance=8, maxTime=max(110,total_time//10))
             nextPose = pose.play(harder=True, extended=extended)
             pose = nextPose
         #add in more restorative poses here
         linkCooldown()
+        #one more try to fix that damned imbalance
+        pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10))
         #move into more restorative poses....
         while time.time() < (end-30):
             nextPose = pose.play(extended=True)

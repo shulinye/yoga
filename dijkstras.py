@@ -3,7 +3,7 @@
 import heapq
 import time
 
-LATEPENALTY = 250
+LATEPENALTY = 40
 IMBALANCE_BOUNTY = 3
 
 class TimeExceededError(Exception):

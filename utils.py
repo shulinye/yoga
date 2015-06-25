@@ -6,10 +6,10 @@ import time
 
 DEBUG = False
 
-def speak(text):
+def speak(text : str ):
     subprocess.call('espeak -v en-gb \"' + text + '\"', shell=True)
 
-def countdown(n, *args, **kwargs):
+def countdown(n : int , *args, **kwargs): #Uh, why do I have args and kwargs here?
     incremental = n>30
     while n > 0:
         sys.stdout.write(str(n) + "...")
