@@ -466,12 +466,14 @@ def linkCooldown():
     downwardDog.addMove(table, child, lieOnBack)
     vinyasa.addMove(child, lieOnBack, staff)
 
-def routine(li, **kwargs):
+def routine(li, playLast = True, **kwargs):
+    print("Running rouine:",li)
     li_copy = li.copy()
     for i in range(len(li)-1):
         current_pose, next_pose = li_copy[i], li_copy[i+1]
         current_pose.play(nextMove=next_pose, **kwargs)
-    return li_copy[-1]
+    if not playLast: return li_copy[-1]
+    return li_copy[-1].play(**kwargs)
 
 def fixImbalance(pose, imbalance, maxImbalance=8, maxTime = 60, **kwargs):
     """Might try to fix the imbalance. Might not. Depends on how big the imbalance is"""
@@ -482,11 +484,9 @@ def fixImbalance(pose, imbalance, maxImbalance=8, maxTime = 60, **kwargs):
         while imbalance and time.time() < end:
             print("Current imbalance is:", imbalance)
             try:
-                r = dijkstras.dijkstra(pose,*imbalance,imbalance=imbalance)
-                pose = routine(r)
-                pose = pose.play()
+                pose = routine(dijkstras.dijkstra(pose,*imbalance,imbalance=imbalance, **kwargs))
             except dijkstras.TimeExceededError:
-                print("got TimeExceededError")
+                print("got TimeExceededError", imbalance)
                 break
             except ValueError:
                 print("probably impossible...", imbalance)
@@ -516,9 +516,9 @@ def main():
         table.addMove(downwardDog, plank)
         catCow.addMove(downwardDog, plank)
         if aerobics: linkAerobics()
-        pose = fixImbalance(pose,imbalance,maxImbalance=1,maxTime=max(30,total_time//12))
+        pose = fixImbalance(pose,imbalance,maxImbalance=1,maxTime=max(45,total_time//12))
         print(imbalance)
-        pose = routine(dijkstras.dijkstra(pose, downwardDog)) #get me to downwards dog
+        pose = routine(dijkstras.dijkstra(pose, downwardDog), playLast=False) #get me to downwards dog
         unlinkWarmup()
         pose = pose.play(nextMove=plank)
         utils.speak("Alright, warmup over.")
@@ -547,11 +547,9 @@ def main():
         #deal with imbalances, somehow
         linkSavasana()
         pose = routine(dijkstras.dijkstra(pose,savasana, imbalance=imbalance)) #Somehow, get seamlessly to savasana
-        pose.play()
     except KeyboardInterrupt:
         linkSavasana()
         pose = routine(dijkstras.dijkstra(pose,savasana))
-        pose.play()
     finally:
         print(imbalance)
         print("\nTotal Time: " + utils.prettyTime(time.time()-start))

@@ -26,7 +26,6 @@ def dijkstra(start, *goal, limit=None, imbalance=[]):
         if len(frontier) == 0:
             raise ValueError("frontier is empty")
         cost, node = heapq.heappop(frontier)
-        print(cost,node)
         if limit and cost > limit:
             raise TimeExceededError("Time exceeded. No match found")
         new_cost = cost + node.time
