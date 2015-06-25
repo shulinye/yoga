@@ -556,7 +556,7 @@ def main():
         savasana.play()
     finally:
         print(imbalance)
-        print("\nTotal Time: " + prettyTime(time().time()-start))
+        print("\nTotal Time: " + prettyTime(time.time()-start))
 
 if __name__== "__main__":
     main()
