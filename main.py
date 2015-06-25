@@ -146,7 +146,7 @@ def doubleAdd(move, *args, inverted=False, late=False):
 
 #Begin list of moves
 lowPlank = Move("Low Plank", 0, "Lower down into Low Plank. Hold", 10, extended_time=[15,20])
-plank = Move("Plank", 0, "Plank. Hold",30, lowPlank, extended_time=[60], harder="Throw in a few pushups!")
+plank = Move("Plank", 0, "Plank. Hold", 30, lowPlank, extended_time=[45,60], harder="Throw in a few pushups!")
 balancingTable = twoSides("Balancing Table", "When you are ready, extend the opposite arm", \
         10, harder="Want a challenge? Extend the same arm.")
 balancingTableLegOnly = twoSides("Balancing Table, Leg Only", "Extend %(same)s leg behind you", 4)
@@ -178,10 +178,14 @@ kneeToNose = twoSides("Knee To Nose", "Take your %(same)s knee and bring it towa
 kneeToElbow = twoSides("Knee To Elbow", "Take your %(same)s knee and bring it to your %(same)s elbow. Hold", \
         15, harder="Try to bring your knee up to your forearm!", extended_time=[20,30])
 kneeToOtherElbow = twoSides("Knee To Other Elbow", "Take your %(same)s knee and bring it across your body to your %(other)s elbow", 15, vinyasa, extended_time=[20,30])
-standingLegLift1 = twoSides("Standing Leg Lift", "Raise your %(same)s foot up and grab it with your %(same) hand. Standing Leg Lift. Hold", 20, extended_time=[30,45,60])
-standingLegLift2 = twoSides("Standing Leg Lift, Leg to Side", "Now take your %(same)s foot and move it out to the side. Hold", 20, extended_time=[30,45,60])
-standingLegLift3 = twoSides("Standing Leg Lift, Both Hands", "Return %(same)s foot to center. Grab with both hands, head to knee or chin to shin. Hold.", 20, extended_time=[30,45,60])
-standingLegLift4 = twoSides("Standing Leg Lift, No Hands", "Release %(same)s foot. Hold foot up towards ceiling.", 25, extended_time=[30,45,60])
+standingLegLift1 = twoSides("Standing Leg Lift", "Raise your %(same)s foot up and grab it with your %(same) hand. Standing Leg Lift. Hold", \
+        20, extended_time=[30,45,60])
+standingLegLift2 = twoSides("Standing Leg Lift, Leg to Side", "Now take your %(same)s foot and move it out to the side. Hold", \
+        20, extended_time=[30,45,60])
+standingLegLift3 = twoSides("Standing Leg Lift, Both Hands", "Return %(same)s foot to center. \
+        Grab with both hands, head to knee or chin to shin. Hold.", 20, extended_time=[30,45,60])
+standingLegLift4 = twoSides("Standing Leg Lift, No Hands", "Release %(same)s foot. Hold foot up towards ceiling.", \
+        25, extended_time=[30,45,60])
 eagle = twoSides("Eagle Pose", "Take your %(same)s foot and twist it over your %(other)s leg. Twine your arms, %(same) arm lower. Eagle Pose", 25, extended_time=[40],\
         harder="Bring your elbows to your knees, and then straighten. Repeat")
 treePose = twoSides("Tree Pose", "Tree Pose, %(same)s side", 25, vinyasa, extended_time=[45,60])
@@ -232,7 +236,8 @@ cresent = twoSides("Cresent Lunge", "Cresent Lunge, %(same)s foot forward", 10, 
 cresentTwist = twoSides("Cresent Twist", "Cresent Twist. Twist to the %(same)s side.", 15, bind=True)
 chairTwist = twoSides("Chair Twist", "Chair Twist. Twist to the %(same)s side", 15, bind=True)
 chair = Move("Chair Pose", 0, "Chair Pose", 15, vinyasa, *chairTwist, extended_time=[30, 40, 60])
-oneLeggedChair = twoSides("One Legged Chair", "Shift all your weight to your %(other)s foot. Grab your %(same)s foot with your %(same)s hand. Raise %(same)s foot", 15, chair, extended_time=[20,30])
+oneLeggedChair = twoSides("One Legged Chair", "Shift all your weight to your %(other)s foot. Grab your %(same)s \
+        foot with your %(same)s hand. Raise %(same)s foot", 15, chair, extended_time=[20,30])
 crow = Move("Crow Pose", 0, "Crow Pose", 30, vinyasa, harder="Try to straigten your arms")
 sideCrow = twoSides("Side Crow", "Side Crow, %(same)s Side", 30, vinyasa)
 boat = Move("Boat Pose", 0, "Boat Pose", 30, staff, extended_time=[45,60])
@@ -273,7 +278,8 @@ upwardPlank = Move("Upward Plank", 0, "Upward Plank", 30, vinyasa)
 upwardPlankLiftedLeg = twoSides("Upward Plank, Lifted Leg", "Lift your %(same)s leg. Upward Plank, %(same)s leg lifted", \
         15, upwardPlank, vinyasa)
 lieOnBack = Move("Lie On Back", 0, "Lie on Your Back", 4, supportedShoulderStand, upwardPlank, vinyasa)
-spinalTwist = twoSides("Spinal Twist","Bring your knees up to your chest, and then let them fall to the %(same)s. Look towards your %(other)s hand. Spinal Twist", 20, lieOnBack)
+spinalTwist = twoSides("Spinal Twist","Bring your knees up to your chest, and then let them fall to the %(same)s. \
+        Look towards your %(other)s hand. Spinal Twist", 20, lieOnBack)
 lieOnFront = Move("Lie On Front", 0, "Lie on Your Stomach", 4, superMan, bow, lieOnBack, vinyasa, lateMove=set([plank]))
 yogaBicycles = Move("Bicycles", 0, "Bicycles", 30, lieOnBack, vinyasa, extended_time=[45, 60])
 savasana = Move("Savasana", 0, "Sahvahsahnah", 30, None)
@@ -472,14 +478,6 @@ def fixImbalance(pose, imbalance, maxImbalance=8, maxTime = 60, **kwargs):
         if imbalance: print("imbalance remains: [" + "; ".join(str(i) for i in imbalance) + "]")
     return pose
 
-def prettyTime(time):
-    """takes a time, in seconds, and formats it for display"""
-    h = time//3600
-    m = time//60 % 60
-    s = time % 60
-    if h: return "%s hour(s), %s minute(s), %s second(s)" % (h,m,s)
-    else: return "%s minute(s), %s second(s)" % (m,s)
-
 def main():
     utils.speak("Beginning in")
     print("Beginning in:")
@@ -507,7 +505,7 @@ def main():
         pose = routine(dijkstras.dijkstra(pose, downwardDog)) #get me to downwards dog
         unlinkWarmup()
         pose = pose.play(nextMove=plank)
-        speak("Alright, warmup over.")
+        utils.speak("Alright, warmup over.")
         pose = pose.play(extended = True)
         #starting main part of workout
         while time.time() - start < total_time//2:
@@ -521,7 +519,7 @@ def main():
         while time.time() < (end - max(30, total_time//10)):
             extendedChance = (time.time() - start)/total_time
             extended = random.random() < extendedChance
-            pose = fixImbalane(pose, imbalance, maxImbalance=8, maxTime=max(90,total_time//10))
+            pose = fixImbalance(pose, imbalance, maxImbalance=8, maxTime=max(90,total_time//10))
             nextPose = pose.play(harder=True, extended=extended)
             pose = nextPose
         #add in more restorative poses here
