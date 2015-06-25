@@ -19,7 +19,6 @@ imbalance = []
 def speak(text):
     subprocess.call('espeak -v en-gb \"' + text + '\"', shell=True)
 
-
 def countdown(n, *args, **kwargs):
     incremental = n>30
     while n > 0:
@@ -108,7 +107,7 @@ class Move(object):
         else:
             t = self.time
         if "bind" in self.kwargs and self.kwargs["bind"]: speak("Bind if you want to")
-        if t>5: speak(str(t) + "seconds")
+        if t > 5: speak(str(t) + "seconds")
         countdown(t)
         if "bind" in self.kwargs and self.kwargs["bind"]: speak("Release bind")
         #Add in options for harder followup moves next time
@@ -153,6 +152,7 @@ def twoSides(title, audio, time, *args, **kwargs):
     L.addOtherSide(R)
     return (R,L)
 
+
 def doubleAdd(move, *args, inverted=False, late=False):
     f = Move.addLateMove if late else Move.addMove
     if inverted:
@@ -163,11 +163,12 @@ def doubleAdd(move, *args, inverted=False, late=False):
         for i in args:
             f(move[0],i[0])
             f(move[1],i[1])
-#Begin list of moves
 
+#Begin list of moves
 lowPlank = Move("Low Plank", 0, "Lower down into Low Plank. Hold", 10, extended_time=[15,20])
 plank = Move("Plank", 0, "Plank. Hold",30, lowPlank, extended_time=[60], harder="Throw in a few pushups!")
-balancingTable = twoSides("Balancing Table", "When you are ready, extend the opposite arm", 10, harder="Want a challenge? Extend the same arm.")
+balancingTable = twoSides("Balancing Table", "When you are ready, extend the opposite arm", \
+        10, harder="Want a challenge? Extend the same arm.")
 balancingTableLegOnly = twoSides("Balancing Table, Leg Only", "Extend %(same)s leg behind you", 4)
 catCow = Move("Cat Cow", 0, "Cat Cow", 10, plank, *balancingTableLegOnly)
 table = Move("Table Pose", 0, "Table Pose", 4, catCow, *balancingTableLegOnly)
@@ -465,7 +466,14 @@ def linkCooldown():
     downwardDog.addMove(table, child, lieOnBack)
     vinyasa.addMove(child, lieOnBack, staff)
 
-if __name__== "__main__":
+def routine(li):
+    li_copy = li.copy()
+    for i in range(len(li)-1):
+        current_pose, next_pose = li_copy[i], li_copy[i+1]
+        current_pose.play(nextMove=next_pose)
+    return li_copy[-1]
+
+def main():
     speak("Beginning in")
     print("Beginning in:")
     countdown(3)
@@ -476,21 +484,20 @@ if __name__== "__main__":
     try:
         #warmup
         print("warmup")
-        while datetime.datetime.now() - start < datetime.timedelta(seconds=max(60,total_time//10)):
+        while datetime.datetime.now() - start < datetime.timedelta(seconds=max(60,total_time//12)):
             nextPose = pose.play(extended=True, early=True) #start slower
             pose = nextPose
         #get me to table:
         child.addMove(downwardDog, plank)
         table.addMove(downwardDog, plank)
         catCow.addMove(downwardDog, plank)
+        while imbalance and datetime.datetime.now() - start < datetime.timedelta(seconds=max(90, total_time//8)):
+            pose = routine(dijkstras.dijkstra(pose,*imbalance, imbalance=imbalance))
         if imbalance:
             print("imbalance remains: [" + "; ".join(str(i) for i in imbalance) + "]") #deal with this somehow?
-            n = dijkstras.dijkstra(pose,*imbalance)
+            n = dijkstras.dijkstra(pose,*imbalance, imbalance=imbalance)
             print(n)
-        print("transition")
-        n = dijkstras.dijkstra(pose, downwardDog)
-        print(n)
-        assert False
+        pose = routine(dijkstras.dijkstra(pose, downwardDog)) #get me to downwards dog
         unlinkWarmup()
         pose = pose.play(nextMove=plank)
         speak("Alright, warmup over.")
@@ -523,3 +530,6 @@ if __name__== "__main__":
     finally:
         print(imbalance)
         print("\nTotal Time: " +str(datetime.datetime.now()-start))
+
+if __name__== "__main__":
+    main()

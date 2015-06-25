@@ -58,7 +58,7 @@ def dijkstra(start, *goal, limit=None, imbalance=[]):
             seen.add(i)
             prev[i] = node
         for i in late_not_seen:
-            my_cost = bounty(i, imbalance, Late_cost)
+            my_cost = bounty(i, imbalance, late_cost)
             heapq.heappush(frontier, (my_cost,i))
             seen.add(i)
             prev[i] = node
