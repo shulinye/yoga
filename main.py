@@ -474,7 +474,13 @@ def fixImbalance(pose, imbalance, maxImbalance=8, maxTime = 60, **kwargs):
     if random.random() < fixImbalanceChance:
         end = time.time() + maxTime
         while imbalance and time.time() < end:
-            pose = routine(dijkstras.dijkstra(pose,*imbalance,imbalance=imbalance))
+            try:
+                pose = routine(dijkstras.dijkstra(pose,*imbalance,imbalance=imbalance))
+            except dijkstras.TimeExceededError:
+                pass
+            except ValueError:
+                print("imbalance remains:",imbalance)
+                imbalance = []
         if imbalance: print("imbalance remains: [" + "; ".join(str(i) for i in imbalance) + "]")
     return pose
 

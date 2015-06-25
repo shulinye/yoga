@@ -6,6 +6,10 @@ import time
 LATEPENALTY = 250
 IMBALANCE_BOUNTY = 3
 
+class TimeExceededError(Exception):
+    def __init__(self, value):
+        self.value = value
+
 def bounty(node, imbalance, cost):
     return cost - IMBALANCE_BOUNTY if node in imbalance else cost
 
@@ -22,7 +26,7 @@ def dijkstra(start, *goal, limit=None, imbalance=[]):
             raise ValueError("frontier is empty")
         cost, node = heapq.heappop(frontier)
         if limit and cost > limit:
-            raise KeyError("Time exceeded. No match found")
+            raise TimeExceededError("Time exceeded. No match found")
         new_cost = cost + node.time
         late_cost = cost + node.time + LATEPENALTY
         if node in goal:
