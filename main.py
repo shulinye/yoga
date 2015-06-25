@@ -440,7 +440,7 @@ def linkAerobics():
     lieOnBack.addLateMove(situps)
 
 def linkSavasana(*args):
-    moves = [child, downwardDog, staff, seatedMeditation, mountainPose] + list(args)
+    moves = [child, downwardDog, staff, seatedMeditation, mountainPose, table] + list(args)
     for i in moves:
         i.addMove(savasana)
 
@@ -450,6 +450,11 @@ def unlinkWarmup():
     backBend.removeMove(*standingSideStretch)
     seatedMeditation.removeMove(table, catCow, *seatedTwist)
     child.removeMove(*childsPoseSideStretch)
+
+    #Remove these impossible moves from warmup
+    moves = set(standingTwist+standingSideStretch+seatedTwist+childsPoseSideStretch)
+    for i in range(imbalance,0,-1):
+        if i in moves: imbalances.pop(i)
 
 def linkHarder():
     seatedMeditation.addMove(frog)
@@ -475,14 +480,16 @@ def fixImbalance(pose, imbalance, maxImbalance=8, maxTime = 60, **kwargs):
         print("trying to fix imbalance")
         end = time.time() + maxTime
         while imbalance and time.time() < end:
+            print("Current imbalance is:", imbalance)
             try:
                 pose = routine(dijkstras.dijkstra(pose,*imbalance,imbalance=imbalance))
             except dijkstras.TimeExceededError:
-                pass
+                print("got TimeExceededError, resetting imbalance to []")
+                imbalance = []
             except ValueError:
                 print("imbalance remains:",imbalance)
                 imbalance = []
-        if imbalance: print("imbalance remains: [" + "; ".join(str(i) for i in imbalance) + "]")
+        if imbalance: print("Timeout: imbalance remains:", imbalance)
     return pose
 
 def main():
@@ -499,7 +506,6 @@ def main():
     pose = child.play(time=20)
     try:
         #warmup
-        print("warmup")
         while time.time() - start < max(60,total_time//12):
             nextPose = pose.play(extended=True, early=True) #start slower
             pose = nextPose
@@ -509,6 +515,7 @@ def main():
         catCow.addMove(downwardDog, plank)
         if aerobics: linkAerobics()
         pose = fixImbalance(pose,imbalance,maxImbalance=1,maxTime=max(30,total_time//12))
+        print(imbalance)
         pose = routine(dijkstras.dijkstra(pose, downwardDog)) #get me to downwards dog
         unlinkWarmup()
         pose = pose.play(nextMove=plank)
