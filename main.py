@@ -53,7 +53,7 @@ class Move(object):
     def promoteLate(self, move = None):
         """Promotes a late move up to the normal move pool, if possible.
         If no move given, promotes a random move"""
-         if "lateMove" in self.kwargs:
+        if "lateMove" in self.kwargs:
             if move is None:
                 try:
                     move = self.kwargs["lateMove"].pop()
