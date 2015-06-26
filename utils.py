@@ -31,6 +31,6 @@ def prettyTime(time):
     """takes a time, in seconds, and formats it for display"""
     h = time//3600
     m = time//60 % 60
-    s = time % 60
+    s = round(time % 60,2)
     if h: return "%s hour(s), %s minute(s), %s second(s)" % (h,m,s)
     else: return "%s minute(s), %s second(s)" % (m,s)

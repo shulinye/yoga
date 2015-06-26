@@ -48,14 +48,14 @@ def dijkstra(start, *goal, limit=None, imbalance=[]) -> list:
             if j not in explored:
                 if j in node.nextMove:
                     my_cost = bounty(j, imbalance, new_cost)
-                    if j == node.last: my_cost += LAST_MOVE_PENALTY
+                    if node.last and j == node.last: my_cost += LAST_MOVE_PENALTY
                     if i > my_cost:
                         frontier.remove((i,j))
                         frontier.append((new_cost, j))
                         prev[j] = node
                 elif has_late and j in node.kwargs["lateMove"]:
                     my_cost = bounty(j, imbalance, late_cost)
-                    if j == node.last: my_cost += LAST_MOVE_PENALTY
+                    if node.last and j == node.last: my_cost += LAST_MOVE_PENALTY
                     if i > late_cost:
                         frontier.remove((i,j))
                         frontier.append((late_cost,j))
@@ -63,12 +63,12 @@ def dijkstra(start, *goal, limit=None, imbalance=[]) -> list:
         heapq.heapify(frontier)
         for i in not_seen:
             my_cost = bounty(i, imbalance, new_cost)
-            if i == node.last: my_cost += LAST_MOVE_PENALTY
+            if node.last and i == node.last: my_cost += LAST_MOVE_PENALTY
             heapq.heappush(frontier, (my_cost,i))
             seen.add(i)
             prev[i] = node
         for i in late_not_seen:
-            if i == node.last: my_cost += LAST_MOVE_PENALTY
+            if node.last and i == node.last: my_cost += LAST_MOVE_PENALTY
             my_cost = bounty(i, imbalance, late_cost)
             heapq.heappush(frontier, (my_cost,i))
             seen.add(i)

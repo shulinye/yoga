@@ -154,6 +154,7 @@ balancingTable = twoSides("Balancing Table", "When you are ready, extend the opp
 balancingTableLegOnly = twoSides("Balancing Table, Leg Only", "Extend %(same)s leg behind you", 4)
 catCow = Move("Cat Cow", 0, "Cat Cow", 10, plank, *balancingTableLegOnly)
 table = Move("Table Pose", 0, "Table Pose", 4, catCow, *balancingTableLegOnly)
+fallenStar = twoSides("Fallen Star","Fallen Star, %(same)s side", 15) #TODO better instructions
 threadTheNeedle = twoSides("Thread The Needle", "Take your %(same)s hand and reach it towards the ceiling. On an exhale, slide it under your other shoulder.", 20, table)
 oneHandedTiger = twoSides("One-Handed Tiger", "Reach back and catch your %(same)s foot with your %(other)s hand. Lean into your hand", 15, table, catCow)
 vinyasa = Move("Vinyasa", 0, "Vinyasa", 4, harder="Add in a push up!")
@@ -377,6 +378,8 @@ doubleAdd(oneLeggedChair, standingLegLift1)
 doubleAdd(sidePlank, sideAngle, sidePlankLegUp)
 doubleAdd(sidePlank, cresentTwist, late=True)
 doubleAdd(sidePlankLegUp, sidePlank, cresentTwist)
+doubleAdd(threadTheNeedle, fallenStar)
+doubleAdd(fallenStar,threadTheNeedle)
 doubleAdd(warrior1, warrior2, warrior3, humbleWarrior, cresent)
 doubleAdd(humbleWarrior, warrior1)
 doubleAdd(humbleWarrior, warrior3, late=True)
@@ -438,6 +441,7 @@ jumpingSquats = Move("Jumping Squats", 0, "Jumping Squats", 30, chair, forwardFo
 situps = Move("Situps", 0, "Situps", 30, vinyasa, extended=[45,60], lateMove=set([boat]))
 
 # Strength
+pushups = Move("Pushups", 0, "Pushups", 30, vinyasa)
 
 def linkAerobics():
     chair.addLateMove(jumpingSquats)
@@ -451,6 +455,11 @@ def linkSavasana(*args):
             lieOnBack, lieOnFront] + list(args)
     for i in moves:
         i.addMove(savasana)
+
+def linkMain():
+    child.addMove(downwardDog, plank)
+    table.addMove(downwardDog, plank)
+    catCow.addMove(downwardDog, plank)
 
 def unlinkWarmup():
     mountainPose.removeMove(*standingTwist)
@@ -481,22 +490,29 @@ def linkCooldown():
     for i in threeLeggedDog: i.addMove(plank)
 
 def routine(li : list, playLast = True, **kwargs):
-    """Plays a list of moves. if playLast = False, returns last move instead of playing it"""
+    """Plays a list of moves. if playLast = False, returns last move instead of playing it
+    If KeyboardInterrupt, tries to return the move it's currently on"""
     li_copy = li.copy()
-    for i in range(len(li)-1):
-        current_pose, next_pose = li_copy[i], li_copy[i+1]
-        current_pose.play(nextMove=next_pose, **kwargs)
+    try:
+        for i in range(len(li)-1):
+            current_pose, next_pose = li_copy[i], li_copy[i+1]
+            current_pose.play(nextMove=next_pose, **kwargs)
+    except KeyboardInterrupt:
+        try:
+            return next_pose
+        except NameError:
+            return li[0]
     if not playLast: return li_copy[-1]
     return li_copy[-1].play(**kwargs)
 
 def fixImbalance(pose, imbalance, maxImbalance=1, maxTime = 60, **kwargs):
     """Might try to fix the imbalance. Might not. Depends on how big the imbalance is.
-    (Set maxImbalance to 1 to ensure imbalance gets fixed)"""
+    (Set maxImbalance to 1 to ensure imbalance gets fixed)
+    if KeyboardInterrupt: Immediately return whatever pose it was on."""
     fixImbalanceChance = len(imbalance)/maxImbalance
     if random.random() < fixImbalanceChance:
         end = time.time() + maxTime
         while imbalance and time.time() < end:
-            print("Current imbalance is:", imbalance)
             try:
                 pose = routine(dijkstras.dijkstra(pose,*imbalance,imbalance=imbalance, **kwargs))
             except dijkstras.TimeExceededError:
@@ -505,6 +521,8 @@ def fixImbalance(pose, imbalance, maxImbalance=1, maxTime = 60, **kwargs):
             except ValueError:
                 print("probably impossible...", imbalance)
                 break
+            except KeyboardInterrupt:
+                return pose
         if imbalance: print("Timeout: imbalance remains:", imbalance)
     return pose
 
@@ -522,22 +540,20 @@ def main():
     pose = child.play(time=15)
     try:
         #warmup
-        while time.time() - start < max(45,total_time//12):
+        while time.time() - start < max(45,total_time//15):
             nextPose = pose.play(extended=True, early=True) #start slower
             pose = nextPose
         #get me to table:
-        child.addMove(downwardDog, plank)
-        table.addMove(downwardDog, plank)
-        catCow.addMove(downwardDog, plank)
+        linkMain()
         if aerobics: linkAerobics()
-        pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//10))
+        pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12))
         pose = routine(dijkstras.dijkstra(pose, downwardDog), playLast=False) #get me to downwards dog
         unlinkWarmup()
         pose = pose.play(nextMove=plank)
         utils.speak("Alright, warmup over.")
         pose = pose.play()
         #starting main part of workout
-        while time.time() - start < total_time//2:
+        while time.time() - start < total_time//2 - 30:
             pose = fixImbalance(pose,imbalance,maxImbalance=10,maxTime=max(60,total_time//12))
             nextPose = pose.play()
             pose = nextPose
@@ -557,17 +573,19 @@ def main():
         #one more try to fix that damned imbalance
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10))
         #move into more restorative poses....
-        while time.time() < (end-30):
+        while time.time() < (end-max(30, total_time//10)):
             nextPose = pose.play(extended=True)
             pose = nextPose
         #deal with imbalances, somehow
         linkSavasana()
+        pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10))
         pose = routine(dijkstras.dijkstra(pose,savasana, imbalance=imbalance)) #Somehow, get seamlessly to savasana
     except KeyboardInterrupt:
         linkSavasana()
         pose = routine(dijkstras.dijkstra(pose,savasana))
     finally:
         print(imbalance)
+        utils.speak("Done!")
         print("\nTotal Time: " + utils.prettyTime(time.time()-start))
 
 if __name__== "__main__":
