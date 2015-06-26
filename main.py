@@ -50,13 +50,19 @@ class Move(object):
             return random.choice(tuple(movesCopy))
         else:
             return random.choice(tuple(self.nextMove))
-    def promoteLate(self):
+    def promoteLate(self, move = None):
+        """Promotes a late move up to the normal move pool, if possible.
+        If no move given, promotes a random move"""
          if "lateMove" in self.kwargs:
-            try:
-                move = self.kwargs["lateMove"].pop()
+            if move is None:
+                try:
+                    move = self.kwargs["lateMove"].pop()
+                    self.addMove(move)
+                except KeyError:
+                    pass
+            elif move in self.kwargs["lateMove"]:
                 self.addMove(move)
-            except KeyError:
-                pass
+                self.kwargs["lateMove"].discard(move)
     def play(self, **kwargs) -> "Move" :
         """Tells me which pose I'm supposed to do and how I'm supposed to do it.
         Also figures out next pose and deals with adding late moves"""
@@ -73,6 +79,7 @@ class Move(object):
             # Assume the caller knows what they're doing right now.
             # Should possibly assert that nextMove is a plausible nextMove
             nextMove = kwargs["nextMove"]
+            self.promoteLate(nextMove)
         elif imbalance:
             for i in imbalance:
                 if i in self.nextMove:
