@@ -5,6 +5,7 @@ import time
 
 LATEPENALTY = 40
 IMBALANCE_BOUNTY = 3
+LAST_MOVE_PENALTY = 10
 
 class TimeExceededError(Exception):
     def __init__(self, value):
@@ -17,12 +18,12 @@ def bounty(node : int, imbalance : list , cost : int ) -> int:
 def dijkstra(start, *goal, limit=None, imbalance=[]) -> list:
     """Uses dijkstra's algorithm to find the shortest path to a target move.
     If multiple targets are entered, use the first one found."""
+    if start in goal: return [start]
     node = start
     frontier = [(0, start)]
     seen = set()
     explored = set()
     prev = {}
-    if start in goal: return [start]
     while True:
         if len(frontier) == 0:
             raise ValueError("frontier is empty")
@@ -47,12 +48,14 @@ def dijkstra(start, *goal, limit=None, imbalance=[]) -> list:
             if j not in explored:
                 if j in node.nextMove:
                     my_cost = bounty(j, imbalance, new_cost)
+                    if j == node.last: my_cost += LAST_MOVE_PENALTY
                     if i > my_cost:
                         frontier.remove((i,j))
                         frontier.append((new_cost, j))
                         prev[j] = node
                 elif has_late and j in node.kwargs["lateMove"]:
                     my_cost = bounty(j, imbalance, late_cost)
+                    if j == node.last: my_cost += LAST_MOVE_PENALTY
                     if i > late_cost:
                         frontier.remove((i,j))
                         frontier.append((late_cost,j))
@@ -60,10 +63,12 @@ def dijkstra(start, *goal, limit=None, imbalance=[]) -> list:
         heapq.heapify(frontier)
         for i in not_seen:
             my_cost = bounty(i, imbalance, new_cost)
+            if i == node.last: my_cost += LAST_MOVE_PENALTY
             heapq.heappush(frontier, (my_cost,i))
             seen.add(i)
             prev[i] = node
         for i in late_not_seen:
+            if i == node.last: my_cost += LAST_MOVE_PENALTY
             my_cost = bounty(i, imbalance, late_cost)
             heapq.heappush(frontier, (my_cost,i))
             seen.add(i)

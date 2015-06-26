@@ -12,7 +12,7 @@ import dijkstras
 import utils
 
 debug = False
-aerobics = False
+aerobics = True
 DEFAULT_TIME = 15 #minutes
 
 imbalance = []
@@ -231,6 +231,7 @@ standingSplits = twoSides("Standing Splits", "Raise your %(same)s foot up toward
         20, vinyasa, extended_time=[30])
 lizard = twoSides("Lizard Pose", "Lizard Pose, %(same)s side", 30, vinyasa, \
         bind=True, harder="Lower yourself onto your forearms", extended_time=[45,60])
+chinStand = twoSides("Chin Stand", "Chin Stand, %(same)s side", 30, vinyasa)
 runningMan = twoSides("Running Man", "Running Man, %(same)s side", 30, vinyasa)
 revolvedRunningMan = twoSides("Revolved Running Man", "Revolved Running Man, %(same)s side", 30, vinyasa)
 cresent = twoSides("Cresent Lunge", "Cresent Lunge, %(same)s foot forward", 10, \
@@ -375,14 +376,14 @@ for i in threadTheNeedle: i.addLateMove(child)
 doubleAdd(oneLeggedChair, standingLegLift1)
 doubleAdd(sidePlank, sideAngle, sidePlankLegUp)
 doubleAdd(sidePlank, cresentTwist, late=True)
-doubleAdd(sidePlankLegUp, sidePlank, sideAngle, cresentTwist)
+doubleAdd(sidePlankLegUp, sidePlank, cresentTwist)
 doubleAdd(warrior1, warrior2, warrior3, humbleWarrior, cresent)
 doubleAdd(humbleWarrior, warrior1)
 doubleAdd(humbleWarrior, warrior3, late=True)
 doubleAdd(warrior2, sideAngle, triangle, reverseWarrior, cresent)
-doubleAdd(threeLeggedDog, lowLunge, kneeToElbow, pigeon, kneeToNose, warrior1, warrior2, twoLeggedDog, flippedDog)
+doubleAdd(threeLeggedDog, lowLunge, kneeToElbow, kneeToNose, warrior1, warrior2, twoLeggedDog, flippedDog)
 doubleAdd(twoLeggedDog, threeLeggedDog)
-doubleAdd(threeLeggedDog, runningMan, revolvedRunningMan, pigeon, late=True)
+doubleAdd(threeLeggedDog, runningMan, revolvedRunningMan, late=True)
 doubleAdd(flippedDog, threeLeggedDog)
 doubleAdd(pigeon, threeLeggedDog, kingPigeon)
 doubleAdd(kingPigeon, threeLeggedDog)
@@ -467,14 +468,17 @@ def unlinkWarmup():
 def linkHarder():
     seatedMeditation.addMove(frog)
     staff.addMove(frog)
+    doubleAdd(runningMan,chinStand)
+    doubleAdd(threeLeggedDog, pigeon)
 
 def linkCooldown():
-    moveReverse(runningMan, sideCrow, flyingPigeon) #Allow me to just go from one arm balance to the opposite side, to increase the chances I get balanced
+    moveReverse(runningMan, sideCrow, flyingPigeon, revolvedRunningMan) #Allow me to just go from one arm balance to the opposite side, to increase the chances I get balanced
     child.addMove(*childsPoseSideStretch)
     downwardDog.addMove(table, child, lieOnBack)
     vinyasa.addMove(child, lieOnBack, staff)
     staff.addMove(hero)
     seatedMeditation.addMove(*cowFace)
+    for i in threeLeggedDog: i.addMove(plank)
 
 def routine(li : list, playLast = True, **kwargs):
     """Plays a list of moves. if playLast = False, returns last move instead of playing it"""
@@ -526,7 +530,7 @@ def main():
         table.addMove(downwardDog, plank)
         catCow.addMove(downwardDog, plank)
         if aerobics: linkAerobics()
-        pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12))
+        pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//10))
         pose = routine(dijkstras.dijkstra(pose, downwardDog), playLast=False) #get me to downwards dog
         unlinkWarmup()
         pose = pose.play(nextMove=plank)
@@ -539,7 +543,7 @@ def main():
             pose = nextPose
         #add harder poses in here
         linkHarder()
-        pose = fixImbalance(pose, imbalance, maxTime=max(60, total_time//12))
+        pose = fixImbalance(pose, imbalance, maxTime=max(60, total_time//10))
         utils.speak("We have reached the halfway point")
         #end adding harder poses
         while time.time() < (end - max(60, total_time//10)):
