@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 
 import random
+import functools
+import operator
+
 import utils
 
 class Move(object):
@@ -414,7 +417,7 @@ def generateMoves():
     doubleAdd(movesGraph['lowLunge'], movesGraph['warrior3'], late=True)
     doubleAdd(movesGraph['eagle'], movesGraph['standingSplits'])
     doubleAdd(movesGraph['eagle'], movesGraph['warrior3'], late=True, inverted=True)
-    doubleAdd(movesGraph['warrior3'], movesGraph['standingLegLift1'], movesGraph['standingSplits'], movesGraph['tree'], movesGraphs['eagle'], \
+    doubleAdd(movesGraph['warrior3'], movesGraph['standingLegLift1'], movesGraph['standingSplits'], movesGraph['tree'], movesGraph['eagle'], \
             inverted=True)
     doubleAdd(movesGraph['warrior3'], movesGraph['warrior2'])
     doubleAdd(movesGraph['cresent'], movesGraph['warrior1'], movesGraph['cresentTwist'], movesGraph['warrior3'])
@@ -487,20 +490,22 @@ def unlinkWarmup(movesGraph, imbalance=[]):
     movesGraph['seatedMeditation'].removeMove(movesGraph['table'], movesGraph['catCow'], *movesGraph['seatedTwist'])
     movesGraph['child'].removeMove(*movesGraph['childsPoseSideStretch'])
     #Remove these impossible moves from imbalances
-    moves = set(movesGraph[i] for i in (standingTwist+standingSideStretch+seatedTwist+childsPoseSideStretch))
+    moves = set(functools.reduce(operator.add,[movesGraph[i] for i in ('standingTwist','standingSideStretch','seatedTwist','childsPoseSideStretch')]))
     for i in range(len(imbalance),0,-1):
         if i in moves: imbalances.pop(i)
 
-def linkHarder(movesGraph):
+def linkHarder(movesGraph) -> None:
+    """Links some harder moves."""
     movesGraph['seatedMeditation'].addMove(movesGraph['frog'])
     movesGraph['staff'].addMove(movesGraph['frog'])
     doubleAdd(movesGraph['runningMan'], movesGraph['chinStand'])
     doubleAdd(movesGraph['threeLeggedDog'], movesGraph['pigeon'])
     movesGraph['downwardDog'].addLateMove(movesGraph['handstandHops'])
 
-def linkCooldown():
+def linkCooldown(movesGraph) -> None:
     #Allow me to just go from one arm balance to the opposite side, to increase the chances I get balanced
-    moveReverse(movesGraph['runningMan'], movesGraph['sideCrow'], movesGraph['flyingPigeon'], movesGraph['revolvedRunningMan'])
+    moveReverse(movesGraph['runningMan'], movesGraph['sideCrow'], movesGraph['flyingPigeon'], \
+            movesGraph['revolvedRunningMan'], movesGraph['chinStand'])
     movesGraph['child'].addMove(*movesGraph['childsPoseSideStretch'])
     movesGraph['downwardDog'].addMove(movesGraph['table'], movesGraph['child'], movesGraph['lieOnBack'])
     movesGraph['vinyasa'].addMove(movesGraph['child'], movesGraph['lieOnBack'], movesGraph['staff'])
