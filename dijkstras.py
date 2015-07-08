@@ -30,6 +30,8 @@ def dijkstra(start, *goal, limit=None, imbalance=[]) -> list:
         cost, node = heapq.heappop(frontier)
         if limit and cost > limit:
             raise TimeExceededError("Time exceeded. No match found")
+        if node == None:
+            raise ValueError("Node is None")
         new_cost = cost + node.time
         late_cost = cost + node.time + LATEPENALTY
         if node in goal:

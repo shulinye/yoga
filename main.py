@@ -18,7 +18,7 @@ import moves
 debug = False
 aerobics = True
 strength = True
-DEFAULT_TIME = 15 #minutes
+DEFAULT_TIME = 30 #minutes
 
 def routine(li : list, imbalance, playLast = True, **kwargs):
     """Plays a list of moves. if playLast = False, returns last move instead of playing it
@@ -86,7 +86,7 @@ def main():
         pose = pose.play(imbalance=imbalance)
         #starting main part of workout
         while time.time() - start < total_time//2 - 30:
-            pose = fixImbalance(pose,imbalance,maxImbalance=10,maxTime=max(60,total_time//12))
+            pose = fixImbalance(pose,imbalance,maxImbalance=10 + total_time//600,maxTime=max(60,total_time//12))
             pose = pose.play(imbalance=imbalance)
         #add harder poses in here
         moves.linkHarder(movesGraph)
@@ -96,7 +96,7 @@ def main():
         while time.time() < (end - max(60, total_time//10)):
             extendedChance = (time.time() - start)/total_time
             extended = random.random() < extendedChance
-            pose = fixImbalance(pose, imbalance, maxImbalance=8, maxTime=max(110,total_time//10))
+            pose = fixImbalance(pose, imbalance, maxImbalance=8 + total_time//800, maxTime=max(110,total_time//10))
             pose = pose.play(harder=True, imbalance = imbalance, extended=extended)
         #add in more restorative poses here
         moves.linkCooldown(movesGraph)

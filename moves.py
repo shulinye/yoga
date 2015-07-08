@@ -392,8 +392,9 @@ def generateMoves():
 
     doubleAdd(movesGraph['oneLeggedChair'], movesGraph['standingLegLift1'])
     doubleAdd(movesGraph['sidePlank'], movesGraph['sideAngle'], movesGraph['sidePlankLegUp'])
-    doubleAdd(movesGraph['sidePlank'], movesGraph['cresentTwist'], late=True)
-    doubleAdd(movesGraph['sidePlankLegUp'], movesGraph['sidePlank'], movesGraph['cresentTwist'])
+    doubleAdd(movesGraph['sidePlank'], movesGraph['cresentTwist'], late=True, inverted=True)
+    doubleAdd(movesGraph['sidePlankLegUp'], movesGraph['sidePlank'])
+    doubleAdd(movesGraph['sidePlankLegUp'], movesGraph['cresentTwist'], inverted=True)
     doubleAdd(movesGraph['threadTheNeedle'], movesGraph['fallenStar'])
     doubleAdd(movesGraph['fallenStar'], movesGraph['threadTheNeedle'])
     doubleAdd(movesGraph['warrior1'], movesGraph['warrior2'], movesGraph['warrior3'], movesGraph['humbleWarrior'], movesGraph['cresent'])
