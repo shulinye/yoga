@@ -52,7 +52,7 @@ class Move(object):
             elif move in self.kwargs["lateMove"]:
                 self.addMove(move)
                 self.kwargs["lateMove"].discard(move)
-    def play(self, imbalance=[], **kwargs) -> "Move" :
+    def __call__(self, imbalance=[], **kwargs) -> "Move" :
         """Tells me which pose I'm supposed to do and how I'm supposed to do it.
         Also figures out next pose and deals with adding late moves"""
         print("")
@@ -480,7 +480,7 @@ def linkSavasana(movesGraph, *args):
     for i in args:
         i.addMove(movesGraph['savasana'])
 
-def linkMain(movesGraph):
+def linkMain(movesGraph) -> None:
     for i in ['child', 'table', 'catCow']:
         movesGraph[i].addMove(movesGraph['downwardDog'], movesGraph['plank'])
 
@@ -494,6 +494,7 @@ def unlinkWarmup(movesGraph, imbalance=[]):
     moves = set(functools.reduce(operator.add,[movesGraph[i] for i in ('standingTwist','standingSideStretch','seatedTwist','childsPoseSideStretch')]))
     for i in range(len(imbalance),0,-1):
         if i in moves: imbalances.pop(i)
+    return imbalance
 
 def linkHarder(movesGraph) -> None:
     """Links some harder moves."""
