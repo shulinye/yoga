@@ -135,7 +135,7 @@ def main(**kwargs):
         while time.time() < (end-max(30, total_time//10)) if defaults["cooldown"] else end:
             pose = pose(imbalance=imbalance, extended=True)
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10))
-        if defaults["cooldown"]
+        if defaults["cooldown"]:
             moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])
             pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance=imbalance), imbalance=imbalance) #Somehow, get seamlessly to savasana
     except KeyboardInterrupt:
