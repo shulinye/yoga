@@ -2,21 +2,26 @@
 A program that creates and reads yoga routines out loud to you.
 
     usage: main.py [-h] [-t TIME] [-a] [-s] [-d {-1,0,1,2}] [-w] [-c]
-                   [-i {child,seatedMeditation,lieOnBack}] [--target {plank,boat}]
-                   [--version]
+                   [-i {child,seatedMeditation,lieOnBack}] [-v] [--debug]
+                   [-m MEMORY] [--target {plank,boat}] [--version]
 
     optional arguments:
-       -h, --help            show this help message and exit
-       -t TIME, --time TIME  time (in minutes)
-       -a, --aerobics        Insert aerobics moves
-       -s, --strength        Insert strength moves/NotImplemented
-       -d {-1,0,1,2}, --difficulty {-1,0,1,2}
-                             Difficulty/NotImplemented
-       -w, --skip-warmup     skips warmup period
-       -c, --skip-cooldown   skips cooldown
-       -i {child,seatedMeditation,lieOnBack}, --initial-move {child,seatedMeditation,lieOnBack}
-       --target {plank,boat}
-       --version             show program's version number and exit
+      -h, --help            show this help message and exit
+      -t TIME, --time TIME  time (in minutes)
+      -a, --aerobics        Insert aerobics moves
+      -s, --strength        Insert strength moves/NotImplemented
+      -d {-1,0,1,2}, --difficulty {-1,0,1,2}
+                            Difficulty/NotImplemented
+      -w, --skip-warmup     skips warmup period
+      -c, --skip-cooldown   skips cooldown
+      -i {child,seatedMeditation,lieOnBack}, --initial-move {child,seatedMeditation,lieOnBack}
+      -v, --verbose
+      --debug               debug mode/NotImplemented
+      -m MEMORY, --memory MEMORY
+                            How many previous moves shall i remember?
+      --target {plank,boat}
+      --version             show program's version number and exit
+
 
 
 
