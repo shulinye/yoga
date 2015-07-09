@@ -85,9 +85,11 @@ def main(**kwargs):
             while time.time() - start < max(45,total_time//15):
                 pose = pose(imbalance=imbalance, extended=True, early=True) #start slower
         #get me to table:
-        moves.linkMain(movesGraph, d)
+        moves.linkMain(movesGraph, defaults["difficulty"])
         if defaults["aerobics"]:
-            moves.linkAerobics(movesGraph, d)
+            moves.linkAerobics(movesGraph, defaults["difficulty"])
+        if defaults["strength"]:
+            moves.linkStrength(movesGraph,defaults["difficulty"])
         pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12))
         pose = routine(dijkstras.dijkstra(pose, movesGraph['downwardDog'], imbalance=imbalance), imbalance=imbalance, playLast=False) #get me to downwards dog
         imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance)
@@ -107,7 +109,7 @@ def main(**kwargs):
             pose = fixImbalance(pose,imbalance,maxImbalance=10 + total_time//600,maxTime=max(60,total_time//12))
             pose = pose(imbalance=imbalance)
         #add harder poses in here
-        if d >= 1: moves.linkHarder(movesGraph, d)
+        if d >= 1: moves.linkHarder(movesGraph, defaults["difficulty"])
         pose = fixImbalance(pose, imbalance, maxTime=max(60, total_time//10))
         try:
             pose = routine(dijkstras.dijkstra(pose, movesGraph[defaults['target']], imbalance=imbalance), imbalance=imbalance)
@@ -134,10 +136,10 @@ def main(**kwargs):
             pose = pose(imbalance=imbalance, extended=True)
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10))
         if defaults["cooldown"]
-            moves.linkSavasana(movesGraph, difficulty=d)
+            moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])
             pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance=imbalance), imbalance=imbalance) #Somehow, get seamlessly to savasana
     except KeyboardInterrupt:
-        moves.linkSavasana(movesGraph, difficulty=d)
+        moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])
         pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance = imbalance), imbalance=imbalance)
     finally:
         print(imbalance)

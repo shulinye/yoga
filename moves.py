@@ -242,7 +242,7 @@ def generateMoves(difficulty = 1):
     movesGraph['forearmBalance'] = Move("Forearm Balance", 0, "Forearm Balance", 30, movesGraph['child'], extended_time=[45])
     movesGraph['dolphin'] = Move("Dolphin Pose", 0, "Dolphin Pose", 30, movesGraph['vinyasa'], \
             lateMove = set([movesGraph['forearmBalance']]), extended_time=[45])
-    movesGraph['downwardDog'] = Move("Downwards Dog", 0, "Downwards Dog", 4, movesGraph['forwardFold'], movesGraph['staff'], \
+    movesGraph['downwardDog'] = Move("Downwards Dog", 0, "Downwards Dog", 5 - difficulty, movesGraph['forwardFold'], movesGraph['staff'], \
             movesGraph['plank'], movesGraph['dolphin'], *movesGraph['threeLeggedDog'], extended_time=[10])
     movesGraph['upwardDog'] = Move("Upward Dog", 0, "Upward Dog", 4, movesGraph['downwardDog'], extended_time=[10,20])
     movesGraph['humbleWarrior'] = twoSides("Humble Warrior", "Intertwine your hands behind you. Lean forward. Humble Warrior", \
@@ -461,10 +461,8 @@ def generateMoves(difficulty = 1):
 def linkAerobics(movesGraph, difficulty=1):
     movesGraph['jumpingJacks'] = Move("Jumping Jacks", 0, "Jumping Jacks!", 60, movesGraph['mountain'])
     movesGraph['runInPlace'] = Move("Running In Place", 0, "Run In Place", 60, movesGraph['mountain'], movesGraph['jumpingJacks'])
-    movesGraph['burpies'] = Move("Burpies!", 0, "Burpies", 45, movesGraph['vinyasa'], movesGraph['forwardFold'], movesGraph['plank'], extended=[60,75,90])
-    movesGraph['jumpingSquats'] = Move("Jumping Squats", 0, "Jumping Squats", 30, movesGraph['chair'], movesGraph['forwardFold'])
+    movesGraph['burpies'] = Move("Burpies!", 0, "Burpies", 45, movesGraph['vinyasa'], movesGraph['forwardFold'], movesGraph['plank'], extended=[60,75,90]) 
     movesGraph['situps'] = Move("Situps", 0, "Situps", 30, movesGraph['vinyasa'], extended=[45,60], lateMove=set([movesGraph['boat']]))
-    movesGraph['chair'].addLateMove(movesGraph['jumpingSquats'])
     movesGraph['mountain'].addLateMove(movesGraph['jumpingJacks'], movesGraph['runInPlace'], movesGraph['burpies'])
     movesGraph['jumpingJacks'].addLateMove(movesGraph['runInPlace'])
     movesGraph['downwardDog'].addLateMove(movesGraph['burpies'])
@@ -473,6 +471,11 @@ def linkAerobics(movesGraph, difficulty=1):
 
 def linkStrength(movesGraph, difficulty=1) -> None:
     movesGraph['pushups'] = Move("Pushups", 0, "Pushups", 25 + 5*difficulty, movesGraph['vinyasa'], lateMove=set([movesGraph['plank']]))
+    movesGraph['jumpingSquats'] = Move("Jumping Squats", 0, "Jumping Squats", 30, movesGraph['chair'], movesGraph['forwardFold'])
+    movesGraph['chair'].addLateMove(movesGraph['jumpingSquats'])
+    movesGraph['mountain'].addLateMove(movesGraph['jumpingSquats'])
+    movesGraph['wideLegStance'].addLateMove(movesGraph['wideLegStance'])
+
 
 def linkSavasana(movesGraph, *args, difficulty=1) -> None:
     moves = ['child', 'downwardDog', 'staff', 'seatedMeditation', 'mountain', 'table', \
