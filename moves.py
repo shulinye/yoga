@@ -37,13 +37,14 @@ class Move(object):
         if "lateMove" not in self.kwargs:
             self.kwargs["lateMove"] = set()
         self.kwargs["lateMove"].update(args)
-    def notLast(self):
+    def notLast(self, prev=None):
         if self.last and len(self.nextMove)>1:
             movesCopy = self.nextMove.copy()
             movesCopy.remove(self.last)
-            return random.choice(tuple(movesCopy))
-        else:
-            return random.choice(tuple(self.nextMove))
+            if prev is not None: movesCopy.difference(prev)
+            if movesCopy:
+                return random.choice(tuple(movesCopy))
+        return random.choice(tuple(self.nextMove))
     def promoteLate(self, move = None):
         """Promotes a late move up to the normal move pool, if possible.
         If no move given, promotes a random move"""
@@ -57,7 +58,7 @@ class Move(object):
             elif move in self.kwargs["lateMove"]:
                 self.addMove(move)
                 self.kwargs["lateMove"].discard(move)
-    def __call__(self, imbalance=[], verbosity=1, **kwargs) -> "Move" :
+    def __call__(self, imbalance=[], prev = None, verbosity=1, **kwargs) -> "Move" :
         """Tells me which pose I'm supposed to do and how I'm supposed to do it.
         Also figures out next pose and deals with adding late moves"""
         print("\n" + self.title)
@@ -65,6 +66,7 @@ class Move(object):
         if self.side:
             if self in imbalance: imbalance.remove(self)
             else: imbalance.append(self.otherside)
+        prev.append(self)
         #What is my next move?
         if "nextMove" in kwargs:
             # Assume the caller knows what they're doing right now.
@@ -77,9 +79,9 @@ class Move(object):
                     nextMove = i
                     break
             else:
-                nextMove = self.notLast()
+                nextMove = self.notLast(prev)
         else:
-            nextMove = self.notLast()
+            nextMove = self.notLast(prev)
         if nextMove is not None:
             print("Next Move: " + nextMove.title)
             if verbosity >= 1:
@@ -211,16 +213,16 @@ def generateMoves(difficulty = 1):
     movesGraph['standingLegLift1'] = twoSides("Standing Leg Lift", "Raise your %(same)s foot up and grab it with your %(same) hand. \
             Standing Leg Lift. Hold", 20, extended_time=[30,45,60])
     movesGraph['standingLegLift2'] = twoSides("Standing Leg Lift, Leg to Side", "Now take your %(same)s foot and move it out to the side. Hold", \
-        20 + 5*difficulty, extended_time=reDifficultyTimes([30,45,60], 5, difficulty))
+            20 + 5*difficulty, extended_time=reDifficultyTimes([30,45,60], 5, difficulty))
     movesGraph['standingLegLift3'] = twoSides("Standing Leg Lift, Both Hands", "Return %(same)s foot to center. \
-        Grab with both hands, head to knee or chin to shin. Hold.", 20, extended_time=reDifficultyTimes([30,45,60], 5, difficulty))
+            Grab with both hands, head to knee or chin to shin. Hold.", 20, extended_time=reDifficultyTimes([30,45,60], 5, difficulty))
     movesGraph['standingLegLift4'] = twoSides("Standing Leg Lift, No Hands", "Release %(same)s foot. Hold foot up towards ceiling.", \
-        25 + 5*difficulty, extended_time=reDifficultyTimes([30,45,60], 5, difficulty))
+            25 + 5*difficulty, extended_time=reDifficultyTimes([30,45,60], 5, difficulty))
     movesGraph['eagle'] = twoSides("Eagle Pose", "Take your %(same)s foot and twist it over your %(other)s leg. Twine your arms, %(same) arm lower. Eagle Pose", 25, extended_time=[40],\
-        harder="Bring your elbows to your knees, and then straighten. Repeat")
-    movesGraph['tree'] = twoSides("Tree Pose", "Tree Pose, %(same)s side", 25, movesGraph['vinyasa'], extended_time=[45,60])
+            harder="Bring your elbows to your knees, and then straighten. Repeat")
+    movesGraph['tree'] = twoSides("Tree Pose", "Tree Pose, %(same)s side", 20, movesGraph['vinyasa'], extended_time=[45,60])
     movesGraph['halfBoundStandingLotus'] = twoSides("Half-Bound Standing Lotus", "Take your %(same)s foot and put it at the top of your %(other)s thigh. \
-            With your %(same)s hand, reach behind you and grab your %(same)s foot", 15, movesGraph['vinyasa'], \
+            With your %(same)s hand, reach behind you and grab your %(same)s foot", 10, movesGraph['vinyasa'], \
             harder="Lean forwards and touch the ground with your free hand.", extended_time=[30,45])
     movesGraph['standingLotusSquat'] = twoSides("Standing Lotus Squat", "Bend your %(other)s thigh and squat down", 15, movesGraph['vinyasa'], extended_time=[20,30])
     movesGraph['toestand'] = twoSides("Toestand", "Continue bending down, rise up onto the toes of your %(other)s foot", \
@@ -229,7 +231,7 @@ def generateMoves(difficulty = 1):
             30, movesGraph['vinyasa'])
     movesGraph['dancer'] = twoSides("Dancer Pose", "Dancer Pose, %(same)s side", 25, movesGraph['vinyasa'], extended_time=[25,45])
     movesGraph['backBend'] = Move("Back Bend", 0, "Raise your hands towards the ceiling and bend backwards", 10, movesGraph['vinyasa'])
-    movesGraph['wideLegStance'] = Move("Wide Leg Stance", 0, "Wide Leg Stance", 4)
+    movesGraph['wideLegStance'] = Move("Wide Leg Stance", 0, "Wide Leg Stance", 5 - difficulty)
     movesGraph['wideLegForwardFold'] = Move("Wide Leg Forward Fold", 0, "Wide Leg Forward Fold",15, movesGraph['wideLegStance'])
     movesGraph['armPressurePose'] = Move("Arm Pressure Pose", 0, "Wrap legs around shoulders. Attempt to balance on arms.", \
             30, movesGraph['wideLegForwardFold'])
@@ -312,7 +314,7 @@ def generateMoves(difficulty = 1):
     movesGraph['upwardPlank'] = Move("Upward Plank", 0, "Upward Plank", 30, movesGraph['vinyasa'])
     movesGraph['upwardPlankLiftedLeg'] = twoSides("Upward Plank, Lifted Leg", "Lift your %(same)s leg. Upward Plank, %(same)s leg lifted", \
             15, movesGraph['upwardPlank'], movesGraph['vinyasa'])
-    movesGraph['lieOnBack'] = Move("Lie On Back", 0, "Lie on Your Back", 4, movesGraph['supportedShoulderStand'], movesGraph['upwardPlank'], \
+    movesGraph['lieOnBack'] = Move("Lie On Back", 0, "Lie on Your Back", 5 - difficulty, movesGraph['supportedShoulderStand'], movesGraph['upwardPlank'], \
             movesGraph['vinyasa'])
     movesGraph['spinalTwist'] = twoSides("Spinal Twist","Bring your knees up to your chest, and then let them fall to the %(same)s. \
             Look towards your %(other)s hand. Spinal Twist", 20, movesGraph['lieOnBack'])
@@ -433,7 +435,8 @@ def generateMoves(difficulty = 1):
             inverted=True)
     doubleAdd(movesGraph['warrior3'], movesGraph['warrior2'])
     doubleAdd(movesGraph['cresent'], movesGraph['warrior1'], movesGraph['cresentTwist'], movesGraph['warrior3'])
-    doubleAdd(movesGraph['cresentTwist'], movesGraph['cresent'], movesGraph['chairTwist'], movesGraph['sidePlank'])
+    doubleAdd(movesGraph['cresentTwist'], movesGraph['cresent'], movesGraph['chairTwist'])
+    doubleAdd(movesGraph['cresentTwist'], movesGraph['sidePlank'], inverted=True)
     doubleAdd(movesGraph['balancingTableLegOnly'], movesGraph['balancingTable'])
     doubleAdd(movesGraph['sideAngle'], movesGraph['reverseWarrior'], movesGraph['sidePlank'], movesGraph['warrior2'], movesGraph['birdOfParadise'], \
             movesGraph['halfMoon'])
