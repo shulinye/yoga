@@ -3,10 +3,6 @@
 __version__="0.01"
 __author__="Shulin Ye"
 
-"""An attempt to make a command-line based yoga program.
-call with python3 main.py [length of routine wanted, in minutes]
-NOTE: uses espeak for audio"""
-
 import argparse
 import time
 import sys
