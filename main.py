@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-__version__="incomplete"
+__version__="0.01"
 __author__="Shulin Ye"
 
 """An attempt to make a command-line based yoga program.
@@ -62,7 +62,11 @@ def main(**kwargs):
     print("Beginning in:")
     utils.countdown(3)
     total_time = int(kwargs['time'])*60
-    movesGraph = moves.generateMoves()
+    try:
+        d = kwargs["difficulty"]
+    except KeyError:
+        d = 1
+    movesGraph = moves.generateMoves(difficulty=d)
     start = time.time()
     end = start + total_time
     imbalance = []
@@ -77,16 +81,13 @@ def main(**kwargs):
             while time.time() - start < max(45,total_time//15):
                 pose = pose(imbalance=imbalance, extended=True, early=True) #start slower
         #get me to table:
-        moves.linkMain(movesGraph)
+        moves.linkMain(movesGraph, d)
         if kwargs["aerobics"]:
-            moves.linkAerobics(movesGraph)
+            moves.linkAerobics(movesGraph, d)
         pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12))
-        pose = routine(dijkstras.dijkstra(pose, movesGraph['downwardDog']), imbalance=imbalance, playLast=False) #get me to downwards dog
+        pose = routine(dijkstras.dijkstra(pose, movesGraph['downwardDog'], imbalance=imbalance), imbalance=imbalance, playLast=False) #get me to downwards dog
         imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance)
-        try:
-            pose = pose(nextMove=movesGraph[kwargs["target"]])
-        except KeyError:
-            pose = pose(nextMove=movesGraph['plank'])
+        pose = pose(nextMove=movesGraph['plank'])
         utils.speak("Alright, warmup over.")
         pose = pose(imbalance=imbalance)
         #starting main part of workout
@@ -94,9 +95,12 @@ def main(**kwargs):
             pose = fixImbalance(pose,imbalance,maxImbalance=10 + total_time//600,maxTime=max(60,total_time//12))
             pose = pose(imbalance=imbalance)
         #add harder poses in here
-        if kwargs["difficulty"] >= 1:
-            moves.linkHarder(movesGraph)
+        if d >= 1: moves.linkHarder(movesGraph, d)
         pose = fixImbalance(pose, imbalance, maxTime=max(60, total_time//10))
+        try:
+            pose = routine(dijkstras.dijkstra(pose, movesGraph[kwargs['target']], imbalance=imbalance), imbalance=imbalance)
+        except KeyError:
+            pass
         utils.speak("We have reached the halfway point")
         #end adding harder poses
         while time.time() < (end - max(60, total_time//10)):
@@ -112,11 +116,11 @@ def main(**kwargs):
         while time.time() < (end-max(30, total_time//10)):
             pose = pose(imbalance=imbalance, extended=True)
         #deal with imbalances, somehow
-        moves.linkSavasana(movesGraph)
+        moves.linkSavasana(movesGraph, difficulty=d)
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10))
         pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance=imbalance), imbalance=imbalance) #Somehow, get seamlessly to savasana
     except KeyboardInterrupt:
-        moves.linkSavasana(movesGraph)
+        moves.linkSavasana(movesGraph, difficulty=d)
         pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance = imbalance), imbalance=imbalance)
     finally:
         print(imbalance)
@@ -132,6 +136,7 @@ if __name__== "__main__":
     parser.add_argument("-w",  "--skip-warmup", action='store_false', dest="warmup", help="skips warmup period")
     parser.add_argument("-i", "--initial-move", default="child", choices=["child", "seatedMeditation", "lieOnBack"])
     parser.add_argument("--target", default="plank", choices=["plank", "boat"])
+    parser.add_argument("--version", action="version", version="yoga " + __version__)
     args = parser.parse_args()
     print(args)
-    main(**vars(args))
+    #main(**vars(args))
