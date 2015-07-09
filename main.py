@@ -58,6 +58,7 @@ def main(**kwargs):
             "strength": False,
             "target": "plank",
             "verbose":1,
+            "memory":5,
             }
     defaults.update(kwargs)
     utils.speak("Beginning in")
@@ -70,7 +71,7 @@ def main(**kwargs):
     start = time.time()
     end = start + total_time
     imbalance = []
-    prev = collections.deque([],5)
+    prev = collections.deque([],defaults["memory"])
     try:
         pose = movesGraph[defaults['initial_move']]
     except KeyError:
@@ -147,12 +148,13 @@ if __name__== "__main__":
     parser.add_argument("-t", "--time", help="time (in minutes)", default=30, type=int)
     parser.add_argument("-a", "--aerobics", help="Insert aerobics moves", action='store_true')
     parser.add_argument("-s", "--strength", help="Insert strength moves/NotImplemented", action='store_true')
-    parser.add_argument("-d", "--difficulty", help="Difficulty/NotImplemented", default=1, type=int, choices=[-1,0,1,2])
+    parser.add_argument("-d", "--difficulty", help="Difficulty", default=1, type=int, choices=[-1,0,1,2])
     parser.add_argument("-w",  "--skip-warmup", action='store_false', dest="warmup", help="skips warmup period")
     parser.add_argument("-c", "--skip-cooldown", action='store_false', dest='cooldown', help='skips cooldown')
     parser.add_argument("-i", "--initial-move", default="child", choices=["child", "seatedMeditation", "lieOnBack"])
     parser.add_argument("-v", "--verbose", action='count', default=0)
-    parser.add_argument("--debug", action="store_true", help="debug mode/NotImplemented")
+    parser.add_argument("--debug", action="store_true", help="debug mode")
+    parser.add_argument("-m", "--memory", default=5, type=int, help="How many previous moves shall i remember?")
     parser.add_argument("--target", default="plank", choices=["plank", "boat"])
     parser.add_argument("--version", action="version", version="yoga " + __version__)
     args = parser.parse_args()

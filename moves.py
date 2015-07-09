@@ -66,7 +66,9 @@ class Move(object):
         if self.side:
             if self in imbalance: imbalance.remove(self)
             else: imbalance.append(self.otherside)
-        print("Prev:", "; ".join(str(i) for i in prev))
+        if verbosity >= 2:
+            print("Prev:", "; ".join(str(i) for i in prev))
+            print("Imbalances", "; ".join(str(i) for i in imbalance))
         prev.append(self)
         #What is my next move?
         if "nextMove" in kwargs:
@@ -551,7 +553,7 @@ def unlinkWarmup(movesGraph, imbalance=[]):
     #Remove these impossible moves from imbalances
     moves = set(functools.reduce(operator.add,[movesGraph[i] for i in ('standingTwist','standingSideStretch','seatedTwist','childsPoseSideStretch')]))
     for i in range(len(imbalance),0,-1):
-        if i in moves: imbalances.pop(i)
+        if imbalances[i] in moves: imbalances.pop(i)
     return imbalance
 
 def linkHarder(movesGraph, difficulty=1) -> None:
@@ -566,9 +568,15 @@ def linkHarder(movesGraph, difficulty=1) -> None:
         doubleAdd(movesGraph['threeLeggedDog'], movesGraph['pigeon'])
 
 def linkCooldown(movesGraph) -> None:
+    """Links cooldown moves in."""
     #Allow me to just go from one arm balance to the opposite side, to increase the chances I get balanced
     moveReverse(movesGraph['runningMan'], movesGraph['sideCrow'], movesGraph['flyingPigeon'], \
-            movesGraph['revolvedRunningMan'], movesGraph['chinStand'])
+            movesGraph['revolvedRunningMan'], movesGraph['chinStand'], movesGraph['twoLeggedDog'])
+    for i in movesGraph['runningMan']: i.addMove(movesGraph['child'])
+    for i in movesGraph['revolvedRunningMan']: i.addMove(movesGraph['child'])
+    for i in movesGraph['sideCrow']: i.addMove(movesGraph['child'])
+    for i in movesGraph['flyingPideon']: i.addMove(movesGraph['child'])
+    for i in movesGraph['twoLeggedDog']: i.addMove(movesGraph['child'], movesGraph['downwardDog'])
     movesGraph['child'].addMove(*movesGraph['childsPoseSideStretch'])
     movesGraph['downwardDog'].addMove(movesGraph['table'], movesGraph['child'], movesGraph['lieOnBack'])
     movesGraph['vinyasa'].addMove(movesGraph['child'], movesGraph['lieOnBack'], movesGraph['staff'])

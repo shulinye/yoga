@@ -11,12 +11,12 @@ A program that creates and reads yoga routines out loud to you.
       -a, --aerobics        Insert aerobics moves
       -s, --strength        Insert strength moves/NotImplemented
       -d {-1,0,1,2}, --difficulty {-1,0,1,2}
-                            Difficulty/NotImplemented
+                            Difficulty
       -w, --skip-warmup     skips warmup period
       -c, --skip-cooldown   skips cooldown
       -i {child,seatedMeditation,lieOnBack}, --initial-move {child,seatedMeditation,lieOnBack}
       -v, --verbose
-      --debug               debug mode/NotImplemented
+      --debug               debug mode
       -m MEMORY, --memory MEMORY
                             How many previous moves shall i remember?
       --target {plank,boat}
