@@ -44,7 +44,7 @@ def fixImbalance(pose, imbalance, maxImbalance=1, maxTime = 60, **kwargs) -> "Mo
         end = time.time() + maxTime
         while imbalance and time.time() < end:
             try:
-                pose = routine(dijkstras.dijkstra(pose,*imbalance,imbalance=imbalance, **kwargs), imbalance=imbalance)
+                pose = routine(dijkstras.dijkstra(pose,*imbalance,imbalance=imbalance), imbalance=imbalance, **kwargs)
             except dijkstras.TimeExceededError:
                 break
             except ValueError:
@@ -63,11 +63,13 @@ def main(**kwargs):
             "aerobics": False,
             "strength": False,
             "target": "plank",
+            "verbose":1,
             }
     defaults.update(kwargs)
     utils.speak("Beginning in")
-    print("Workout length:", defaults['time'], "minutes")
-    print("Beginning in:")
+    if defaults["verbose"] >= 1:
+        print("Workout length:", defaults['time'], "minutes")
+        print("Beginning in:")
     utils.countdown(3)
     total_time = defaults['time']*60
     movesGraph = moves.generateMoves(difficulty=defaults["difficulty"])
@@ -81,64 +83,64 @@ def main(**kwargs):
     try:
         #warmup
         if defaults["warmup"]:
-            pose = pose(time=min(15, total_time//120+7), imbalance=imbalance)
+            pose = pose(time=max(15, total_time//120+7), imbalance=imbalance, verbosity=defaults["verbose"])
             while time.time() - start < max(45,total_time//15):
-                pose = pose(imbalance=imbalance, extended=True, early=True) #start slower
+                pose = pose(imbalance=imbalance, extended=True, early=True, verbosity=defaults["verbose"]) #start slower
         #get me to table:
         moves.linkMain(movesGraph, defaults["difficulty"])
         if defaults["aerobics"]: moves.linkAerobics(movesGraph, defaults["difficulty"])
         if defaults["strength"]: moves.linkStrength(movesGraph, defaults["difficulty"])
-        pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12))
-        pose = routine(dijkstras.dijkstra(pose, movesGraph['downwardDog'], imbalance=imbalance), imbalance=imbalance, playLast=False) #get me to downwards dog
+        pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12),verbosity=defaults["verbose"])
+        pose = routine(dijkstras.dijkstra(pose, movesGraph['downwardDog'], imbalance=imbalance), imbalance=imbalance, playLast=False, verbosity=defaults["verbose"]) #get me to downwards dog
         imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance)
         try:
-            pose = routine(dijkstras.dijkstra(pose,movesGraph[defaults['target']], imbalance=imbalance), imbalance=imbalance)
+            pose = routine(dijkstras.dijkstra(pose,movesGraph[defaults['target']], imbalance=imbalance), imbalance=imbalance, verbosity=defaults["verbose"])
         except KeyError:
             pass
         except ValueError:
             pass
         except dijkstras.TimeExceededError:
             pass
-        pose = pose(nextMove=movesGraph['plank'])
+        pose = pose(nextMove=movesGraph['plank'], verbosity=defaults["verbose"])
         utils.speak("Alright, warmup over.")
-        pose = pose(imbalance=imbalance)
+        pose = pose(imbalance=imbalance, verbosity=defaults["verbose"])
         #starting main part of workout
         while time.time() - start < total_time//2 - 30:
-            pose = fixImbalance(pose,imbalance,maxImbalance=10 + total_time//600,maxTime=max(60,total_time//12))
-            pose = pose(imbalance=imbalance)
+            pose = fixImbalance(pose,imbalance,maxImbalance=10 + total_time//600,maxTime=max(60,total_time//12), verbosity=defaults["verbose"])
+            pose = pose(imbalance=imbalance, verbosity=defaults["verbose"])
         #add harder poses in here
         if defaults["difficulty"] >= 1: moves.linkHarder(movesGraph, defaults["difficulty"])
-        pose = fixImbalance(pose, imbalance, maxTime=max(60, total_time//10))
+        pose = fixImbalance(pose, imbalance, maxTime=max(60, total_time//10), verbosity=defaults["verbose"])
         try:
-            pose = routine(dijkstras.dijkstra(pose, movesGraph[defaults['target']], imbalance=imbalance), imbalance=imbalance)
+            pose = routine(dijkstras.dijkstra(pose, movesGraph[defaults['target']], imbalance=imbalance), imbalance=imbalance, verbosity=defaults["verbose"])
         except KeyError:
             pass
         except ValueError:
             pass
         except dijkstras.TimeExceededError:
             pass
-        utils.speak("We have reached the halfway point")
+        if defaults["verbose"] >= 1: utils.speak("We have reached the halfway point")
         #end adding harder poses
         while time.time() < (end - max(60, total_time//10)) if defaults["cooldown"] else end:
             extendedChance = (time.time() - start)/total_time
             extended = random.random() < extendedChance
-            pose = fixImbalance(pose, imbalance, maxImbalance=8 + total_time//800, maxTime=max(110,total_time//10))
-            pose = pose(harder=True, imbalance = imbalance, extended=extended)
+            pose = fixImbalance(pose, imbalance, maxImbalance=8 + total_time//800, maxTime=max(110,total_time//10), verbosity=defaults["verbose"])
+            pose = pose(harder=True if defaults["difficulty"] >=1 else False, imbalance = imbalance, extended=extended, verbosity=defaults["verbose"])
         if defaults["cooldown"]:
             #add in more restorative poses here
             moves.linkCooldown(movesGraph)
         #one more try to fix that damned imbalance
-        pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10))
+        pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), verbosity=defaults["verbose"])
         #move into more restorative poses....
         while time.time() < (end-max(30, total_time//10)) if defaults["cooldown"] else end:
-            pose = pose(imbalance=imbalance, extended=True)
-        pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10))
+            pose = pose(imbalance=imbalance, extended=True, verbosity=defaults["verbose"])
+        pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), verbosity=defaults["verbose"])
         if defaults["cooldown"]:
             moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])
-            pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance=imbalance), imbalance=imbalance) #Somehow, get seamlessly to savasana
+            pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance=imbalance), imbalance=imbalance, verbosity=defaults["verbose"]) #Somehow, get seamlessly to savasana
     except KeyboardInterrupt:
         moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])
-        pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance = imbalance), imbalance=imbalance)
+        pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance = imbalance), imbalance=imbalance, verbosity=defaults["verbose"])
     finally:
         print(imbalance)
         utils.speak("Done!")
@@ -153,7 +155,7 @@ if __name__== "__main__":
     parser.add_argument("-w",  "--skip-warmup", action='store_false', dest="warmup", help="skips warmup period")
     parser.add_argument("-c", "--skip-cooldown", action='store_false', dest='cooldown', help='skips cooldown')
     parser.add_argument("-i", "--initial-move", default="child", choices=["child", "seatedMeditation", "lieOnBack"])
-    parser.add_argument("-v", "--verbose", action='count')
+    parser.add_argument("-v", "--verbose", action='count', default=0)
     parser.add_argument("--debug", action="store_true", help="debug mode/NotImplemented")
     parser.add_argument("--target", default="plank", choices=["plank", "boat"])
     parser.add_argument("--version", action="version", version="yoga " + __version__)
