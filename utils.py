@@ -1,10 +1,14 @@
 #/usr/bin/python3
 
+import shutil
 import subprocess
 import sys
 import time
 
 DEBUG = False
+
+if not shutil.which('espeak'):
+    raise RuntimeError("espeak is not installed.")
 
 def speak(text : str ):
     subprocess.call('espeak -v en-gb \"' + text + '\"', shell=True)

@@ -21,7 +21,7 @@ A program that creates and reads yoga routines out loud to you.
 
 
 ## NOTE:
-Currently, Linux/Mac only. Requires `espeak`; edit the function `speak()` in `utils.py` if you'd like to use this on Windows/want to use a different speaking utility.
+Requires `espeak`; edit the function `speak()` in `utils.py` if you want to use a different speaking utility.
 
 Also: I know this algorithm can generate some pretty difficult routines, in part because it has some pretty difficult moves in it, and in part because there's a certain randomness in it. If you're going to follow this, take care to listen to your body. Heck, I can't do some of the moves I threw in here. I'm looking at you, revolved running man. Listen to your body. Injuries are not worth it. If your body doesn't want to do something today, dial it back, try again tomorrow.
 

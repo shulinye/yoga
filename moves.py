@@ -81,6 +81,8 @@ class Move(object):
         if nextMove is not None:
             print("Next Move: " + nextMove.title)
             print("My options were: " + "; ".join(str(i) for i in self.nextMove))
+            if "lateMove" in self.kwargs and self.kwargs["lateMove"]:
+                print("Latemoves: " + "; ".join(str(i) for i in self.kwargs["lateMove"]))
             self.last = nextMove
         #Tell me what to do
         utils.speak(self.audio)
@@ -280,7 +282,8 @@ def generateMoves(difficulty = 1):
     movesGraph['sideAngle'] = twoSides("Side Angle", "Side Angle", 10, movesGraph['vinyasa'], extended_time=[20])
     movesGraph['sidePlank'] = twoSides("Side Plank", "Side Plank, %(same)s side", 15, movesGraph['plank'], movesGraph['vinyasa'], \
             extended_time=[30,40])
-    movesGraph['sidePlankLegUp'] = twoSides("Side Plank, Leg Up", "Now raise your %(same)s leg up and hold", 15, extended_time=[20,25,30])
+    movesGraph['sidePlankLegUp'] = twoSides("Side Plank, Leg Up", "Now raise your %(same)s leg up and hold", 15, extended_time=[20,25,30], \
+            lateMove=set([movesGraph['vinyasa']]))
     movesGraph['triangle'] = twoSides("Triangle Pose", "Triangle Pose, %(same)s side", 15, movesGraph['vinyasa'], bind=True)
     movesGraph['pyramid'] = twoSides("Pyramid Pose", "Pyramid Pose, %(same)s side", 15, movesGraph['vinyasa'])
     movesGraph['revolvedTriangle'] = twoSides("Revolved Triangle", "Revolved Triangle Pose, %(same)s side", 15, movesGraph['vinyasa'])
@@ -503,11 +506,14 @@ def unlinkWarmup(movesGraph, imbalance=[]):
 
 def linkHarder(movesGraph, difficulty=1) -> None:
     """Links some harder moves."""
-    movesGraph['seatedMeditation'].addMove(movesGraph['frog'])
-    movesGraph['staff'].addMove(movesGraph['frog'])
-    doubleAdd(movesGraph['runningMan'], movesGraph['chinStand'])
-    doubleAdd(movesGraph['threeLeggedDog'], movesGraph['pigeon'])
-    movesGraph['downwardDog'].addLateMove(movesGraph['handstandHops'])
+    if difficulty >= 2:
+        movesGraph['downwardDog'].addLateMove(movesGraph['handstandHops'])
+        movesGraph['vinyasa'].addMove(movesGraph['forwardFold'])
+        doubleAdd(movesGraph['runningMan'], movesGraph['chinStand'])
+    if difficulty >= 1:
+        movesGraph['seatedMeditation'].addMove(movesGraph['frog'])
+        movesGraph['staff'].addMove(movesGraph['frog'])
+        doubleAdd(movesGraph['threeLeggedDog'], movesGraph['pigeon'])
 
 def linkCooldown(movesGraph) -> None:
     #Allow me to just go from one arm balance to the opposite side, to increase the chances I get balanced

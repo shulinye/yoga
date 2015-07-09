@@ -55,7 +55,7 @@ def fixImbalance(pose, imbalance, maxImbalance=1, maxTime = 60, **kwargs) -> "Mo
 
 def main(**kwargs):
     defaults = {
-            "time": DEFAULT_TIME,
+            "time": 30,
             "difficulty": 1,
             "initial_move": "child",
             "warmup": True,
@@ -86,10 +86,8 @@ def main(**kwargs):
                 pose = pose(imbalance=imbalance, extended=True, early=True) #start slower
         #get me to table:
         moves.linkMain(movesGraph, defaults["difficulty"])
-        if defaults["aerobics"]:
-            moves.linkAerobics(movesGraph, defaults["difficulty"])
-        if defaults["strength"]:
-            moves.linkStrength(movesGraph,defaults["difficulty"])
+        if defaults["aerobics"]: moves.linkAerobics(movesGraph, defaults["difficulty"])
+        if defaults["strength"]: moves.linkStrength(movesGraph, defaults["difficulty"])
         pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12))
         pose = routine(dijkstras.dijkstra(pose, movesGraph['downwardDog'], imbalance=imbalance), imbalance=imbalance, playLast=False) #get me to downwards dog
         imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance)
@@ -109,7 +107,7 @@ def main(**kwargs):
             pose = fixImbalance(pose,imbalance,maxImbalance=10 + total_time//600,maxTime=max(60,total_time//12))
             pose = pose(imbalance=imbalance)
         #add harder poses in here
-        if d >= 1: moves.linkHarder(movesGraph, defaults["difficulty"])
+        if defaults["difficulty"] >= 1: moves.linkHarder(movesGraph, defaults["difficulty"])
         pose = fixImbalance(pose, imbalance, maxTime=max(60, total_time//10))
         try:
             pose = routine(dijkstras.dijkstra(pose, movesGraph[defaults['target']], imbalance=imbalance), imbalance=imbalance)
