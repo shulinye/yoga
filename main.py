@@ -153,6 +153,8 @@ if __name__== "__main__":
     parser.add_argument("-w",  "--skip-warmup", action='store_false', dest="warmup", help="skips warmup period")
     parser.add_argument("-c", "--skip-cooldown", action='store_false', dest='cooldown', help='skips cooldown')
     parser.add_argument("-i", "--initial-move", default="child", choices=["child", "seatedMeditation", "lieOnBack"])
+    parser.add_argument("-v", "--verbose", action='count')
+    parser.add_argument("--debug", action="store_true", help="debug mode/NotImplemented")
     parser.add_argument("--target", default="plank", choices=["plank", "boat"])
     parser.add_argument("--version", action="version", version="yoga " + __version__)
     args = parser.parse_args()

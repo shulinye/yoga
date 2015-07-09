@@ -16,7 +16,7 @@ class TimeExceededError(Exception):
 def bounty(node : int, imbalance : list , cost : int ) -> int:
     """Awards a bounty to a node that's currently in the imbalanced list"""
     if node is None: return 1000 #Not a move, just set my value insanely high
-    return cost - IMBALANCE_BOUNTY if node in imbalance else cost
+    return max(1,cost - IMBALANCE_BOUNTY) if node in imbalance else cost
 
 def dijkstra(start : "node" , *goal, limit=None, imbalance=[]) -> list:
     """Uses dijkstra's algorithm to find the shortest path to a target move.
