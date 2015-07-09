@@ -13,7 +13,7 @@ class TimeExceededError(Exception):
     def __init__(self, value):
         self.value = value
 
-def bounty(node : int, imbalance : list , cost : int ) -> int:
+def bounty(node : "Move", imbalance : list , cost : int ) -> int:
     """Awards a bounty to a node that's currently in the imbalanced list"""
     if node is None: return 1000 #Not a move, just set my value insanely high
     return max(1,cost - IMBALANCE_BOUNTY) if node in imbalance else cost

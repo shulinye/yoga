@@ -470,7 +470,8 @@ def generateMoves(difficulty = 1):
 def linkAerobics(movesGraph, difficulty=1):
     movesGraph['jumpingJacks'] = Move("Jumping Jacks", 0, "Jumping Jacks!", 60, movesGraph['mountain'])
     movesGraph['runInPlace'] = Move("Running In Place", 0, "Run In Place", 60, movesGraph['mountain'], movesGraph['jumpingJacks'])
-    movesGraph['burpies'] = Move("Burpies!", 0, "Burpies", 45, movesGraph['vinyasa'], movesGraph['forwardFold'], movesGraph['plank'], extended=[60,75,90])
+    movesGraph['burpies'] = Move("Burpies!", 0, "Burpies", 30+10*difficulty, movesGraph['vinyasa'], movesGraph['forwardFold'], movesGraph['plank'], \
+            extended=reDifficultyTimes([60,75,90], 10, difficulty))
     movesGraph['situps'] = Move("Situps", 0, "Situps", 30, movesGraph['vinyasa'], extended=[45,60], lateMove=set([movesGraph['boat']]))
     movesGraph['mountain'].addLateMove(movesGraph['jumpingJacks'], movesGraph['runInPlace'], movesGraph['burpies'])
     movesGraph['jumpingJacks'].addLateMove(movesGraph['runInPlace'])

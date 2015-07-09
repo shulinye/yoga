@@ -12,9 +12,6 @@ import dijkstras
 import utils
 import moves
 
-debug = False
-
-
 def routine(li : list, imbalance, playLast = True, **kwargs) -> "Move":
     """Plays a list of moves. if playLast = False, returns last move instead of playing it
     If KeyboardInterrupt, tries to return the move it's currently on"""
@@ -156,5 +153,5 @@ if __name__== "__main__":
     parser.add_argument("--target", default="plank", choices=["plank", "boat"])
     parser.add_argument("--version", action="version", version="yoga " + __version__)
     args = parser.parse_args()
-    #print(args)
+    utils.DEBUG = vars(args)["debug"]
     main(**vars(args))
