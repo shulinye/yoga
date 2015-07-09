@@ -1,8 +1,9 @@
 # yoga
 A program that creates and reads yoga routines out loud to you.
 
-    usage: main.py [-h] [-t TIME] [-a] [-s] [-d {-1,0,1,2}] [-w]
-               [-i {child,seatedMeditation}] [--target {plank,boat}]
+    usage: main.py [-h] [-t TIME] [-a] [-s] [-d {-1,0,1,2}] [-w] [-c]
+                   [-i {child,seatedMeditation,lieOnBack}] [--target {plank,boat}]
+                   [--version]
 
     optional arguments:
        -h, --help            show this help message and exit
@@ -12,8 +13,11 @@ A program that creates and reads yoga routines out loud to you.
        -d {-1,0,1,2}, --difficulty {-1,0,1,2}
                              Difficulty/NotImplemented
        -w, --skip-warmup     skips warmup period
-       -i {child,seatedMeditation}, --initial-move {child,seatedMeditation}
-        --target {plank,boat}
+       -c, --skip-cooldown   skips cooldown
+       -i {child,seatedMeditation,lieOnBack}, --initial-move {child,seatedMeditation,lieOnBack}
+       --target {plank,boat}
+       --version             show program's version number and exit
+
 
 
 ## NOTE:
