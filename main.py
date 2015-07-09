@@ -7,6 +7,7 @@ __author__="Shulin Ye"
 call with python3 main.py [length of routine wanted, in minutes]
 NOTE: uses espeak for audio"""
 
+import argparse
 import time
 import sys
 import random
@@ -16,9 +17,7 @@ import utils
 import moves
 
 debug = False
-aerobics = True
-strength = True
-DEFAULT_TIME = 30 #minutes
+
 
 def routine(li : list, imbalance, playLast = True, **kwargs) -> "Move":
     """Plays a list of moves. if playLast = False, returns last move instead of playing it
@@ -57,31 +56,37 @@ def fixImbalance(pose, imbalance, maxImbalance=1, maxTime = 60, **kwargs) -> "Mo
         if imbalance: print("Timeout: imbalance remains:", imbalance)
     return pose
 
-def main():
+def main(**kwargs):
     utils.speak("Beginning in")
+    print("Workout length:", kwargs['time'], "minutes")
     print("Beginning in:")
     utils.countdown(3)
-    try:
-        total_time = 60*int(sys.argv[-1])
-    except ValueError:
-        print("No time gotten. Using %s minutes" % DEFAULT_TIME)
-        total_time = DEFAULT_TIME*60
+    total_time = int(kwargs['time'])*60
     movesGraph = moves.generateMoves()
     start = time.time()
     end = start + total_time
     imbalance = []
-    pose = movesGraph['child'](time=min(15, total_time//60), imbalance=imbalance)
+    try:
+        pose = movesGraph[kwargs['initial_move']]
+    except KeyError:
+        pose = movesGraph['child']
     try:
         #warmup
-        while time.time() - start < max(45,total_time//15):
-            pose = pose(imbalance=imbalance, extended=True, early=True) #start slower
+        if kwargs["warmup"]:
+            pose = pose(time=min(15, total_time//120+7), imbalance=imbalance)
+            while time.time() - start < max(45,total_time//15):
+                pose = pose(imbalance=imbalance, extended=True, early=True) #start slower
         #get me to table:
         moves.linkMain(movesGraph)
-        if aerobics: moves.linkAerobics(movesGraph)
+        if kwargs["aerobics"]:
+            moves.linkAerobics(movesGraph)
         pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12))
         pose = routine(dijkstras.dijkstra(pose, movesGraph['downwardDog']), imbalance=imbalance, playLast=False) #get me to downwards dog
         imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance)
-        pose = pose(nextMove=movesGraph['plank'])
+        try:
+            pose = pose(nextMove=movesGraph[kwargs["target"]])
+        except KeyError:
+            pose = pose(nextMove=movesGraph['plank'])
         utils.speak("Alright, warmup over.")
         pose = pose(imbalance=imbalance)
         #starting main part of workout
@@ -89,7 +94,8 @@ def main():
             pose = fixImbalance(pose,imbalance,maxImbalance=10 + total_time//600,maxTime=max(60,total_time//12))
             pose = pose(imbalance=imbalance)
         #add harder poses in here
-        moves.linkHarder(movesGraph)
+        if kwargs["difficulty"] >= 1:
+            moves.linkHarder(movesGraph)
         pose = fixImbalance(pose, imbalance, maxTime=max(60, total_time//10))
         utils.speak("We have reached the halfway point")
         #end adding harder poses
@@ -111,11 +117,21 @@ def main():
         pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance=imbalance), imbalance=imbalance) #Somehow, get seamlessly to savasana
     except KeyboardInterrupt:
         moves.linkSavasana(movesGraph)
-        pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana']))
+        pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance = imbalance), imbalance=imbalance)
     finally:
         print(imbalance)
         utils.speak("Done!")
         print("\nTotal Time: " + utils.prettyTime(time.time()-start))
 
 if __name__== "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--time", help="time (in minutes)", default=30, type=int)
+    parser.add_argument("-a", "--aerobics", help="Insert aerobics moves", action='store_true')
+    parser.add_argument("-s", "--strength", help="Insert strength moves/NotImplemented", action='store_true')
+    parser.add_argument("-d", "--difficulty", help="Difficulty/NotImplemented", default=1, type=int, choices=[-1,0,1,2])
+    parser.add_argument("-w",  "--skip-warmup", action='store_false', dest="warmup", help="skips warmup period")
+    parser.add_argument("-i", "--initial-move", default="child", choices=["child", "seatedMeditation", "lieOnBack"])
+    parser.add_argument("--target", default="plank", choices=["plank", "boat"])
+    args = parser.parse_args()
+    print(args)
+    main(**vars(args))

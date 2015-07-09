@@ -150,7 +150,7 @@ def moveReverse(*args, late=False):
         f(i[1],i[0])
 
 
-def generateMoves():
+def generateMoves(difficulty = 1):
     #Begin list of moves
     movesGraph = {
             'lowPlank': Move("Low Plank", 0, "Lower down into Low Plank. Hold", 10, extended_time=[15,20]),
@@ -385,6 +385,7 @@ def generateMoves():
     for i in movesGraph['headToKnee']: i.addLateMove(movesGraph['hero'])
     for i in movesGraph['standingSplits']: i.addLateMove(movesGraph['handstandHops'])
     for i in movesGraph['threadTheNeedle']: i.addLateMove(movesGraph['child'])
+    for i in movesGraph['fallenStar']: i.addMove(movesGraph['table'])
 
     moveReverse(movesGraph['seatedTwist'], movesGraph['childsPoseSideStretch'], movesGraph['threadTheNeedle'])
     moveReverse(movesGraph['headToKnee'])
@@ -396,7 +397,6 @@ def generateMoves():
     doubleAdd(movesGraph['sidePlankLegUp'], movesGraph['sidePlank'])
     doubleAdd(movesGraph['sidePlankLegUp'], movesGraph['cresentTwist'], inverted=True)
     doubleAdd(movesGraph['threadTheNeedle'], movesGraph['fallenStar'])
-    doubleAdd(movesGraph['fallenStar'], movesGraph['threadTheNeedle'])
     doubleAdd(movesGraph['warrior1'], movesGraph['warrior2'], movesGraph['warrior3'], movesGraph['humbleWarrior'], movesGraph['cresent'])
     doubleAdd(movesGraph['humbleWarrior'], movesGraph['warrior1'])
     doubleAdd(movesGraph['humbleWarrior'], movesGraph['warrior3'], late=True)
@@ -413,8 +413,8 @@ def generateMoves():
             movesGraph['runningMan'])
     doubleAdd(movesGraph['kneeToOtherElbow'], movesGraph['threeLeggedDog'])
     doubleAdd(movesGraph['kneeToOtherElbow'], movesGraph['revolvedRunningMan'], late=True)
-    doubleAdd(movesGraph['lowLunge'], movesGraph['warrior1'], movesGraph['warrior2'], movesGraph['cresent'], movesGraph['lizard'], \
-            movesGraph['standingSplits'])
+    doubleAdd(movesGraph['lowLunge'], movesGraph['warrior1'], movesGraph['warrior2'], movesGraph['cresent'], movesGraph['lizard'])
+    doubleAdd(movesGraph['lowLunge'], movesGraph['standingSplits'], inverted=True)
     doubleAdd(movesGraph['lowLunge'], movesGraph['warrior3'], late=True)
     doubleAdd(movesGraph['eagle'], movesGraph['standingSplits'])
     doubleAdd(movesGraph['eagle'], movesGraph['warrior3'], late=True, inverted=True)
