@@ -1,7 +1,20 @@
 # yoga
 A program that creates and reads yoga routines out loud to you.
 
-call with `python3 main.py [length of workout, in minutes]`
+    usage: main.py [-h] [-t TIME] [-a] [-s] [-d {-1,0,1,2}] [-w]
+               [-i {child,seatedMeditation}] [--target {plank,boat}]
+
+    optional arguments:
+       -h, --help            show this help message and exit
+       -t TIME, --time TIME  time (in minutes)
+       -a, --aerobics        Insert aerobics moves
+       -s, --strength        Insert strength moves/NotImplemented
+       -d {-1,0,1,2}, --difficulty {-1,0,1,2}
+                             Difficulty/NotImplemented
+       -w, --skip-warmup     skips warmup period
+       -i {child,seatedMeditation}, --initial-move {child,seatedMeditation}
+        --target {plank,boat}
+
 
 ## NOTE:
 Currently, Linux/Mac only. Requires `espeak`; edit the function `speak()` in `utils.py` if you'd like to use this on Windows/want to use a different speaking utility.
