@@ -61,7 +61,8 @@ def main(**kwargs):
             "memory":5,
             }
     defaults.update(kwargs)
-    print(defaults)
+    if defaults["verbose"] >= 1:
+        print(defaults)
     utils.speak("Beginning in")
     if defaults["verbose"] >= 1:
         print("Workout length:", defaults['time'], "minutes")
