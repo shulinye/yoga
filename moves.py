@@ -519,6 +519,8 @@ def generateMoves(difficulty = 1):
         doubleAdd(movesGraph['eagle'], movesGraph['standingSplits'])
     doubleAdd(movesGraph['warrior3'], movesGraph['standingLegLift1'], movesGraph['standingSplits'], movesGraph['tree'], movesGraph['eagle'], \
             inverted=True)
+    if difficulty >= 1:
+        doubleAdd(movesGraph['warrior3'], movesGraph['halfMoon'])
     doubleAdd(movesGraph['warrior3'], movesGraph['warrior2'])
     doubleAdd(movesGraph['cresent'], movesGraph['warrior1'], movesGraph['cresentTwist'], movesGraph['warrior3'])
     doubleAdd(movesGraph['cresentTwist'], movesGraph['cresent'], movesGraph['chairTwist'])
@@ -546,6 +548,8 @@ def generateMoves(difficulty = 1):
     doubleAdd(movesGraph['standingLotusSquat'], movesGraph['flyingPigeon'], movesGraph['toestand'])
     doubleAdd(movesGraph['standingLegLift1'], movesGraph['warrior3'], inverted=True)
     doubleAdd(movesGraph['standingLegLift2'], movesGraph['standingLegLift3'])
+    if difficulty < 1:
+        doubleAdd(movesGraph['standingLegLift2'], movesGraph['tree'])
     doubleAdd(movesGraph['standingLegLift3'], movesGraph['standingLegLift4'])
     doubleAdd(movesGraph['standingLegLift4'], movesGraph['warrior3'], inverted=True)
     doubleAdd(movesGraph['standingLegLift4'], movesGraph['standingSplits'], movesGraph['eagle'], movesGraph['tree'])
@@ -601,6 +605,7 @@ def linkStrength(movesGraph, difficulty=1) -> None:
     movesGraph['wideLegStance'].addLateMove(movesGraph['jumpingSquats'])
     movesGraph['star'].addLateMove(movesGraph['sideLunges'])
     doubleAdd(movesGraph['oneLeggedChair'], movesGraph['pistolSquats'])
+    movesGraph['lieOnFront'].addLateMove(movesGraph['pushups'])
     if difficulty >= 1:
         doubleAdd(movesGraph['standingLegLift4'], movesGraph['pistolSquats'], late=True)
         doubleAdd(movesGraph['standingLegLift1'], movesGraph['pistolSquats'], late=True)
@@ -626,6 +631,7 @@ def linkMain(movesGraph, difficulty=1) -> None:
         movesGraph[i].addMove(movesGraph['downwardDog'], movesGraph['plank'])
     if difficulty >= 1:
         movesGraph['table'].addLateMove(movesGraph['lowPlank'])
+        movesGraph['lieOnFront'].addLateMove(movesGraph['lowPlank'])
 
 def unlinkWarmup(movesGraph, imbalance=[]) -> list:
     movesGraph['mountain'].removeMove(*movesGraph['standingTwist'])

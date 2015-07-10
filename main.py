@@ -139,28 +139,29 @@ def main(**kwargs):
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbosity=defaults["verbose"])
         if defaults["cooldown"]:
             moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])
-            pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"]) #Somehow, get seamlessly to savasana
+            pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"])
     except KeyboardInterrupt:
         moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])
         pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance = imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"])
+        return imbalance
     finally:
         utils.speak("Done!")
         print("\nTotal Time: " + utils.prettyTime(time.time()-start))
         print(imbalance)
-        return imbalance
+    return imbalance
 
 if __name__== "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--time", help="time (in minutes)", default=30, type=int)
     parser.add_argument("-a", "--aerobics", help="Insert aerobics moves", action='store_true')
-    parser.add_argument("-s", "--strength", help="Insert strength moves/NotImplemented", action='store_true')
+    parser.add_argument("-s", "--strength", help="Insert strength moves", action='store_true')
     parser.add_argument("-d", "--difficulty", help="Difficulty", default=1, type=int, choices=[-1,0,1,2])
     parser.add_argument("-w",  "--skip-warmup", action='store_false', dest="warmup", help="skips warmup period")
     parser.add_argument("-c", "--skip-cooldown", action='store_false', dest='cooldown', help='skips cooldown')
     parser.add_argument("-i", "--initial-move", default="child", choices=["child", "seatedMeditation", "lieOnBack"])
     parser.add_argument("-v", "--verbose", action='count', default=0)
-    parser.add_argument("--debug", action="store_true", help="debug mode")
-    parser.add_argument("-m", "--memory", default=5, type=int, help="How many previous moves shall i remember?")
+    parser.add_argument("--debug", action="store_true", help="Debug mode: all delays removed.")
+    parser.add_argument("-m", "--memory", default=5, type=int, help="How many previous moves shall I remember?")
     parser.add_argument("--target", default="plank", choices=["plank", "boat"])
     parser.add_argument("--version", action="version", version="yoga " + __version__)
     args = parser.parse_args()
