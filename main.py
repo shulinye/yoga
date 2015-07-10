@@ -61,6 +61,7 @@ def main(**kwargs):
             "memory":5,
             }
     defaults.update(kwargs)
+    print(defaults)
     utils.speak("Beginning in")
     if defaults["verbose"] >= 1:
         print("Workout length:", defaults['time'], "minutes")
@@ -123,15 +124,15 @@ def main(**kwargs):
             pose = fixImbalance(pose, imbalance, maxImbalance=8 + total_time//800, maxTime=max(110,total_time//10), prev=prev, verbosity=defaults["verbose"])
             pose = pose(harder=True if defaults["difficulty"] >=1 else False, imbalance = imbalance, extended=extended, prev=prev, verbosity=defaults["verbose"])
         if defaults["cooldown"]:
-            #add in more restorative poses here
+            utils.speak("Cooldown begins")
             moves.linkCooldown(movesGraph)
-        #one more try to fix that damned imbalance
+        print("wtf")
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults["verbose"])
-        #move into more restorative poses....
         while time.time() < (end-max(30, total_time//10)) if defaults["cooldown"] else end:
             pose = pose(imbalance=imbalance, extended=True, prev=prev, verbosity=defaults["verbose"])
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbosity=defaults["verbose"])
         if defaults["cooldown"]:
+            print("reached cooldown")
             moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])
             pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"]) #Somehow, get seamlessly to savasana
     except KeyboardInterrupt:
