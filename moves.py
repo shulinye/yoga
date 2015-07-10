@@ -620,7 +620,7 @@ def linkCooldown(movesGraph) -> None:
     for i in movesGraph['runningMan']: i.addMove(movesGraph['child'])
     for i in movesGraph['revolvedRunningMan']: i.addMove(movesGraph['child'])
     for i in movesGraph['sideCrow']: i.addMove(movesGraph['child'])
-    for i in movesGraph['flyingPideon']: i.addMove(movesGraph['child'])
+    for i in movesGraph['flyingPigeon']: i.addMove(movesGraph['child'])
     for i in movesGraph['twoLeggedDog']: i.addMove(movesGraph['child'], movesGraph['downwardDog'])
     movesGraph['child'].addMove(*movesGraph['childsPoseSideStretch'])
     movesGraph['downwardDog'].addMove(movesGraph['table'], movesGraph['child'], movesGraph['lieOnBack'])

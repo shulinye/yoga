@@ -126,13 +126,11 @@ def main(**kwargs):
         if defaults["cooldown"]:
             utils.speak("Cooldown begins")
             moves.linkCooldown(movesGraph)
-        print("wtf")
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults["verbose"])
         while time.time() < (end-max(30, total_time//10)) if defaults["cooldown"] else end:
             pose = pose(imbalance=imbalance, extended=True, prev=prev, verbosity=defaults["verbose"])
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbosity=defaults["verbose"])
         if defaults["cooldown"]:
-            print("reached cooldown")
             moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])
             pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"]) #Somehow, get seamlessly to savasana
     except KeyboardInterrupt:
