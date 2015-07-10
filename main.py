@@ -85,8 +85,12 @@ def main(**kwargs):
                 pose = pose(imbalance=imbalance, extended=True, early=True, prev=prev, verbosity=defaults["verbose"]) #start slower
         #get me to table:
         moves.linkMain(movesGraph, defaults["difficulty"])
-        if defaults["aerobics"]: moves.linkAerobics(movesGraph, defaults["difficulty"])
-        if defaults["strength"]: moves.linkStrength(movesGraph, defaults["difficulty"])
+        if defaults["aerobics"]:
+            moves.linkAerobics(movesGraph, defaults["difficulty"])
+        if defaults["strength"]:
+            moves.linkStrength(movesGraph, defaults["difficulty"])
+            if defaults["aerobics"]:
+                moves.linkStrengthAerobics(movesGraph, defaults["difficulty"])
         pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12), prev=prev, verbosity=defaults["verbose"])
         pose = routine(dijkstras.dijkstra(pose, movesGraph['downwardDog'], imbalance=imbalance), imbalance=imbalance, playLast=False, prev=prev, verbosity=defaults["verbose"]) #get me to downwards dog
         imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance)
@@ -126,6 +130,8 @@ def main(**kwargs):
         if defaults["cooldown"]:
             utils.speak("Cooldown begins")
             moves.linkCooldown(movesGraph)
+            if defaults["strength"]: moves.linkStrengthCooldown(movesGraph,difficulty=defaults["difficulty"])
+            if defaults["aerobics"]: moves.linkAerobicsCooldown(movesGraph,difficulty=defaults["difficulty"])
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults["verbose"])
         while time.time() < (end-max(30, total_time//10)) if defaults["cooldown"] else end:
             pose = pose(imbalance=imbalance, extended=True, prev=prev, verbosity=defaults["verbose"])
