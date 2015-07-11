@@ -22,6 +22,7 @@ def routine(li : list, imbalance, playLast = True, **kwargs) -> "Move":
             current_pose, next_pose = li_copy[i], li_copy[i+1]
             current_pose(imbalance=imbalance, nextMove=next_pose, **kwargs)
     except KeyboardInterrupt:
+        sys.stdout.write(utils.color.END)
         try:
             return next_pose
         except NameError:
@@ -44,6 +45,7 @@ def fixImbalance(pose, imbalance, maxImbalance=1, maxTime = 60, **kwargs) -> "Mo
             except ValueError:
                 break
             except KeyboardInterrupt:
+                sys.stdout.write(utils.color.END)
                 return pose
     return pose
 
@@ -61,12 +63,11 @@ def main(**kwargs):
             "memory":5,
             }
     defaults.update(kwargs)
-    if defaults["verbose"] >= 1:
-        print(defaults)
     utils.speak("Beginning in")
-    if defaults["verbose"] >= 1:
-        print("Workout length:", defaults['time'], "minutes")
-        print("Beginning in:")
+    if defaults["verbose"] >= 2:
+        print(defaults)
+    elif defaults["verbose"] >= 1:
+        print("Workout length:", defaults['time'], "minutes.", "Beginning in:")
     utils.countdown(3)
     total_time = defaults['time']*60
     movesGraph = moves.generateMoves(difficulty=defaults["difficulty"])
@@ -146,6 +147,7 @@ def main(**kwargs):
         return imbalance
     finally:
         utils.speak("Done!")
+        sys.stdout.write(utils.color.END)
         print("\nTotal Time: " + utils.prettyTime(time.time()-start))
         print(imbalance)
     return imbalance

@@ -10,11 +10,25 @@ DEBUG = False
 if not shutil.which('espeak'):
     raise RuntimeError("espeak is not installed. Please install espeak to continue")
 
+class color:
+   PURPLE = '\033[95m'
+   CYAN = '\033[96m'
+   DARKCYAN = '\033[36m'
+   BLUE = '\033[94m'
+   GREEN = '\033[92m'
+   YELLOW = '\033[93m'
+   RED = '\033[91m'
+   BOLD = '\033[1m'
+   UNDERLINE = '\033[4m'
+   END = '\033[0m'
+
+
 def speak(text : str ):
     subprocess.call('espeak -v en-gb \"' + text + '\"', shell=True)
 
 def countdown(n : int , *args, **kwargs): #Uh, why do I have args and kwargs here?
     incremental = n>30
+    sys.stdout.write(color.GREEN)
     while n > 0:
         sys.stdout.write(str(n) + "...")
         sys.stdout.flush()
@@ -27,7 +41,7 @@ def countdown(n : int , *args, **kwargs): #Uh, why do I have args and kwargs her
                 speak("15 seconds remaining")
         if not DEBUG: time.sleep(1)
         n -= 1
-    sys.stdout.write("0\n")
+    sys.stdout.write("0\n" + color.END)
     sys.stdout.flush()
 
 

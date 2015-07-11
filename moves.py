@@ -79,7 +79,7 @@ class Move(object):
     def __call__(self, imbalance=[], prev=None, verbosity=1, **kwargs) -> "Move":
         """Tells me which pose I'm supposed to do and how I'm supposed to do it.
         Also figures out next pose and deals with adding late moves"""
-        print("\n" + self.title)
+        print("\n" + utils.color.BOLD + self.title + utils.color.END)
         # Deal with imbalances
         if self.side:
             if self in imbalance:
@@ -648,7 +648,7 @@ def unlinkWarmup(movesGraph, imbalance=[]) -> list:
     #Remove these impossible moves from imbalances
     moves = set(functools.reduce(operator.add,[movesGraph[i] for i in ('standingTwist','standingSideStretch','seatedTwist','childsPoseSideStretch')]))
     for i in range(len(imbalance),0,-1):
-        if imbalances[i] in moves: imbalances.pop(i)
+        if imbalance[i] in moves: imbalance.pop(i)
     return imbalance
 
 def linkHarder(movesGraph, difficulty=1) -> None:
