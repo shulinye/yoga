@@ -6,7 +6,6 @@ import operator
 
 import utils
 
-
 class Move(object):
     def __init__(self, title: str, side: int, audio: str, time: int, *args, **kwargs):
         """Creates a Move. Arguments are: title,
@@ -129,6 +128,9 @@ class Move(object):
             utils.speak("Bind if you want to")
         if t > 5:
             utils.speak(str(t) + "seconds")
+        if "f" in kwargs and kwargs["f"]:
+            kwargs["f"].write(self.title + " " + str(t)+"\n")
+            kwargs["f"].flush()
         utils.countdown(t)
         if "bind" in self.kwargs and self.kwargs["bind"]:
             utils.speak("Release bind")
