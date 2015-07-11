@@ -75,6 +75,13 @@ class Move(object):
                 self.addMove(move)
                 self.kwargs["lateMove"].discard(move)
 
+    def repCount(self):
+        if "countReps" in self.kwargs and self.kwargs["countReps"]:
+            utils.speak("How many reps?")
+            return input("How many reps?")
+        else:
+            return None
+
     def __call__(self, imbalance=[], prev=None, verbosity=1, **kwargs) -> "Move":
         """Tells me which pose I'm supposed to do and how I'm supposed to do it.
         Also figures out next pose and deals with adding late moves"""
@@ -128,10 +135,13 @@ class Move(object):
             utils.speak("Bind if you want to")
         if t > 5:
             utils.speak(str(t) + "seconds")
+            utils.countdown(t)
         if "f" in kwargs and kwargs["f"]:
             kwargs["f"].write(self.title + " " + str(t)+"\n")
+            s = self.repCount()
+            if s: kwargs["f"].write(str(s) + " reps\n")
+            kwargs["f"].write("\n")
             kwargs["f"].flush()
-        utils.countdown(t)
         if "bind" in self.kwargs and self.kwargs["bind"]:
             utils.speak("Release bind")
         self.promoteLate()  #Add in options for harder followup moves next time
@@ -580,11 +590,11 @@ def generateMoves(difficulty = 1):
     return movesGraph
 
 def linkAerobics(movesGraph, difficulty=1):
-    movesGraph['jumpingJacks'] = Move("Jumping Jacks", 0, "Jumping Jacks!", 40 + 20*difficulty, movesGraph['mountain'])
+    movesGraph['jumpingJacks'] = Move("Jumping Jacks", 0, "Jumping Jacks!", 40 + 20*difficulty, movesGraph['mountain'], countReps=True)
     movesGraph['runInPlace'] = Move("Running In Place", 0, "Run In Place", 40 + 20*difficulty, movesGraph['mountain'], movesGraph['jumpingJacks'])
     movesGraph['burpies'] = Move("Burpies!", 0, "Burpies", 30+10*difficulty, movesGraph['vinyasa'], movesGraph['forwardFold'], movesGraph['plank'], \
-            extended=reDifficultyTimes([60,75,90], 10, difficulty))
-    movesGraph['situps'] = Move("Situps", 0, "Situps", 30, movesGraph['vinyasa'], extended=[45,60], lateMove=set([movesGraph['boat']]))
+            extended=reDifficultyTimes([60,75,90], 10, difficulty), countReps=True)
+    movesGraph['situps'] = Move("Situps", 0, "Situps", 30, movesGraph['vinyasa'], extended=[45,60], lateMove=set([movesGraph['boat']]), countReps=True)
     movesGraph['mountain'].addLateMove(movesGraph['jumpingJacks'], movesGraph['runInPlace'], movesGraph['burpies'])
     movesGraph['jumpingJacks'].addLateMove(movesGraph['runInPlace'])
     movesGraph['downwardDog'].addLateMove(movesGraph['burpies'])
@@ -597,13 +607,13 @@ def linkAerobicsCooldown(movesGraph, difficulty=1) -> None:
 
 def linkStrength(movesGraph, difficulty=1) -> None:
     movesGraph['pushups'] = Move("Pushups", 0, "Pushups", 15 + 5*difficulty, movesGraph['vinyasa'], extended=reDifficultyTimes([20,30],5,difficulty), \
-            lateMove=set((movesGraph['plank'],) + movesGraph['sidePlank']))
-    movesGraph['pistolSquats'] = twoSides("Pistol Squats", "Pistol Squats, %(same)s foot up", 15+5*difficulty, movesGraph['mountain']) #//TODO: better description
+            lateMove=set((movesGraph['plank'],) + movesGraph['sidePlank']), countReps=True)
+    movesGraph['pistolSquats'] = twoSides("Pistol Squats", "Pistol Squats, %(same)s foot up", 15+5*difficulty, movesGraph['mountain'], countReps=True) #//TODO: better description
     movesGraph['jumpingSquats'] = Move("Jumping Squats", 0, "Jumping Squats", 30, movesGraph['chair'], \
-            movesGraph['forwardFold'], lateMove=set([movesGraph['mountain']]))
-    movesGraph['sideLunges'] = Move("Side Lunges", 0, "Side Lunges", 20 + 10*difficulty, movesGraph['wideLegStance'])
+            movesGraph['forwardFold'], lateMove=set([movesGraph['mountain']]), countReps=True)
+    movesGraph['sideLunges'] = Move("Side Lunges", 0, "Side Lunges", 20 + 10*difficulty, movesGraph['wideLegStance'], countReps=True)
     movesGraph['aroundTheWorld'] = twoSides("Around The World", "Around The World, %(same)s side", 20 + 10*difficulty, movesGraph['mountain'], \
-            lateMove=set([movesGraph['vinyasa']]))
+            lateMove=set([movesGraph['vinyasa']]), countReps=True)
     movesGraph['downwardDog'].addLateMove(movesGraph['pushups'])
     if difficulty >= 1:
         for i in movesGraph['sidePlank']: i.addLateMove(movesGraph['pushups'])
