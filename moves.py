@@ -135,7 +135,7 @@ class Move(object):
             utils.speak("Bind if you want to")
         if t > 5:
             utils.speak(str(t) + "seconds")
-            utils.countdown(t)
+        utils.countdown(t)
         if "f" in kwargs and kwargs["f"]:
             kwargs["f"].write(self.title + " " + str(t)+"\n")
             s = self.repCount()
