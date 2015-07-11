@@ -52,7 +52,10 @@ class Move(object):
         previously called."""
         if self.last and len(self.nextMove) > 1:
             movesCopy = self.nextMove.copy()
-            movesCopy.remove(self.last)
+            try:
+                movesCopy.remove(self.last)
+            except KeyError:
+                pass
             if prev is not None:
                 movesCopy = movesCopy.difference(prev)
             if movesCopy:
@@ -350,7 +353,7 @@ def generateMoves(difficulty = 1):
             15 + 4*difficulty, movesGraph['bridge'], extended_time =reDifficultyTimes([20,30],4,difficulty))
     movesGraph['wheelWithRaisedLeg'] = twoSides("Wheel, with Raised Leg", "Raise your %(same)s leg into the air", 15)
     movesGraph['wheel'] = Move("Wheel Pose", 0, "Wheel Pose", 25 + 5*difficulty, movesGraph['vinyasa'], \
-            extended_time=reDifficultyTimes([40,55],5,difficulty), harder="Try to straighten your legs") 
+            extended_time=reDifficultyTimes([40,55],5,difficulty), harder="Try to straighten your legs")
     if difficulty >= 1: movesGraph['wheel'].addLateMove(*movesGraph['wheelWithRaisedLeg'])
     movesGraph['camel'] = Move("Camel Pose", 0, "Camel Pose", 30, movesGraph['vinyasa'])
     movesGraph['superMan'] = Move("Super Man", 0, "Raise both your hands and your feet off the ground at the same time. Hold", \
@@ -545,11 +548,13 @@ def generateMoves(difficulty = 1):
     doubleAdd(movesGraph['halfBoundStandingLotus'], movesGraph['standingLegLift1'], movesGraph['tree'])
     if difficulty >= 1:
         doubleAdd(movesGraph['halfBoundStandingLotus'], movesGraph['standingLotusSquat'], late=True)
-    doubleAdd(movesGraph['standingLotusSquat'], movesGraph['flyingPigeon'], movesGraph['toestand'])
+        doubleAdd(movesGraph['standingLotusSquat'], movesGraph['toestand'])
+    if difficulty >= 2:
+        doubleAdd(movesGraph['flyingPigeon'])
     doubleAdd(movesGraph['standingLegLift1'], movesGraph['warrior3'], inverted=True)
     doubleAdd(movesGraph['standingLegLift2'], movesGraph['standingLegLift3'])
     if difficulty < 1:
-        doubleAdd(movesGraph['standingLegLift2'], movesGraph['tree'])
+        doubleAdd(movesGraph['standingLegLift2'], movesGraph['tree'], late = True)
     doubleAdd(movesGraph['standingLegLift3'], movesGraph['standingLegLift4'])
     doubleAdd(movesGraph['standingLegLift4'], movesGraph['warrior3'], inverted=True)
     doubleAdd(movesGraph['standingLegLift4'], movesGraph['standingSplits'], movesGraph['eagle'], movesGraph['tree'])
@@ -582,6 +587,7 @@ def linkAerobics(movesGraph, difficulty=1):
     movesGraph['jumpingJacks'].addLateMove(movesGraph['runInPlace'])
     movesGraph['downwardDog'].addLateMove(movesGraph['burpies'])
     movesGraph['lieOnBack'].addLateMove(movesGraph['situps'])
+    movesGraph['staff'].addLateMove(movesGraph['situps'])
 
 def linkAerobicsCooldown(movesGraph, difficulty=1) -> None:
     movesGraph['runInPlace'].addMove(movesGraph['lieOnBack'])
