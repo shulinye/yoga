@@ -113,7 +113,10 @@ def main(**kwargs):
         except dijkstras.TimeExceededError:
             pass
         pose = pose(nextMove=movesGraph['plank'], prev=prev, verbosity=defaults["verbose"], f=f)
-        utils.speak("Alright, warmup over.")
+        if defaults["warmup"]:
+            print("Warmup Over: " + utils.prettyTime(time.time() - start))
+            if f: f.write("Warmup Over: " + utils.prettyTime(time.time() - start))
+            utils.speak("Alright, warmup over.")
         pose = pose(imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
         #starting main part of workout
         while time.time() - start < total_time//2 - 30:
@@ -130,7 +133,10 @@ def main(**kwargs):
             pass
         except dijkstras.TimeExceededError:
             pass
-        if defaults["verbose"] >= 1: utils.speak("We have reached the halfway point")
+        if defaults["verbose"] >= 1:
+            print("Halfway point: " + utils.prettyTime(time.time()-start))
+            if f: f.write("Halfway point: " + utils.prettyTime(time.time()-start))
+            utils.speak("We have reached the halfway point")
         #end adding harder poses
         while time.time() < (end - max(60, total_time//10)) if defaults["cooldown"] else end:
             extendedChance = (time.time() - start)/total_time
@@ -138,6 +144,8 @@ def main(**kwargs):
             pose = fixImbalance(pose, imbalance, maxImbalance=8 + total_time//800, maxTime=max(110,total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
             pose = pose(harder=True if defaults["difficulty"] >=1 else False, imbalance = imbalance, extended=extended, prev=prev, verbosity=defaults["verbose"], f=f)
         if defaults["cooldown"]:
+            print("Cooldown begins: " + utils.prettyTime(time.time() - start))
+            if f: f.write("Cooldown begins: " + utils.prettyTime(time.time() - start))
             utils.speak("Cooldown begins")
             moves.linkCooldown(movesGraph)
             if defaults["strength"]: moves.linkStrengthCooldown(movesGraph,difficulty=defaults["difficulty"])
@@ -154,7 +162,9 @@ def main(**kwargs):
         pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance = imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
         return imbalance
     finally:
-        if f: f.close()
+        if f:
+            f.write("Total Time: " + utils.prettyTime(time.time()-start))
+            f.close()
         utils.speak("Done!")
         sys.stdout.write(utils.color.END)
         print("\nTotal Time: " + utils.prettyTime(time.time()-start))
