@@ -16,15 +16,13 @@ A program that creates and reads yoga routines out loud to you.
       -c, --skip-cooldown   skips cooldown
       -i {child,seatedMeditation,lieOnBack}, --initial-move {child,seatedMeditation,lieOnBack}
       -v, --verbose
-      --debug               debug mode
+      --debug               Debug mode: all delays removed.
       -m MEMORY, --memory MEMORY
-                            How many previous moves shall i remember?
+                            How many previous moves shall I remember?
       --target {plank,boat}
       --version             show program's version number and exit
-
-
-
-
+      -o OUTFILE, --outfile OUTFILE
+     
 ## NOTE:
 Requires `espeak`; edit the function `speak()` in `utils.py` if you want to use a different speaking utility.
 
