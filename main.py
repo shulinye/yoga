@@ -13,6 +13,7 @@ import random
 import dijkstras
 import utils
 import moves
+import strengthaerobics
 
 def routine(li : list, imbalance, playLast = True, **kwargs) -> "Move":
     """Plays a list of moves. if playLast = False, returns last move instead of playing it
@@ -96,14 +97,14 @@ def main(**kwargs):
         #get me to table:
         moves.linkMain(movesGraph, defaults["difficulty"])
         if defaults["aerobics"]:
-            moves.linkAerobics(movesGraph, defaults["difficulty"])
+            strengthaerobics.linkAerobics(movesGraph, defaults["difficulty"])
         if defaults["strength"]:
-            moves.linkStrength(movesGraph, defaults["difficulty"])
+            strengthaerobics.linkStrength(movesGraph, defaults["difficulty"])
             if defaults["aerobics"]:
-                moves.linkStrengthAerobics(movesGraph, defaults["difficulty"])
+                strengthaerobics.linkStrengthAerobics(movesGraph, defaults["difficulty"])
         pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12), prev=prev, verbosity=defaults["verbose"], f=f)
         pose = routine(dijkstras.dijkstra(pose, movesGraph['downwardDog'], imbalance=imbalance), imbalance=imbalance, playLast=False, prev=prev, verbosity=defaults["verbose"], f=f) #get me to downwards dog
-        imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance)
+        imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance, difficulty=defaults["difficulty"])
         try:
             pose = routine(dijkstras.dijkstra(pose,movesGraph[defaults['target']], imbalance=imbalance), imbalance=imbalance, prev=prev,verbosity=defaults["verbose"], f=f)
         except KeyError:
@@ -148,14 +149,15 @@ def main(**kwargs):
             if f: f.write("Cooldown begins: " + utils.prettyTime(time.time() - start))
             utils.speak("Cooldown begins")
             moves.linkCooldown(movesGraph)
-            if defaults["strength"]: moves.linkStrengthCooldown(movesGraph,difficulty=defaults["difficulty"])
-            if defaults["aerobics"]: moves.linkAerobicsCooldown(movesGraph,difficulty=defaults["difficulty"])
+            if defaults["strength"]: strengthaerobics.linkStrengthCooldown(movesGraph,difficulty=defaults["difficulty"])
+            if defaults["aerobics"]: strengthaerobics.linkAerobicsCooldown(movesGraph,difficulty=defaults["difficulty"])
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
         while time.time() < (end-max(30, total_time//10)) if defaults["cooldown"] else end:
             pose = pose(imbalance=imbalance, extended=True, prev=prev, verbosity=defaults["verbose"], f=f)
-        pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
+            pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
         if defaults["cooldown"]:
             moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])
+            pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
             pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
     except KeyboardInterrupt:
         moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])

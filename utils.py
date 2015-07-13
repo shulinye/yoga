@@ -1,5 +1,6 @@
 #/usr/bin/python3
 
+import math
 import shutil
 import subprocess
 import sys
@@ -26,9 +27,12 @@ class color:
 def speak(text : str ):
     subprocess.call('espeak -v en-gb \"' + text + '\"', shell=True)
 
+def sqrt_floor(i : int) -> int:
+    return math.floor(math.sqrt(i))
+
 def countdown(n : int , *args, **kwargs): #Uh, why do I have args and kwargs here?
     incremental = n>30
-    sys.stdout.write(color.GREEN)
+    sys.stdout.write(color.RED)
     while n > 0:
         sys.stdout.write(str(n) + "...")
         sys.stdout.flush()
