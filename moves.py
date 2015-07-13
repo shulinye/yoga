@@ -17,7 +17,7 @@ class Move(object):
         self.title = title
         self.side = side
         self.audio = audio
-        self.time = time
+        self.time = max(time,0)
         self.last = None
         self.nextMove = set(args)
         self.kwargs = kwargs
@@ -78,7 +78,7 @@ class Move(object):
     def repCount(self):
         if "countReps" in self.kwargs and self.kwargs["countReps"]:
             utils.speak("How many reps?")
-            return input("How many reps?")
+            return input("How many reps? ")
         else:
             return None
 
@@ -93,8 +93,8 @@ class Move(object):
             else:
                 imbalance.append(self.otherside)
         if verbosity >= 2:
-            print("Prev:", "; ".join(str(i) for i in prev))
-            print("Imbalances", "; ".join(str(i) for i in imbalance))
+            print(utils.color.BLUE + "Prev:", "; ".join(str(i) for i in prev) + utils.color.END)
+            print(utils.color.PURPLE + "Imbalances", "; ".join(str(i) for i in imbalance) + utils.color.END)
         prev.append(self)
         # What is my next move?
         if "nextMove" in kwargs:
@@ -203,7 +203,7 @@ def moveReverse(*args, late=False):
         f(i[1],i[0])
 
 def reDifficultyTimes(li, val, difficulty):
-    return [i + val*difficulty for i in li]
+    return [max(i + val*difficulty,0) for i in li]
 
 def generateMoves(difficulty = 1):
     # Begin list of moves
@@ -215,9 +215,9 @@ def generateMoves(difficulty = 1):
                 10, harder="Want a challenge? Extend the same arm."),
             'balancingTableLegOnly': twoSides("Balancing Table, Leg Only", "Extend %(same)s leg behind you", 5 - difficulty),
             'fallenStar': twoSides("Fallen Star","Fallen Star, %(same)s side", 15), #TODO better instructions
-            'lowLunge': twoSides("Low Lunge", "Bring your %(same)s foot down and set it between your hands. Low Lunge", 4 - difficulty),
+            'lowLunge': twoSides("Low Lunge", "Bring your %(same)s foot down and set it between your hands. Low Lunge", max(4 - 2*difficulty,0)),
             'threeLeggedDog': twoSides("Three Legged Dog", "Raise your %(same)s foot up. Three Legged Dog", \
-                5 - difficulty, extended_time=reDifficultyTimes([15,30],3,difficulty)),
+                max(5 - 2*difficulty,0), extended_time=reDifficultyTimes([15,30],3,difficulty)),
             'kneeToNose': twoSides("Knee To Nose", "Take your %(same)s knee and bring it towards your nose. Hold.", \
                 15 + 2*difficulty, extended_time=reDifficultyTimes([20,30], 3, difficulty)),
             'kneeToElbow': twoSides("Knee To Elbow", "Take your %(same)s knee and bring it to your %(same)s elbow. Hold", \
@@ -306,9 +306,9 @@ def generateMoves(difficulty = 1):
     movesGraph['dolphin'] = Move("Dolphin Pose", 0, "Dolphin Pose", 25 + 5*difficulty, movesGraph['vinyasa'], \
             extended_time=[40 + 5*difficulty])
     if difficulty >= 1: movesGraph['dolphin'].addLateMove(movesGraph['forearmBalance'])
-    movesGraph['downwardDog'] = Move("Downwards Dog", 0, "Downwards Dog", 5 - difficulty, movesGraph['forwardFold'], movesGraph['staff'], \
+    movesGraph['downwardDog'] = Move("Downwards Dog", 0, "Downwards Dog", 4 - difficulty, movesGraph['forwardFold'], movesGraph['staff'], \
             movesGraph['plank'], movesGraph['dolphin'], *movesGraph['threeLeggedDog'], extended_time=[10])
-    movesGraph['upwardDog'] = Move("Upward Dog", 0, "Upward Dog", 5-difficulty, movesGraph['downwardDog'], extended_time=[10,20])
+    movesGraph['upwardDog'] = Move("Upward Dog", 0, "Upward Dog", 3-difficulty, movesGraph['downwardDog'], extended_time=[10,20])
     movesGraph['humbleWarrior'] = twoSides("Humble Warrior", "Intertwine your hands behind you. Lean forward. Humble Warrior", \
             5 - difficulty, movesGraph['vinyasa'])
     movesGraph['warrior1'] = twoSides("Warrior 1", "Warrior One, %(same)s Side", 10 - 2*difficulty, movesGraph['vinyasa'], \
@@ -366,6 +366,7 @@ def generateMoves(difficulty = 1):
     movesGraph['wheelWithRaisedLeg'] = twoSides("Wheel, with Raised Leg", "Raise your %(same)s leg into the air", 15)
     movesGraph['wheel'] = Move("Wheel Pose", 0, "Wheel Pose", 25 + 5*difficulty, movesGraph['vinyasa'], \
             extended_time=reDifficultyTimes([40,55],5,difficulty), harder="Try to straighten your legs")
+    movesGraph['wheelPushup'] = Move("Wheel Pushup", 0, "Wheel Pushup", 15)
     if difficulty >= 1: movesGraph['wheel'].addLateMove(*movesGraph['wheelWithRaisedLeg'])
     movesGraph['camel'] = Move("Camel Pose", 0, "Camel Pose", 30, movesGraph['vinyasa'])
     movesGraph['superMan'] = Move("Super Man", 0, "Raise both your hands and your feet off the ground at the same time. Hold", \
@@ -387,13 +388,14 @@ def generateMoves(difficulty = 1):
     movesGraph['yogaBicycles'] = Move("Bicycles", 0, "Bicycles", 20 + 10*difficulty, movesGraph['lieOnBack'], movesGraph['vinyasa'], \
             extended_time=reDifficultyTimes([35, 50], 10, difficulty))
     movesGraph['savasana'] = Move("Savasana", 0, "Sahvahsahnah", 30, None)
-    movesGraph['star'] = Move('Star Pose', 0, "Star Pose", 10, movesGraph['mountain'], *movesGraph['warrior1'])
+    movesGraph['star'] = Move('Star Pose', 0, "Star Pose", 8, movesGraph['mountain'], *movesGraph['warrior1'])
     movesGraph['goddessSquat'] = Move('Goddess Squat', 0, "Goddess Squat", 5, movesGraph['star'])
     movesGraph['supportedHeadstand'] = Move('Supported Headstand', 0, "Supported Headstand", 30, movesGraph['child'])
     movesGraph['pigeon'] = twoSides('Pigeon Pose', "Pigeon Pose, %(same)s side", 30, movesGraph['vinyasa'])
     movesGraph['kingPigeon'] = twoSides('King Pigeon', "King Pigeon, %(same)s side", 15, movesGraph['vinyasa'])
     movesGraph['birdOfParadise'] = twoSides('Bird of Paradise', 'Bird of Paradise', 30)
     movesGraph['boundHalfMoon'] = twoSides('Bound Half Moon', 'Bound Half Moon', 30, lateMove=set([movesGraph['vinyasa']]))
+    movesGraph['boundRevolvedHalfMoon'] = twoSides('Bound Revolved Half Moon', 'Bound Revolved Half Moon', 30, lateMove=set([movesGraph['vinyasa']]))
     movesGraph['handstandHops'] = Move('Handstand Hops', 0, "Handstand Hops", 30, movesGraph['vinyasa'])
     movesGraph['twoLeggedDog'] = twoSides('Two Legged Dog', "Now raise your %(other)s hand. Hold", 20, lateMove=set([movesGraph['vinyasa']]))
     movesGraph['flippedDog'] = twoSides('Flipped Dog', "Flipped Dog, %(same)s side", 20, lateMove=set([movesGraph['downwardDog']]))
@@ -407,6 +409,9 @@ def generateMoves(difficulty = 1):
     movesGraph['wideLegStance'].addMove(movesGraph['mountain'], movesGraph['star'], movesGraph['wideLegForwardFold'], *movesGraph['warrior2'])
     if difficulty >= 0:
         movesGraph['wideLegStance'].addLateMove(movesGraph['armPressurePose'], *movesGraph['cresent'])
+    if difficulty >= 1:
+        movesGraph['wheelPushup'].addMove(movesGraph['lieOnBack'])
+        movesGraph['wheel'].addLateMove(movesGraph['wheelPushup'])
     movesGraph['vinyasa'].addMove(movesGraph['downwardDog'])
     movesGraph['table'].addMove(*movesGraph['threadTheNeedle'])
     movesGraph['catCow'].addMove(movesGraph['table'])
@@ -474,7 +479,7 @@ def generateMoves(difficulty = 1):
         for i in movesGraph['eagle']:
             i.addMove(movesGraph['vinyasa'])
             i.addLateMove(movesGraph['mountain'])
-    for i in movesGraph['balancingTable']: i.addMove(movesGraph['table'], movesGraph['child'])
+    for i in movesGraph['balancingTable']: i.addMove(movesGraph['table'], movesGraph['child'], movesGraph['catCow'])
     for i in movesGraph['standingLegLift4']: i.addMove(movesGraph['mountain'], movesGraph['forwardFold'])
     for i in movesGraph['chairTwist']: i.addMove(movesGraph['chair'], movesGraph['forwardFold'])
     for i in movesGraph['halfMoon']: i.addMove(movesGraph['forwardFold'])
@@ -543,6 +548,8 @@ def generateMoves(difficulty = 1):
         doubleAdd(movesGraph['cresentTwist'], movesGraph['sidePlank'], inverted=True)
     if difficulty >= 1:
         doubleAdd(movesGraph['cresentTwist'], movesGraph['sidePlankLegUp'], inverted=True, late=True)
+    if difficulty >= 2:
+        doubleAdd(movesGraph['cresentTwist'], movesGraph['boundRevolvedHalfMoon'], late=True)
     doubleAdd(movesGraph['balancingTableLegOnly'], movesGraph['balancingTable'])
     doubleAdd(movesGraph['sideAngle'], movesGraph['reverseWarrior'], movesGraph['warrior2'])
     if difficulty >= 0:
@@ -550,6 +557,7 @@ def generateMoves(difficulty = 1):
     if difficulty >= 1:
         doubleAdd(movesGraph['sideAngle'], movesGraph['boundHalfMoon'], late=True)
     doubleAdd(movesGraph['boundHalfMoon'], movesGraph['sideAngle'], movesGraph['halfMoon'])
+    doubleAdd(movesGraph['boundRevolvedHalfMoon'], movesGraph['cresentTwist'], movesGraph['revolvedHalfMoon'])
     doubleAdd(movesGraph['birdOfParadise'], movesGraph['sideAngle'])
     doubleAdd(movesGraph['reverseWarrior'], movesGraph['sideAngle'], movesGraph['warrior2'])
     if difficulty >= 1:
@@ -562,7 +570,7 @@ def generateMoves(difficulty = 1):
         doubleAdd(movesGraph['halfBoundStandingLotus'], movesGraph['standingLotusSquat'], late=True)
         doubleAdd(movesGraph['standingLotusSquat'], movesGraph['toestand'])
     if difficulty >= 2:
-        doubleAdd(movesGraph['flyingPigeon'])
+        doubleAdd(movesGraph['standingLotusSquat'], movesGraph['flyingPigeon'])
     doubleAdd(movesGraph['standingLegLift1'], movesGraph['warrior3'], inverted=True)
     doubleAdd(movesGraph['standingLegLift2'], movesGraph['standingLegLift3'])
     if difficulty < 1:
@@ -594,12 +602,15 @@ def linkAerobics(movesGraph, difficulty=1):
     movesGraph['runInPlace'] = Move("Running In Place", 0, "Run In Place", 40 + 20*difficulty, movesGraph['mountain'], movesGraph['jumpingJacks'])
     movesGraph['burpies'] = Move("Burpies!", 0, "Burpies", 30+10*difficulty, movesGraph['vinyasa'], movesGraph['forwardFold'], movesGraph['plank'], \
             extended=reDifficultyTimes([60,75,90], 10, difficulty), countReps=True)
-    movesGraph['situps'] = Move("Situps", 0, "Situps", 30, movesGraph['vinyasa'], extended=[45,60], lateMove=set([movesGraph['boat']]), countReps=True)
+    movesGraph['situps'] = Move("Situps", 0, "Situps", 30 + 10*difficulty, movesGraph['vinyasa'], extended=reDifficultyTimes([40,50],10,difficulty), \
+            lateMove=set([movesGraph['boat']]), countReps=True)
     movesGraph['mountain'].addLateMove(movesGraph['jumpingJacks'], movesGraph['runInPlace'], movesGraph['burpies'])
     movesGraph['jumpingJacks'].addLateMove(movesGraph['runInPlace'])
     movesGraph['downwardDog'].addLateMove(movesGraph['burpies'])
     movesGraph['lieOnBack'].addLateMove(movesGraph['situps'])
     movesGraph['staff'].addLateMove(movesGraph['situps'])
+    if difficulty >= 1:
+        movesGraph['seatedMeditation'].addLateMove(movesGraph['situps'])
 
 def linkAerobicsCooldown(movesGraph, difficulty=1) -> None:
     movesGraph['runInPlace'].addMove(movesGraph['lieOnBack'])
@@ -618,7 +629,7 @@ def linkStrength(movesGraph, difficulty=1) -> None:
     if difficulty >= 1:
         for i in movesGraph['sidePlank']: i.addLateMove(movesGraph['pushups'])
         movesGraph['mountain'].addLateMove(*movesGraph['aroundTheWorld'])
-    movesGraph['chair'].addLateMove(movesGraph['jumpingSquats'], *movesGraph['pistolSquats'])
+        movesGraph['chair'].addLateMove(movesGraph['jumpingSquats'], *movesGraph['pistolSquats'])
     movesGraph['mountain'].addLateMove(movesGraph['jumpingSquats'])
     movesGraph['wideLegStance'].addLateMove(movesGraph['jumpingSquats'])
     movesGraph['star'].addLateMove(movesGraph['sideLunges'])
@@ -659,9 +670,7 @@ def unlinkWarmup(movesGraph, imbalance=[]) -> list:
     movesGraph['child'].removeMove(*movesGraph['childsPoseSideStretch'])
     #Remove these impossible moves from imbalances
     moves = set(functools.reduce(operator.add,[movesGraph[i] for i in ('standingTwist','standingSideStretch','seatedTwist','childsPoseSideStretch')]))
-    for i in range(len(imbalance),0,-1):
-        if imbalance[i] in moves: imbalance.pop(i)
-    return imbalance
+    return list(set(imbalance).difference(moves))
 
 def linkHarder(movesGraph, difficulty=1) -> None:
     """Links some harder moves."""
