@@ -339,6 +339,9 @@ def generateMoves(difficulty = 1):
     movesGraph['oneLeggedChair'] = twoSides("One Legged Chair", "Shift all your weight to your %(other)s foot. Grab your %(same)s \
             foot with your %(same)s hand. Raise %(same)s foot", 15 + 2*difficulty, movesGraph['chair'], \
             extended_time=reDifficultyTimes([20,30],4,difficulty))
+    movesGraph['revolvedOneLeggedChair'] = twoSides("Revolved One Legged Chair", "Shift all your weight to your %(other)s foot. Grab your %(same)s foot with \
+            your %(other)s hand. Raise %(same) foot", 15 + 2*difficulty, movesGraph['vinyasa'], movesGraph['chair'],\
+            extended_time=reDifficultyTimes([20,30],4,difficulty))
     movesGraph['crow'] = Move("Crow Pose", 0, "Crow Pose", 30, movesGraph['vinyasa'])
     movesGraph['crane'] = Move("Crane Pose", 0, "Crane Pose", 30, movesGraph['vinyasa'])
     movesGraph['sideCrow'] = twoSides("Side Crow", "Side Crow, %(same)s Side", 30, movesGraph['vinyasa'])
@@ -404,7 +407,7 @@ def generateMoves(difficulty = 1):
     movesGraph['handstandHops'] = Move('Handstand Hops', 0, "Handstand Hops", 30, movesGraph['vinyasa'])
     movesGraph['twoLeggedDog'] = twoSides('Two Legged Dog', "Now raise your %(other)s hand. Hold", 20, lateMove=set([movesGraph['vinyasa']]))
     movesGraph['flippedDog'] = twoSides('Flipped Dog', "Flipped Dog, %(same)s side", 20, lateMove=set([movesGraph['downwardDog']]))
-    movesGraph['feetUpAWall'] = Move("Feet Up A Wall", 0, "Feet Up A Wall", 4, movesGraph['lowBoat'], movesGraph['boat'], extended_time=[15,30])
+    movesGraph['feetUpAWall'] = Move("Feet Up A Wall", 0, "Feet Up A Wall", 4, movesGraph['lowBoat'], movesGraph['boat'], movesGraph['staff'], movesGraph['lieOnBack'], extended_time=[15,30])
     movesGraph['hero'] = Move("Hero Pose", 0, "Tuck both feet under your glutes. Lean back as far as possible. Hero Pose", 20, movesGraph['seatedMeditation'])
     movesGraph['deepSquat'] = Move("Deep Squat", 0, "Squat as deeply as you can", 30, movesGraph['vinyasa'], movesGraph['chair'], lateMove=set([movesGraph['crow']]))
     movesGraph['frog'] = Move("Frog Pose", 0, "Frog Pose", 30, movesGraph['seatedMeditation'], movesGraph['vinyasa'])
@@ -457,6 +460,8 @@ def generateMoves(difficulty = 1):
         movesGraph['boatLift'].addLateMove(movesGraph['yogaBicycles'])
     movesGraph['lowBoat'].addMove(movesGraph['yogaBicycles'])
     movesGraph['chair'].addMove(movesGraph['deepSquat'], *movesGraph['oneLeggedChair'])
+    if difficulty >= 1:
+        movesGraph['chair'].addLateMove(movesGraph['revolvedOneLeggedChair'])
     movesGraph['star'].addMove(movesGraph['goddessSquat'], movesGraph['deepSquat'])
     movesGraph['bridge'].addMove(movesGraph['lieOnBack'], *movesGraph['bridgeWithRaisedLeg'])
     if difficulty >= 0:
@@ -627,6 +632,7 @@ def unlinkWarmup(movesGraph, imbalance=[], difficulty=1) -> list:
     movesGraph['backBend'].removeMove(*movesGraph['standingSideStretch'])
     movesGraph['seatedMeditation'].removeMove(movesGraph['table'], movesGraph['catCow'], *movesGraph['seatedTwist'])
     movesGraph['child'].removeMove(*movesGraph['childsPoseSideStretch'])
+    movesGraph['feetUpAWall'].removeMove(movesGraph['staff'], movesGraph['lieOnBack'])
     if difficulty >= 1:
         movesGraph['vinyasa'].removeMove(movesGraph['upwardDog'])
         for i in movesGraph['threeLeggedDog']: i.time -=1
@@ -650,9 +656,9 @@ def linkHarder(movesGraph, difficulty=1) -> None:
         movesGraph['staff'].addMove(movesGraph['frog'])
         doubleAdd(movesGraph['threeLeggedDog'], movesGraph['pigeon'])
         for i in movesGraph['twoLeggedDog']: i.addLateMove(movesGraph['plank'])
-    for i in ['warrior1', 'warrior2', 'standingLegLift4']:
+    for i in ['warrior1', 'warrior2', 'standingLegLift4', 'threeLeggedDog']:
         for j in movesGraph[i]: j.promoteLate()
-    for i in ['star', 'mountain']:
+    for i in ['star', 'mountain', 'downwardDog']:
         movesGraph[i].promoteLate()
     for i in range(max(0,difficulty)):
         movesGraph['mountain'].promoteLate()
@@ -673,7 +679,9 @@ def linkCooldown(movesGraph) -> None:
     movesGraph['staff'].addMove(movesGraph['hero'])
     movesGraph['seatedMeditation'].addMove(*movesGraph['cowFace'])
     movesGraph['crow'].addMove(movesGraph['child'])
-    for i in movesGraph['threeLeggedDog']: i.addMove(movesGraph['plank'])
+    for i in movesGraph['threeLeggedDog']:
+        i.addMove(movesGraph['plank'])
+        i.time += 1
     for i in movesGraph['sidePlank']: i.addMove(movesGraph['lieOnFront'])
     for i in movesGraph['sidePlankLegUp']: i.addMove(movesGraph['lieOnFront'])
     for i in movesGraph['standingLegLift1']: i.addMove(movesGraph['mountain'])

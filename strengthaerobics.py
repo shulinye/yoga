@@ -2,26 +2,28 @@
 
 from moves import Move, doubleAdd, twoSides, moveReverse, reDifficultyTimes
 
-def linkAerobics(movesGraph, difficulty=1):
+def linkAerobics(movesGraph, difficulty=1, aerobics = 0):
     movesGraph['jumpingJacks'] = Move("Jumping Jacks", 0, "Jumping Jacks!", 40 + 20*difficulty, movesGraph['mountain'], countReps=True)
     movesGraph['runInPlace'] = Move("Running In Place", 0, "Run In Place", 40 + 20*difficulty, movesGraph['mountain'], movesGraph['jumpingJacks'])
     movesGraph['burpies'] = Move("Burpies!", 0, "Burpies", 30+10*difficulty, movesGraph['vinyasa'], movesGraph['forwardFold'], movesGraph['plank'], \
             extended=reDifficultyTimes([60,75,90], 10, difficulty), countReps=True)
-    movesGraph['situps'] = Move("Situps", 0, "Situps", 30 + 10*difficulty, movesGraph['vinyasa'], extended=reDifficultyTimes([40,50],10,difficulty), \
+    movesGraph['situps'] = Move("Situps", 0, "Situps", 30 + 10*difficulty, movesGraph['vinyasa'], extended=reDifficultyTimes([40,50],10,difficulty + aerobics//2), \
             lateMove=set([movesGraph['boat']]), countReps=True)
     movesGraph['mountain'].addLateMove(movesGraph['jumpingJacks'], movesGraph['runInPlace'], movesGraph['burpies'])
     movesGraph['jumpingJacks'].addLateMove(movesGraph['runInPlace'])
     movesGraph['downwardDog'].addLateMove(movesGraph['burpies'])
     movesGraph['lieOnBack'].addLateMove(movesGraph['situps'])
     movesGraph['staff'].addLateMove(movesGraph['situps'])
+    if aerobics >= 2:
+        movesGraph['star'].addLateMove(movesGraph['jumpingJacks'])
     if difficulty >= 1:
         movesGraph['seatedMeditation'].addLateMove(movesGraph['situps'])
 
-def linkAerobicsCooldown(movesGraph, difficulty=1) -> None:
+def linkAerobicsCooldown(movesGraph, difficulty=1, aerobics = 0) -> None:
     movesGraph['runInPlace'].addMove(movesGraph['lieOnBack'])
     movesGraph['burpies'].addMove(movesGraph['lieOnFront'])
 
-def linkStrength(movesGraph, difficulty=1) -> None:
+def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
     #New moves
     movesGraph['pushups'] = Move("Pushups", 0, "Pushups", 15 + 5*difficulty, movesGraph['vinyasa'], extended=reDifficultyTimes([20,30],5,difficulty), \
             lateMove=set((movesGraph['plank'],) + movesGraph['sidePlank']), countReps=True)
@@ -41,20 +43,29 @@ def linkStrength(movesGraph, difficulty=1) -> None:
     if difficulty >= 2:
         for i in movesGraph['sidePlankLegUp']: i.addLateMove(movesGraph['pushups'])
         movesGraph['pushups'].addLateMove(*movesGraph['sidePlankLegUp'])
+        doubleAdd(movesGraph['warrior3'], movesGraph['pistolSquats'], inverted = True, late=True)
     movesGraph['mountain'].addLateMove(movesGraph['jumpingSquats'])
     movesGraph['wideLegStance'].addLateMove(movesGraph['jumpingSquats'])
     movesGraph['star'].addLateMove(movesGraph['sideLunges'])
     doubleAdd(movesGraph['oneLeggedChair'], movesGraph['pistolSquats'])
+    doubleAdd(movesGraph['cresent'], movesGraph['aroundTheWorld'], late = True)
     movesGraph['lieOnFront'].addLateMove(movesGraph['pushups'])
+    if strength + difficulty >= 3:
+        doubleAdd(movesGraph['eagle'], movesGraph['pistolSquats'], late=True)
+        movesGraph['star'].addLateMove(movesGraph['jumpingSquats'])
     if difficulty >= 1:
         doubleAdd(movesGraph['standingLegLift4'], movesGraph['pistolSquats'], late=True)
         doubleAdd(movesGraph['standingLegLift1'], movesGraph['pistolSquats'], late=True)
 
-def linkStrengthCooldown(movesGraph, difficulty=1) -> None:
+def linkStrengthHarder(movesGraph, difficulty=1, strength = 0) -> None:
+    for i in range(max(0,difficulty)):
+        movesGraph['mountain'].promoteLate()
+
+def linkStrengthCooldown(movesGraph, difficulty=1, strength = 0) -> None:
     movesGraph['pushups'].addMove(movesGraph['lieOnFront'])
     for i in movesGraph['pistolSquats']: i.addMove(movesGraph['lieOnBack'])
 
-def linkStrengthAerobics(movesGraph, difficulty=1) -> None:
+def linkStrengthAerobics(movesGraph, difficulty=1, strength = 0, aerobics = 0) -> None:
     movesGraph['runInPlace'].addMove(movesGraph['jumpingSquats'])
     movesGraph['jumpingSquats'].addMove(movesGraph['runInPlace'])
 

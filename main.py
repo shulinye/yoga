@@ -58,8 +58,8 @@ def main(**kwargs):
             "initial_move": "child",
             "warmup": True,
             "cooldown": True,
-            "aerobics": False,
-            "strength": False,
+            "aerobics": 0,
+            "strength": 0,
             "target": "plank",
             "verbose":1,
             "memory":5,
@@ -97,11 +97,11 @@ def main(**kwargs):
         #get me to table:
         moves.linkMain(movesGraph, defaults["difficulty"])
         if defaults["aerobics"]:
-            strengthaerobics.linkAerobics(movesGraph, defaults["difficulty"])
+            strengthaerobics.linkAerobics(movesGraph, defaults["difficulty"], defaults["aerobics"])
         if defaults["strength"]:
-            strengthaerobics.linkStrength(movesGraph, defaults["difficulty"])
+            strengthaerobics.linkStrength(movesGraph, defaults["difficulty"], defaults["strength"])
             if defaults["aerobics"]:
-                strengthaerobics.linkStrengthAerobics(movesGraph, defaults["difficulty"])
+                strengthaerobics.linkStrengthAerobics(movesGraph, defaults["difficulty"], defaults["strength"], defaults["aerobics"])
         pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12), prev=prev, verbosity=defaults["verbose"], f=f)
         pose = routine(dijkstras.dijkstra(pose, movesGraph['downwardDog'], imbalance=imbalance), imbalance=imbalance, playLast=False, prev=prev, verbosity=defaults["verbose"], f=f) #get me to downwards dog
         imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance, difficulty=defaults["difficulty"])
@@ -116,7 +116,7 @@ def main(**kwargs):
         pose = pose(nextMove=movesGraph['plank'], prev=prev, verbosity=defaults["verbose"], f=f)
         if defaults["warmup"]:
             print("Warmup Over: " + utils.prettyTime(time.time() - start))
-            if f: f.write("Warmup Over: " + utils.prettyTime(time.time() - start))
+            if f: f.write("Warmup Over: " + utils.prettyTime(time.time() - start) + '\n\n')
             utils.speak("Alright, warmup over.")
         pose = pose(imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
         #starting main part of workout
@@ -124,7 +124,10 @@ def main(**kwargs):
             pose = fixImbalance(pose,imbalance,maxImbalance=10 + total_time//600,maxTime=max(60,total_time//12), prev=prev, verbosity=defaults["verbose"], f=f)
             pose = pose(imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
         #add harder poses in here
-        if defaults["difficulty"] >= 1: moves.linkHarder(movesGraph, defaults["difficulty"])
+        if defaults["difficulty"] >= 1:
+            moves.linkHarder(movesGraph, defaults["difficulty"])
+            if defaults["strength"]:
+                strengthaerobics.linkStrengthHarder(movesGraph, defaults["difficulty"], defaults["strength"])
         pose = fixImbalance(pose, imbalance, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
         try:
             pose = routine(dijkstras.dijkstra(pose, movesGraph[defaults['target']], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
@@ -136,7 +139,7 @@ def main(**kwargs):
             pass
         if defaults["verbose"] >= 1:
             print("Halfway point: " + utils.prettyTime(time.time()-start))
-            if f: f.write("Halfway point: " + utils.prettyTime(time.time()-start))
+            if f: f.write("Halfway point: " + utils.prettyTime(time.time()-start) + '\n\n')
             utils.speak("We have reached the halfway point")
         #end adding harder poses
         while time.time() < (end - max(60, total_time//10)) if defaults["cooldown"] else end:
@@ -146,11 +149,11 @@ def main(**kwargs):
             pose = pose(harder=True if defaults["difficulty"] >=1 else False, imbalance = imbalance, extended=extended, prev=prev, verbosity=defaults["verbose"], f=f)
         if defaults["cooldown"]:
             print("Cooldown begins: " + utils.prettyTime(time.time() - start))
-            if f: f.write("Cooldown begins: " + utils.prettyTime(time.time() - start))
+            if f: f.write("Cooldown begins: " + utils.prettyTime(time.time() - start)+'\n\n')
             utils.speak("Cooldown begins")
             moves.linkCooldown(movesGraph)
-            if defaults["strength"]: strengthaerobics.linkStrengthCooldown(movesGraph,difficulty=defaults["difficulty"])
-            if defaults["aerobics"]: strengthaerobics.linkAerobicsCooldown(movesGraph,difficulty=defaults["difficulty"])
+            if defaults["strength"]: strengthaerobics.linkStrengthCooldown(movesGraph,difficulty=defaults["difficulty"], defaults["strength"])
+            if defaults["aerobics"]: strengthaerobics.linkAerobicsCooldown(movesGraph,difficulty=defaults["difficulty"], defaults["aerobics"])
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
         while time.time() < (end-max(30, total_time//10)) if defaults["cooldown"] else end:
             pose = pose(imbalance=imbalance, extended=True, prev=prev, verbosity=defaults["verbose"], f=f)
@@ -165,7 +168,7 @@ def main(**kwargs):
         return imbalance
     finally:
         if f:
-            f.write("Total Time: " + utils.prettyTime(time.time()-start))
+            f.write("Total Time: " + utils.prettyTime(time.time()-start) + '\n\n')
             f.close()
         utils.speak("Done!")
         sys.stdout.write(utils.color.END)
@@ -177,8 +180,8 @@ if __name__== "__main__":
     parser = argparse.ArgumentParser(usage = "./main.py [options]")
     parser.add_argument("--version", action="version", version="yoga " + __version__)
     parser.add_argument("-t", "--time", help="time (in minutes)", default=30, type=int)
-    parser.add_argument("-a", "--aerobics", help="Insert aerobics moves", action='store_true')
-    parser.add_argument("-s", "--strength", help="Insert strength moves", action='store_true')
+    parser.add_argument("-a", "--aerobics", help="Insert aerobics moves", action='count', default=0)
+    parser.add_argument("-s", "--strength", help="Insert strength moves", action='count', default=0)
     parser.add_argument("-d", "--difficulty", help="Difficulty: larger number=harder", default=1, type=int, choices=[-1,0,1,2])
     parser.add_argument("-w",  "--skip-warmup", action='store_false', dest="warmup", help="skips warmup period")
     parser.add_argument("-c", "--skip-cooldown", action='store_false', dest='cooldown', help='skips cooldown')
