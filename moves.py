@@ -60,7 +60,14 @@ class Move(object):
                 movesCopy = movesCopy.difference(prev)
             if movesCopy:
                 return random.choice(tuple(movesCopy))
-        return random.choice(tuple(self.nextMove))
+        if self.nextMove:
+            return random.choice(tuple(self.nextMove))
+        else:
+            if "lateMove" in self.kwargs and self.kwargs["lateMove"]:
+                c = random.choice(tuple(self.kwargs["lateMove"]))
+                self.promoteLate(c)
+                return c
+        raise ValueError("No possible move found")
 
     def promoteLate(self, move=None) -> None:
         """Promotes a late move up to the normal move pool, if possible.
@@ -161,6 +168,9 @@ class Move(object):
 
     def __eq__(self, other):
         if other is None: return False
+        if type(other) == tuple:
+            print(other)
+            raise ValueError(str(other) + " is not a move")
         return self.title == other.title
 
     def __ne__(self, other):
@@ -439,7 +449,8 @@ def generateMoves(difficulty = 1):
     movesGraph['flatBack'].addLateMove(movesGraph['chair'], movesGraph['deepSquat'])
     if difficulty >= 2:
         movesGraph['flatBack'].addLateMove(movesGraph['handstandHops'])
-    movesGraph['lieOnBack'].addMove(movesGraph['seatedMeditation'], movesGraph['lieOnFront'], movesGraph['feetUpAWall'],*movesGraph['spinalTwist'])
+    movesGraph['lieOnBack'].addMove(movesGraph['seatedMeditation'], movesGraph['feetUpAWall'],*movesGraph['spinalTwist'])
+    movesGraph['lieOnBack'].addLateMove(movesGraph['lieOnFront'])
     if difficulty >= 0:
         movesGraph['lieOnBack'].addLateMove(movesGraph['wheel'])
     movesGraph['plow'].addMove(movesGraph['fish'])
@@ -461,7 +472,7 @@ def generateMoves(difficulty = 1):
     movesGraph['lowBoat'].addMove(movesGraph['yogaBicycles'])
     movesGraph['chair'].addMove(movesGraph['deepSquat'], *movesGraph['oneLeggedChair'])
     if difficulty >= 1:
-        movesGraph['chair'].addLateMove(movesGraph['revolvedOneLeggedChair'])
+        movesGraph['chair'].addLateMove(*movesGraph['revolvedOneLeggedChair'])
     movesGraph['star'].addMove(movesGraph['goddessSquat'], movesGraph['deepSquat'])
     movesGraph['bridge'].addMove(movesGraph['lieOnBack'], *movesGraph['bridgeWithRaisedLeg'])
     if difficulty >= 0:

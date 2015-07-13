@@ -31,6 +31,7 @@ def sqrt_floor(i : int) -> int:
     return math.floor(math.sqrt(i))
 
 def countdown(n : int , *args, **kwargs): #Uh, why do I have args and kwargs here?
+    if n <= 1: return None
     incremental = n>30
     sys.stdout.write(color.RED)
     while n > 0:
