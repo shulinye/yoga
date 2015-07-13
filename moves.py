@@ -340,7 +340,7 @@ def generateMoves(difficulty = 1):
             foot with your %(same)s hand. Raise %(same)s foot", 15 + 2*difficulty, movesGraph['chair'], \
             extended_time=reDifficultyTimes([20,30],4,difficulty))
     movesGraph['revolvedOneLeggedChair'] = twoSides("Revolved One Legged Chair", "Shift all your weight to your %(other)s foot. Grab your %(same)s foot with \
-            your %(other)s hand. Raise %(same) foot", 15 + 2*difficulty, movesGraph['vinyasa'], movesGraph['chair'],\
+            your %(other)s hand. Raise %(same)s foot", 15 + 2*difficulty, movesGraph['vinyasa'], movesGraph['chair'], \
             extended_time=reDifficultyTimes([20,30],4,difficulty))
     movesGraph['crow'] = Move("Crow Pose", 0, "Crow Pose", 30, movesGraph['vinyasa'])
     movesGraph['crane'] = Move("Crane Pose", 0, "Crane Pose", 30, movesGraph['vinyasa'])
