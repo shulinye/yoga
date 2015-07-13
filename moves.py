@@ -550,6 +550,8 @@ def generateMoves(difficulty = 1):
     doubleAdd(movesGraph['pigeon'], movesGraph['threeLeggedDog'], movesGraph['kingPigeon'])
     doubleAdd(movesGraph['kingPigeon'], movesGraph['threeLeggedDog'])
     doubleAdd(movesGraph['kneeToNose'], movesGraph['threeLeggedDog'])
+    if difficulty <= 0:
+        doubleAdd(movesGraph['kneeToNose'], movesGraph['lowLunge'], late=True)
     doubleAdd(movesGraph['kneeToElbow'], movesGraph['kneeToOtherElbow'], movesGraph['threeLeggedDog'], movesGraph['lowLunge'])
     if difficulty >= 1:
         doubleAdd(movesGraph['kneeToElbow'], movesGraph['runningMan'], late=True)
@@ -562,6 +564,7 @@ def generateMoves(difficulty = 1):
         doubleAdd(movesGraph['lowLunge'], movesGraph['warrior3'], late=True)
         doubleAdd(movesGraph['eagle'], movesGraph['warrior3'], late=True, inverted=True)
         doubleAdd(movesGraph['eagle'], movesGraph['standingLegLift4'])
+        doubleAdd(movesGraph['lizard'], movesGraph['cresent'], late = True)
     if difficulty >= 0:
         doubleAdd(movesGraph['eagle'], movesGraph['standingSplits'])
     doubleAdd(movesGraph['warrior3'], movesGraph['standingLegLift1'], movesGraph['standingSplits'], movesGraph['tree'], movesGraph['eagle'], \
@@ -666,7 +669,7 @@ def linkHarder(movesGraph, difficulty=1) -> None:
         movesGraph['vinyasa'].addMove(movesGraph['forwardFold'])
         doubleAdd(movesGraph['runningMan'], movesGraph['chinStand'])
         doubleAdd(movesGraph['triangle'], movesGraph['boundHalfMoon'], late=True)
-        doubleAdd(movesGraph['cresent'], movesGraph['handStandHops'], late=True)
+        for i in movesGraph['cresent']: i.addLateMove(movesGraph['handstandHops'])
     if difficulty >= 1:
         movesGraph['vinyasa'].time -= 1
         movesGraph['forwardFold'].addMove(movesGraph['crow'])

@@ -33,6 +33,7 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
     movesGraph['sideLunges'] = Move("Side Lunges", 0, "Side Lunges", 20 + 10*difficulty, movesGraph['wideLegStance'], countReps=True)
     movesGraph['aroundTheWorld'] = twoSides("Around The World", "Around The World, %(same)s side", 20 + 10*difficulty, movesGraph['mountain'], \
             lateMove=set([movesGraph['vinyasa']]), countReps=True)
+    movesGraph['dips'] = Move("Dips", 0, "Dips", 15 + 5*difficulty, movesGraph['vinyasa']) #//TODO: better description
 
     #link moves
     movesGraph['downwardDog'].addLateMove(movesGraph['pushups'])
@@ -50,9 +51,11 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
     doubleAdd(movesGraph['oneLeggedChair'], movesGraph['pistolSquats'])
     doubleAdd(movesGraph['cresent'], movesGraph['aroundTheWorld'], late = True)
     movesGraph['lieOnFront'].addLateMove(movesGraph['pushups'])
+    movesGraph['upwardPlank'].addLateMove(movesGraph['dips'])
     if strength + difficulty >= 3:
         doubleAdd(movesGraph['eagle'], movesGraph['pistolSquats'], late=True)
         movesGraph['star'].addLateMove(movesGraph['jumpingSquats'])
+        doubleAdd(movesGraph['balancingTableLegOnly'], movesGraph['oneLeggedPlank'], late=True)
     if difficulty >= 1:
         doubleAdd(movesGraph['standingLegLift4'], movesGraph['pistolSquats'], late=True)
         doubleAdd(movesGraph['standingLegLift1'], movesGraph['pistolSquats'], late=True)
