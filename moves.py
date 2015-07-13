@@ -238,6 +238,8 @@ def generateMoves(difficulty = 1):
             }
     movesGraph['plank'] = Move("Plank", 0, "Plank. Hold", 25 + 5*difficulty, movesGraph['lowPlank'], \
             extended_time=reDifficultyTimes([40,60],5, difficulty), harder="Throw in a few pushups!")
+    movesGraph['oneLeggedPlank'] = twoSides("One Legged Plank", "Raise your %(same)s foot", 10 + difficulty, movesGraph['vinyasa'])
+    movesGraph['twoPointPlank'] = twoSides("Two Point Plank", "Now raise your %(other)s hand", 10 + difficulty, movesGraph['vinyasa'])
     movesGraph['catCow'] = Move("Cat Cow", 0, "Cat Cow", 10, movesGraph['plank'], *movesGraph['balancingTableLegOnly'], extended_time=[15])
     movesGraph['table'] = Move("Table Pose", 0, "Table Pose", 5-difficulty, movesGraph['catCow'], *movesGraph['balancingTableLegOnly'], \
             extended_time=[10-2*difficulty])
@@ -461,6 +463,11 @@ def generateMoves(difficulty = 1):
         movesGraph['upwardPlank'].addLateMove(*movesGraph['upwardPlankLiftedLeg'])
     movesGraph['supportedShoulderStand'].addMove(movesGraph['plow'])
     movesGraph['plank'].addMove(movesGraph['vinyasa'], *movesGraph['sidePlank'])
+    doubleAdd(movesGraph['oneLeggedPlank'], movesGraph['twoPointPlank'])
+    if difficulty >= 1:
+        movesGraph['plank'].addMove(*movesGraph['oneLeggedPlank'])
+        doubleAdd(movesGraph['oneLeggedPlank'], movesGraph['threeLeggedDog'], late = True)
+        doubleAdd(movesGraph['twoPointPlank'], movesGraph['twoLeggedDog'], late=True)
     movesGraph['lowPlank'].addMove(movesGraph['upwardDog'], movesGraph['vinyasa'])
     movesGraph['lowPlank'].addLateMove(movesGraph['plank'])
     movesGraph['child'].addMove(*movesGraph['childsPoseSideStretch'])
@@ -659,7 +666,7 @@ def linkHarder(movesGraph, difficulty=1) -> None:
         movesGraph['vinyasa'].addMove(movesGraph['forwardFold'])
         doubleAdd(movesGraph['runningMan'], movesGraph['chinStand'])
         doubleAdd(movesGraph['triangle'], movesGraph['boundHalfMoon'], late=True)
-        doubleAdd(movesGraph['cresent'], movesGraph['handsandHops'], late=True)
+        doubleAdd(movesGraph['cresent'], movesGraph['handStandHops'], late=True)
     if difficulty >= 1:
         movesGraph['vinyasa'].time -= 1
         movesGraph['forwardFold'].addMove(movesGraph['crow'])

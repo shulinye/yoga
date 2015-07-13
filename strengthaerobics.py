@@ -6,7 +6,7 @@ def linkAerobics(movesGraph, difficulty=1, aerobics = 0):
     movesGraph['jumpingJacks'] = Move("Jumping Jacks", 0, "Jumping Jacks!", 40 + 20*difficulty, movesGraph['mountain'], countReps=True)
     movesGraph['runInPlace'] = Move("Running In Place", 0, "Run In Place", 40 + 20*difficulty, movesGraph['mountain'], movesGraph['jumpingJacks'])
     movesGraph['burpies'] = Move("Burpies!", 0, "Burpies", 30+10*difficulty, movesGraph['vinyasa'], movesGraph['forwardFold'], movesGraph['plank'], \
-            extended=reDifficultyTimes([60,75,90], 10, difficulty), countReps=True)
+            extended=reDifficultyTimes([60,75,90], 10, difficulty+aerobics), countReps=True)
     movesGraph['situps'] = Move("Situps", 0, "Situps", 30 + 10*difficulty, movesGraph['vinyasa'], extended=reDifficultyTimes([40,50],10,difficulty + aerobics//2), \
             lateMove=set([movesGraph['boat']]), countReps=True)
     movesGraph['mountain'].addLateMove(movesGraph['jumpingJacks'], movesGraph['runInPlace'], movesGraph['burpies'])
