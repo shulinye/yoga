@@ -649,7 +649,7 @@ def linkMain(movesGraph, difficulty=1) -> None:
 def unlinkWarmup(movesGraph, imbalance=[], difficulty=1) -> list:
     movesGraph['mountain'].removeMove(*movesGraph['standingTwist'])
     movesGraph['lieOnBack'].removeMove(movesGraph['seatedMeditation'])
-    movesGraph['mountain'].removeMove(*movesGraph['standingSideStretch'])
+    movesGraph['mountain'].removeMove(movesGraph['backBend'], *movesGraph['standingSideStretch'])
     movesGraph['backBend'].removeMove(*movesGraph['standingSideStretch'])
     movesGraph['seatedMeditation'].removeMove(movesGraph['table'], movesGraph['catCow'], *movesGraph['seatedTwist'])
     movesGraph['child'].removeMove(*movesGraph['childsPoseSideStretch'])
