@@ -23,25 +23,24 @@ class color:
    END = '\033[0m'
 
 
-def speak(text : str ):
-    subprocess.call('espeak -v en-gb \"' + text + '\"', shell=True)
+def speak(text : str , wait = True):
+    f = subprocess.call if wait else subprocess.Popen
+    f('espeak -v en-gb \"' + text + '\"', shell=True, stdin=None, stdout=None, stderr=None)
 
 def sqrt_floor(i : int) -> int:
     return math.floor(math.sqrt(i))
 
-def countdown(n : int) -> None:
+def countdown(n : int, incremental = None) -> None:
     if n <= 1: return None
-    incremental = n>30
+    if incremental is None: incremental = n>30
     print(color.RED, end="")
     while n > 0:
         print(str(n) + "...", end="", flush=True)
         if n < 4:
-            speak(str(n))
+            speak(str(n), wait=False)
         elif incremental:
-            if n == 30:
-                speak("30 seconds remaining")
-            if n == 15:
-                speak("15 seconds remaining")
+            if n in {15,30,45,60,75,90,105}:
+                speak(str(n) + " seconds remaining", wait=False)
         if not DEBUG: time.sleep(1)
         n -= 1
     print("0" + color.END)

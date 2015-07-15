@@ -371,7 +371,7 @@ def generateMoves(difficulty = 1):
             extended_time=reDifficultyTimes([20,25],4,difficulty))
     movesGraph['sidePlank'] = twoSides("Side Plank", "Side Plank, %(same)s side", 11 + 4*difficulty, movesGraph['plank'], movesGraph['vinyasa'], \
             extended_time=reDifficultyTimes([30,40],4,difficulty))
-    movesGraph['sidePlankLegUp'] = twoSides("Side Plank, Leg Up", "Now raise your %(same)s leg up and hold", 10 + 4*difficulty, \
+    movesGraph['sidePlankLegUp'] = twoSides("Side Plank, Leg Up", "Now raise your %(other)s leg up and hold", 10 + 4*difficulty, \
             extended_time=reDifficultyTimes([20,25,30],4,difficulty), lateMove=set([movesGraph['vinyasa']]))
     movesGraph['triangle'] = twoSides("Triangle Pose", "Triangle Pose, %(same)s side", 15, movesGraph['vinyasa'], bind=True)
     movesGraph['pyramid'] = twoSides("Pyramid Pose", "Pyramid Pose, %(same)s side", 15, movesGraph['vinyasa'])
@@ -656,8 +656,8 @@ def unlinkWarmup(movesGraph, imbalance=[], difficulty=1) -> list:
     movesGraph['feetUpAWall'].removeMove(movesGraph['staff'], movesGraph['lieOnBack'])
     if difficulty >= 1:
         movesGraph['vinyasa'].removeMove(movesGraph['upwardDog'])
-        for i in movesGraph['threeLeggedDog']: i.time -=1
-        for i in movesGraph['lowLunge']: i.time -= max(0, difficulty)
+        for i in movesGraph['threeLeggedDog']: i.time = max(0, i.time - 1)
+        for i in movesGraph['lowLunge']: i.time = max(0, i.time - max(0, difficulty))
     #Remove these impossible moves from imbalances
     moves = set(sum([movesGraph[i] for i in ('standingTwist','standingSideStretch','seatedTwist','childsPoseSideStretch')],()))
     return [i for i in imbalance if i not in moves]
@@ -671,7 +671,7 @@ def linkHarder(movesGraph, difficulty=1) -> None:
         doubleAdd(movesGraph['triangle'], movesGraph['boundHalfMoon'], late=True)
         for i in movesGraph['cresent']: i.addLateMove(movesGraph['handstandHops'])
     if difficulty >= 1:
-        movesGraph['vinyasa'].time -= 1
+        movesGraph['vinyasa'].time = max(0, movesGraph['vinyasa'].time - 1)
         movesGraph['forwardFold'].addMove(movesGraph['crow'])
         movesGraph['seatedMeditation'].addMove(movesGraph['frog'])
         movesGraph['staff'].addMove(movesGraph['frog'])
@@ -684,8 +684,8 @@ def linkHarder(movesGraph, difficulty=1) -> None:
     for i in range(max(0,difficulty)):
         movesGraph['mountain'].promoteLate()
 
-def linkCooldown(movesGraph) -> None:
-    """Links cooldown moves in."""
+
+def linkEnding(movesGraph) -> None:
     #Allow me to just go from one arm balance to the opposite side, to increase the chances I get balanced
     moveReverse(movesGraph['runningMan'], movesGraph['sideCrow'], movesGraph['flyingPigeon'], \
             movesGraph['revolvedRunningMan'], movesGraph['chinStand'], movesGraph['twoLeggedDog'])
@@ -694,15 +694,19 @@ def linkCooldown(movesGraph) -> None:
     for i in movesGraph['sideCrow']: i.addMove(movesGraph['child'])
     for i in movesGraph['flyingPigeon']: i.addMove(movesGraph['child'])
     for i in movesGraph['twoLeggedDog']: i.addMove(movesGraph['child'], movesGraph['downwardDog'])
+    for i in movesGraph['threeLeggedDog']:
+        i.addMove(movesGraph['plank'])
+        i.time += 1
+
+
+def linkCooldown(movesGraph) -> None:
+    """Links cooldown moves in."""
     movesGraph['child'].addMove(*movesGraph['childsPoseSideStretch'])
     movesGraph['downwardDog'].addMove(movesGraph['table'], movesGraph['child'], movesGraph['lieOnBack'])
     movesGraph['vinyasa'].addMove(movesGraph['child'], movesGraph['lieOnBack'], movesGraph['staff'], movesGraph['upwardDog'])
     movesGraph['staff'].addMove(movesGraph['hero'])
     movesGraph['seatedMeditation'].addMove(*movesGraph['cowFace'])
     movesGraph['crow'].addMove(movesGraph['child'])
-    for i in movesGraph['threeLeggedDog']:
-        i.addMove(movesGraph['plank'])
-        i.time += 1
     for i in movesGraph['sidePlank']: i.addMove(movesGraph['lieOnFront'])
     for i in movesGraph['sidePlankLegUp']: i.addMove(movesGraph['lieOnFront'])
     for i in movesGraph['standingLegLift1']: i.addMove(movesGraph['mountain'])

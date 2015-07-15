@@ -142,11 +142,15 @@ def main(**kwargs):
             if f: f.write("Halfway point: " + utils.prettyTime(time.time()-start) + '\n\n')
             utils.speak("We have reached the halfway point")
         #end adding harder poses
-        while time.time() < (end - max(60, total_time//10)) if defaults["cooldown"] else end:
+        while time.time() < (end - max(60, total_time//5)) if defaults["cooldown"] else end:
             extendedChance = (time.time() - start)/total_time
             extended = random.random() < extendedChance
             pose = fixImbalance(pose, imbalance, maxImbalance=8 + total_time//800, maxTime=max(110,total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
             pose = pose(harder=True if defaults["difficulty"] >=1 else False, imbalance = imbalance, extended=extended, prev=prev, verbosity=defaults["verbose"], f=f)
+        moves.linkEnding(movesGraph)
+        while time.time() < (end - max(60, total_time//10)):
+            pose = fixImbalance(pose, imbalance, maxImbalance=6 + total_time//800, maxTime=max(120, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
+            pose = pose(imbalance = imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
         if defaults["cooldown"]:
             print("Cooldown begins: " + utils.prettyTime(time.time() - start))
             if f: f.write("Cooldown begins: " + utils.prettyTime(time.time() - start)+'\n\n')
