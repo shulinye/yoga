@@ -56,10 +56,15 @@ def generateAllMoves(d = 1, a = 0, s = 0):
     except:
         logging.exception('linkAerobicsCooldown')
     try:
-        moves.linkSavasana(movesGraph, d)
+        moves.linkSavasana(movesGraph, difficulty = d)
     except:
         logging.exception('linkSavasana')
-
+    return movesGraph
 
 if __name__== "__main__":
-    generateAllMoves()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--aerobics", dest="a", help="Insert aerobics moves", action='count', default=0)
+    parser.add_argument("-s", "--strength", dest="s", help="Insert strength moves", action='count', default=0)
+    parser.add_argument("-d", "--difficulty", dest="d", help="Difficulty: larger number=harder", default=1, type=int, choices=[-1,0,1,2])
+    args = parser.parse_args()
+    movesGraph = generateAllMoves(**vars(args))
