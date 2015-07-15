@@ -3,7 +3,6 @@
 import math
 import shutil
 import subprocess
-import sys
 import time
 
 DEBUG = False
@@ -30,13 +29,12 @@ def speak(text : str ):
 def sqrt_floor(i : int) -> int:
     return math.floor(math.sqrt(i))
 
-def countdown(n : int , *args, **kwargs): #Uh, why do I have args and kwargs here?
+def countdown(n : int) -> None:
     if n <= 1: return None
     incremental = n>30
-    sys.stdout.write(color.RED)
+    print(color.RED, end="")
     while n > 0:
-        sys.stdout.write(str(n) + "...")
-        sys.stdout.flush()
+        print(str(n) + "...", end="", flush=True)
         if n < 4:
             speak(str(n))
         elif incremental:
@@ -46,11 +44,9 @@ def countdown(n : int , *args, **kwargs): #Uh, why do I have args and kwargs her
                 speak("15 seconds remaining")
         if not DEBUG: time.sleep(1)
         n -= 1
-    sys.stdout.write("0\n" + color.END)
-    sys.stdout.flush()
+    print("0" + color.END)
 
-
-def prettyTime(time):
+def prettyTime(time : int) -> str:
     """takes a time, in seconds, and formats it for display"""
     h = time//3600
     m = time//60 % 60
