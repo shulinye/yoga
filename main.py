@@ -13,6 +13,7 @@ import random
 import dijkstras
 import utils
 import moves
+import stretches
 import strengthaerobics
 
 def routine(li : list, imbalance, playLast = True, **kwargs) -> "Move":

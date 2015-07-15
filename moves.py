@@ -697,16 +697,3 @@ def linkEnding(movesGraph) -> None:
     for i in movesGraph['threeLeggedDog']:
         i.addMove(movesGraph['plank'])
         i.time += 1
-
-
-def linkCooldown(movesGraph) -> None:
-    """Links cooldown moves in."""
-    movesGraph['child'].addMove(*movesGraph['childsPoseSideStretch'])
-    movesGraph['downwardDog'].addMove(movesGraph['table'], movesGraph['child'], movesGraph['lieOnBack'])
-    movesGraph['vinyasa'].addMove(movesGraph['child'], movesGraph['lieOnBack'], movesGraph['staff'], movesGraph['upwardDog'])
-    movesGraph['staff'].addMove(movesGraph['hero'])
-    movesGraph['seatedMeditation'].addMove(*movesGraph['cowFace'])
-    movesGraph['crow'].addMove(movesGraph['child'])
-    for i in movesGraph['sidePlank']: i.addMove(movesGraph['lieOnFront'])
-    for i in movesGraph['sidePlankLegUp']: i.addMove(movesGraph['lieOnFront'])
-    for i in movesGraph['standingLegLift1']: i.addMove(movesGraph['mountain'])
