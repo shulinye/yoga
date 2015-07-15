@@ -25,7 +25,7 @@ def linkAerobics(movesGraph, difficulty = 1, aerobics = 0):
         movesGraph['seatedMeditation'].addLateMove(movesGraph['situps'])
         movesGraph['runInPlace'].addMove(movesGraph['vinyasa'])
     else:
-        movesGraph['burpies'].addMove(movesGraph['mountain']
+        movesGraph['burpies'].addMove(movesGraph['mountain'])
     if aerobics + difficulty >= 3:
         movesGraph['boat'].addLateMove(movesGraph['situps'])
         movesGraph['flatBack'].addLateMove(movesGraph['plank'])
@@ -43,6 +43,7 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
     movesGraph['pistolSquats'] = twoSides("Pistol Squats", "Pistol Squats, %(same)s foot up", 15+5*difficulty, movesGraph['mountain'], countReps=True) #//TODO: better description
     movesGraph['jumpingSquats'] = Move("Jumping Squats", 0, "Jumping Squats", 30, movesGraph['chair'], \
             movesGraph['forwardFold'], lateMove=set([movesGraph['mountain']]), countReps=True)
+    movesGraph['jumpingLunges'] = Move("Jumping Lunges", 0, "Jumping Lunges", 20 + 10*difficulty + 10*strength, movesGraph['vinyasa'], countReps=True)
     movesGraph['sideLunges'] = Move("Side Lunges", 0, "Side Lunges", 20 + 10*difficulty, movesGraph['wideLegStance'], countReps=True)
     movesGraph['aroundTheWorld'] = twoSides("Around The World", "Around The World, %(same)s side", 20 + 10*difficulty, movesGraph['mountain'], \
             lateMove=set([movesGraph['vinyasa']]), countReps=True)
