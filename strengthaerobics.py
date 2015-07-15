@@ -10,6 +10,8 @@ def linkAerobics(movesGraph, difficulty = 1, aerobics = 0):
             extended=reDifficultyTimes([60,75,90], 10, difficulty+aerobics), countReps=True)
     movesGraph['situps'] = Move("Situps", 0, "Situps", 30 + 10*difficulty, movesGraph['vinyasa'], extended=reDifficultyTimes([40,50],10,difficulty + aerobics//2), \
             lateMove=set([movesGraph['boat']]), countReps=True)
+    movesGraph['shuffle'] = Move("Shuffle", 0, "Shuffle", 30+10*difficulty, movesGraph['vinyasa'])
+    movesGraph['highKnees'] = Move("High Knees", 0, "High Knees", 30+10*difficulty, movesGraph['vinyasa'])
     #linking here
     movesGraph['mountain'].addLateMove(movesGraph['jumpingJacks'], movesGraph['runInPlace'], movesGraph['burpies'])
     movesGraph['jumpingJacks'].addLateMove(movesGraph['runInPlace'])
@@ -22,10 +24,13 @@ def linkAerobics(movesGraph, difficulty = 1, aerobics = 0):
     if difficulty >= 1:
         movesGraph['seatedMeditation'].addLateMove(movesGraph['situps'])
         movesGraph['runInPlace'].addMove(movesGraph['vinyasa'])
+    else:
+        movesGraph['burpies'].addMove(movesGraph['mountain']
     if aerobics + difficulty >= 3:
         movesGraph['boat'].addLateMove(movesGraph['situps'])
         movesGraph['flatBack'].addLateMove(movesGraph['plank'])
         movesGraph['wideLegStance'].addLateMove(movesGraph['jumpingJacks'])
+        movesGraph['jumpingJacks'].addMove(movesGraph['vinyasa'])
 
 def linkAerobicsCooldown(movesGraph, difficulty=1, aerobics = 0) -> None:
     movesGraph['runInPlace'].addMove(movesGraph['lieOnBack'])

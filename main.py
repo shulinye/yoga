@@ -158,6 +158,12 @@ def main(**kwargs):
             moves.linkCooldown(movesGraph)
             if defaults["strength"]: strengthaerobics.linkStrengthCooldown(movesGraph,difficulty=defaults["difficulty"], strength = defaults["strength"])
             if defaults["aerobics"]: strengthaerobics.linkAerobicsCooldown(movesGraph,difficulty=defaults["difficulty"], aerobics = defaults["aerobics"])
+            try:
+                pose = routine(dijkstras.dijkstra(pose, movesGraph["wheel"], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
+            except ValueError:
+                pass
+            except dijkstras.TimeExceededError:
+                pass
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
         while time.time() < (end-max(30, total_time//10)) if defaults["cooldown"] else end:
             pose = pose(imbalance=imbalance, extended=True, prev=prev, verbosity=defaults["verbose"], f=f)
