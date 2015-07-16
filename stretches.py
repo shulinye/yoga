@@ -6,10 +6,12 @@ from moves import Move, doubleAdd, twoSides, moveReverse, reDifficultyTimes
 def linkEasy(movesGraph, difficulty = -1) -> None:
     raise NotImplemented
 
-def linkCooldown(movesGraph) -> None:
+def linkCooldown(movesGraph, difficulty = 1) -> None:
     """Links cooldown moves in."""
     movesGraph['twistedHeadToKnee'] = twoSides("Twisted Head To Knee", "Take your %(same)s hand and grab the inside of your %(same)s foot.\
             Lean sideways over your %(same)s leg.", 30, movesGraph['seatedMeditation'], movesGraph['staff'], movesGraph['lieOnBack'])
+    movesGraph['preztel'] = twoSides("Preztel", "Pretzel", 30, movesGraph['lieOnBack']) #like four, but without the shoulder standing bits
+    movesGraph['four'] = twoSides("Four", "Four", 30, movesGraph['lieOnBack'])
 
     movesGraph['child'].addMove(*movesGraph['childsPoseSideStretch'])
     movesGraph['downwardDog'].addMove(movesGraph['table'], movesGraph['child'], movesGraph['lieOnBack'])

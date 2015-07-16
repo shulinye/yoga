@@ -156,7 +156,7 @@ def main(**kwargs):
             print("Cooldown begins: " + utils.prettyTime(time.time() - start))
             if f: f.write("Cooldown begins: " + utils.prettyTime(time.time() - start)+'\n\n')
             utils.speak("Cooldown begins")
-            stretches.linkCooldown(movesGraph)
+            stretches.linkCooldown(movesGraph, difficulty=defaults["difficulty"])
             if defaults["strength"]: strengthaerobics.linkStrengthCooldown(movesGraph,difficulty=defaults["difficulty"], strength = defaults["strength"])
             if defaults["aerobics"]: strengthaerobics.linkAerobicsCooldown(movesGraph,difficulty=defaults["difficulty"], aerobics = defaults["aerobics"])
             try:

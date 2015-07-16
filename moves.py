@@ -629,7 +629,7 @@ def generateMoves(difficulty = 1):
 
 def linkSavasana(movesGraph, *args, difficulty=1) -> None:
     moves = ['child', 'downwardDog', 'staff', 'seatedMeditation', 'mountain', 'table', \
-            'lieOnBack', 'lieOnFront', 'fish']
+            'lieOnBack', 'lieOnFront', 'fish', 'wheel']
     for i in moves:
         movesGraph[i].addMove(movesGraph['savasana'])
     for i in args:
