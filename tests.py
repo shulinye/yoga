@@ -14,9 +14,9 @@ def sloppyRun(func, *args, **kwargs):
     """Runs a function, catching all exceptions
     and writing them to a log file."""
     try:
-        func(*args, **kwargs)
+        return func(*args, **kwargs)
     except:
-        logging.exception(func.__name__)
+        logging.exception(func.__name__ + str(args) + str(kwargs))
 
 def generateAllMoves(d = 1, a = 0, s = 0):
     movesGraph = moves.generateMoves(d)

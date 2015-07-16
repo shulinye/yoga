@@ -43,9 +43,7 @@ def fixImbalance(pose, imbalance, maxImbalance=1, maxTime = 60, **kwargs) -> "Mo
         while imbalance and time.time() < end:
             try:
                 pose = routine(dijkstras.dijkstra(pose,*imbalance,imbalance=imbalance), imbalance=imbalance, **kwargs)
-            except dijkstras.TimeExceededError:
-                break
-            except ValueError:
+            except (dijkstras.TimeExceededError, ValueError):
                 break
             except KeyboardInterrupt:
                 sys.stdout.write(utils.color.END)
@@ -108,11 +106,7 @@ def main(**kwargs):
         imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance, difficulty=defaults["difficulty"])
         try:
             pose = routine(dijkstras.dijkstra(pose,movesGraph[defaults['target']], imbalance=imbalance), imbalance=imbalance, prev=prev,verbosity=defaults["verbose"], f=f)
-        except KeyError:
-            pass
-        except ValueError:
-            pass
-        except dijkstras.TimeExceededError:
+        except (dijkstras.TimeExceededError, KeyError, ValueError):
             pass
         pose = pose(nextMove=movesGraph['plank'], prev=prev, verbosity=defaults["verbose"], f=f)
         if defaults["warmup"]:
@@ -132,11 +126,7 @@ def main(**kwargs):
         pose = fixImbalance(pose, imbalance, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
         try:
             pose = routine(dijkstras.dijkstra(pose, movesGraph[defaults['target']], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
-        except KeyError:
-            pass
-        except ValueError:
-            pass
-        except dijkstras.TimeExceededError:
+        except (dijkstras.TimeExceededError, KeyError, ValueError):
             pass
         if defaults["verbose"] >= 1:
             print("Halfway point: " + utils.prettyTime(time.time()-start))
@@ -161,9 +151,7 @@ def main(**kwargs):
             if defaults["aerobics"]: strengthaerobics.linkAerobicsCooldown(movesGraph,difficulty=defaults["difficulty"], aerobics = defaults["aerobics"])
             try:
                 pose = routine(dijkstras.dijkstra(pose, movesGraph["wheel"], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
-            except ValueError:
-                pass
-            except dijkstras.TimeExceededError:
+            except (dijkstras.TimeExceededError, ValueError):
                 pass
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
         while time.time() < (end-max(30, total_time//10)) if defaults["cooldown"] else end:
@@ -173,7 +161,7 @@ def main(**kwargs):
             moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])
             pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
             pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, BrokenPipeError):
         moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])
         pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance = imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
         return imbalance

@@ -654,12 +654,16 @@ def unlinkWarmup(movesGraph, imbalance=[], difficulty=1) -> list:
     movesGraph['seatedMeditation'].removeMove(movesGraph['table'], movesGraph['catCow'], *movesGraph['seatedTwist'])
     movesGraph['child'].removeMove(*movesGraph['childsPoseSideStretch'])
     movesGraph['feetUpAWall'].removeMove(movesGraph['staff'], movesGraph['lieOnBack'])
+    movesGraph['table'].removeMove(*movesGraph['balancingTable'])
+    movesGraph['table'].removeMove(*movesGraph['threadTheNeedle'])
+    movesGraph['catCow'].removeMove(*movesGraph['balancingTable'])
     if difficulty >= 1:
         movesGraph['vinyasa'].removeMove(movesGraph['upwardDog'])
         for i in movesGraph['threeLeggedDog']: i.time = max(0, i.time - 1)
         for i in movesGraph['lowLunge']: i.time = max(0, i.time - max(0, difficulty))
     #Remove these impossible moves from imbalances
-    moves = set(sum([movesGraph[i] for i in ('standingTwist','standingSideStretch','seatedTwist','childsPoseSideStretch')],()))
+    moves = set(sum([movesGraph[i] for i in ('standingTwist','standingSideStretch','seatedTwist', \
+            'childsPoseSideStretch', 'threadTheNeedle', 'balancingTable')],()))
     return [i for i in imbalance if i not in moves]
 
 def linkHarder(movesGraph, difficulty=1) -> None:

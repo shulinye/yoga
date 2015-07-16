@@ -76,6 +76,7 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
         doubleAdd(movesGraph['standingLegLift1'], movesGraph['pistolSquats'], late=True)
 
 def linkStrengthHarder(movesGraph, difficulty=1, strength = 0) -> None:
+    moveReverse(movesGraph['pistolSquats'])
     for i in range(max(0,difficulty)):
         movesGraph['mountain'].promoteLate()
 
