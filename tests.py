@@ -18,6 +18,12 @@ def sloppyRun(func, *args, **kwargs):
     except:
         logging.exception(func.__name__ + str(args) + str(kwargs))
 
+def log_isinstance(ob, t, context=None, logfunc = logging.error):
+    if not isinstance(ob, t):
+        logfunc(repr(ob) + " is not " + repr(t) + (" :" + str(context) if context is not None else ""))
+        return False
+    return True
+
 def generateAllMoves(d = 1, a = 0, s = 0):
     movesGraph = moves.generateMoves(d)
     sloppyRun(moves.linkMain, movesGraph, difficulty=d)
@@ -34,9 +40,24 @@ def generateAllMoves(d = 1, a = 0, s = 0):
     sloppyRun(moves.linkSavasana, movesGraph, difficulty = d)
     return movesGraph
 
-def checkGraph(movesGraph):
-    raise NotImplemented
+def checkChildType(move):
+    for m in move.nextMove:
+        log_isinstance(m, moves.Move, context=move)
+    if "lateMove" in move.kwargs:
+        for m in move.kwargs["lateMove"]:
+            log_isinstance(m, moves.Move, context=move)
 
+
+def checkGraph(movesGraph):
+    for i in movesGraph:
+        if isinstance(movesGraph[i], tuple):
+            for j in movesGraph[i]:
+                if log_isinstance(j, moves.Move):
+                   checkChildType(j)
+        elif log_isinstance(movesGraph[i], moves.Move):
+            checkChildType(movesGraph[i])
+        
+        
 def checkLog(filename):
     if os.path.isfile(filename):
         print("Error file exists")
@@ -47,5 +68,8 @@ if __name__== "__main__":
     parser.add_argument("-s", "--strength", dest="s", help="Insert strength moves", action='count', default=0)
     parser.add_argument("-d", "--difficulty", dest="d", help="Difficulty: larger number=harder", default=1, type=int, choices=[-1,0,1,2])
     args = parser.parse_args()
+    print("Generating moves graph")
     movesGraph = generateAllMoves(**vars(args))
+    print("Checking graph")
+    checkGraph(movesGraph)
     checkLog(LOG_FILENAME)

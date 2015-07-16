@@ -5,7 +5,12 @@ import time
 
 import utils
 
+class Meta(type):
+    def __repr__(cls):
+        return cls.__name__
+
 class Move(object):
+    __metaclass__ = Meta
     def __init__(self, title: str, side: int, audio: str, time: int, *args, **kwargs):
         """Creates a Move. Arguments are: title,
         side (-1 for left, 0 for None, 1 for Right)
