@@ -11,7 +11,7 @@ class Meta(type):
 
 class Move(object):
     __metaclass__ = Meta
-    def __init__(self, title: str, side: int, audio: str, time: int, *args, **kwargs):
+    def __init__(self, title: str, side: int, audio: str, time: int, *moves, **kwargs):
         """Creates a Move. Arguments are: title,
         side (-1 for left, 0 for None, 1 for Right)
         audio (for espeak), and time (in seconds)
@@ -23,33 +23,33 @@ class Move(object):
         self.audio = audio
         self.time = max(time,0)
         self.last = None
-        self.nextMove = set(args)
+        self.nextMove = set(moves)
         self.kwargs = kwargs
 
     def updateKwargs(self, **kwargs):
         self.kwargs.update(kwargs)
 
-    def addExtendedTime(self, *args):
+    def addExtendedTime(self, *times):
         if "exended_time" in self.kwargs:
-            self.kwargs["extended_time"] += args
+            self.kwargs["extended_time"] += times
         else:
-            self.kwargs["extended_time"] = args
+            self.kwargs["extended_time"] = times
 
     def addOtherSide(self, otherside):
         self.otherside = otherside
 
-    def addMove(self, *args):
-        self.nextMove.update(args)
+    def addMove(self, *moves):
+        self.nextMove.update(moves)
 
-    def removeMove(self, *args):
-        self.nextMove.difference_update(args)
+    def removeMove(self, *moves):
+        self.nextMove.difference_update(moves)
         if "lateMove" in self.kwargs:
-            self.kwargs["lateMove"].difference_update(args)
+            self.kwargs["lateMove"].difference_update(moves)
 
-    def addLateMove(self, *args):
+    def addLateMove(self, *moves):
         if "lateMove" not in self.kwargs:
             self.kwargs["lateMove"] = set()
-        self.kwargs["lateMove"].update(args)
+        self.kwargs["lateMove"].update(moves)
 
     def notLast(self, prev=None) -> "Move":
         """Returns a move, trying to avoid

@@ -23,7 +23,7 @@ def linkAerobics(movesGraph, difficulty = 1, aerobics = 0):
         for i in movesGraph['eagle']: i.addLateMove(movesGraph['runInPlace'])
     if difficulty >= 1:
         movesGraph['seatedMeditation'].addLateMove(movesGraph['situps'])
-        movesGraph['runInPlace'].addMove(movesGraph['vinyasa'])
+        movesGraph['runInPlace'].addMove(movesGraph['vinyasa']) 
     else:
         movesGraph['burpies'].addMove(movesGraph['mountain'])
     if aerobics + difficulty >= 3:
@@ -71,6 +71,7 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
         doubleAdd(movesGraph['eagle'], movesGraph['pistolSquats'], late=True)
         movesGraph['star'].addLateMove(movesGraph['jumpingSquats'])
         doubleAdd(movesGraph['balancingTableLegOnly'], movesGraph['oneLeggedPlank'], late=True)
+        doubleAdd(movesGraph['oneLeggedChair'], movesGraph['pistolSquats'])
     if difficulty >= 1:
         doubleAdd(movesGraph['standingLegLift4'], movesGraph['pistolSquats'], late=True)
         doubleAdd(movesGraph['standingLegLift1'], movesGraph['pistolSquats'], late=True)
