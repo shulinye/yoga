@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from moves import Move, doubleAdd, twoSides, moveReverse, reDifficultyTimes
+from moves import Move
 
 
 def linkEasy(movesGraph, difficulty = -1) -> None:
@@ -8,13 +8,13 @@ def linkEasy(movesGraph, difficulty = -1) -> None:
 
 def linkCooldown(movesGraph, difficulty = 1) -> None:
     """Links cooldown moves in."""
-    movesGraph['twistedHeadToKnee'] = twoSides("Twisted Head To Knee", "Take your %(same)s hand and grab the inside of your %(same)s foot.\
+    movesGraph['twistedHeadToKnee'] = Move.twoSides("Twisted Head To Knee", "Take your %(same)s hand and grab the inside of your %(same)s foot.\
             Lean sideways over your %(same)s leg.", 30, movesGraph['seatedMeditation'], movesGraph['staff'], movesGraph['lieOnBack'])
-    movesGraph['preztel'] = twoSides("Preztel", "Take your %(same)s foot and put it in front of your %(other)s knee. Pull your %(other)s knee \
+    movesGraph['preztel'] = Move.twoSides("Preztel", "Take your %(same)s foot and put it in front of your %(other)s knee. Pull your %(other)s knee \
             towards you", 30, movesGraph['lieOnBack'])
-    movesGraph['four'] = twoSides("Four", "Four pose, %(same)s side", 30, movesGraph['supportedShoulderStand'])
+    movesGraph['four'] = Move.twoSides("Four", "Four pose, %(same)s side", 30, movesGraph['supportedShoulderStand'])
     for i in movesGraph['four']: i.addLateMove(movesGraph['lieOnBack'])
-    moveReverse(movesGraph['four'], movesGraph['preztel'], movesGraph['twistedHeadToKnee'])
+    Move.moveReverse(movesGraph['four'], movesGraph['preztel'], movesGraph['twistedHeadToKnee'])
 
     movesGraph['child'].addMove(*movesGraph['childsPoseSideStretch'])
     movesGraph['downwardDog'].addMove(movesGraph['table'], movesGraph['child'], movesGraph['lieOnBack'])
