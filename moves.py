@@ -214,9 +214,9 @@ def doubleAdd(move, *args, inverted=False, late=False):
         f(move[1], *[i[1] for i in args])
 
 
-def moveReverse(*args, late=False):
+def moveReverse(*moves, late=False):
     f = Move.addLateMove if late else Move.addMove
-    for i in args:
+    for i in moves:
         f(i[0],i[1])
         f(i[1],i[0])
 
