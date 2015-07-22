@@ -10,7 +10,7 @@ def linkAerobics(movesGraph, difficulty = 1, aerobics = 0):
             extended=Move.reDifficultyTimes([60,75,90], 10, difficulty+aerobics), countReps=True)
     movesGraph['situps'] = Move("Situps", 0, "Situps", 30 + 10*difficulty, movesGraph['vinyasa'], extended=Move.reDifficultyTimes([40,50],10,difficulty + aerobics//2), \
             lateMove=set([movesGraph['boat']]), countReps=True)
-    movesGraph['shuffle'] = Move("Shuffle", 0, "Shuffle", 30+10*difficulty, movesGraph['vinyasa'])
+    movesGraph['shuffle'] = Move("Shuffle", 0, "Shuffle", 30+10*difficulty, movesGraph['vinyasa']) #//TODO: better description
     movesGraph['highKnees'] = Move("High Knees", 0, "High Knees", 30+10*difficulty, movesGraph['vinyasa'])
     #linking here
     movesGraph['mountain'].addLateMove(movesGraph['jumpingJacks'], movesGraph['runInPlace'], movesGraph['burpies'])
@@ -23,7 +23,7 @@ def linkAerobics(movesGraph, difficulty = 1, aerobics = 0):
         for i in movesGraph['eagle']: i.addLateMove(movesGraph['runInPlace'])
     if difficulty >= 1:
         movesGraph['seatedMeditation'].addLateMove(movesGraph['situps'])
-        movesGraph['runInPlace'].addMove(movesGraph['vinyasa']) 
+        movesGraph['runInPlace'].addMove(movesGraph['vinyasa'])
     else:
         movesGraph['burpies'].addMove(movesGraph['mountain'])
     if aerobics + difficulty >= 3:
@@ -50,6 +50,8 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
     movesGraph['dips'] = Move("Dips", 0, "Dips", 15 + 5*difficulty, movesGraph['vinyasa']) #//TODO: better description
     movesGraph['obliqueCrunch'] = Move.twoSides("Oblique Crunch", "Oblique Crunch, %(same)s side", 20 + 10*difficulty, movesGraph['lieOnBack'], countReps=True)
     movesGraph['balletSquat'] = Move("Ballet Squats", 0, "Ballet Squats", 15 + 5*difficulty, movesGraph['mountain'], movesGraph['star'], countReps=True)
+    movesGraph['crunch'] = Move("Crunch", 0, "Crunch", 15+5*difficulty, movesGraph['lieOnBack'], countReps=True)
+    movesGraph['jackknife'] = Move("Jack Knife", 0, "Jack Knife", 15+5*difficulty, movesGraph['lieOnBack'], countReps=True)
 
     #link moves
     movesGraph['downwardDog'].addLateMove(movesGraph['pushups'])
@@ -61,6 +63,7 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
         for i in movesGraph['sidePlankLegUp']: i.addLateMove(movesGraph['pushups'])
         movesGraph['pushups'].addLateMove(*movesGraph['sidePlankLegUp'])
         Move.doubleAdd(movesGraph['warrior3'], movesGraph['pistolSquats'], inverted = True, late=True)
+        movesGraph['boat'].addMove(movesGraph['jackknife'], *movesGraph['obliqueCrunch'])
     movesGraph['mountain'].addLateMove(movesGraph['jumpingSquats'])
     movesGraph['wideLegStance'].addLateMove(movesGraph['jumpingSquats'])
     movesGraph['star'].addLateMove(movesGraph['sideLunges'])
@@ -68,6 +71,8 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
     Move.doubleAdd(movesGraph['cresent'], movesGraph['aroundTheWorld'], late = True)
     movesGraph['lieOnFront'].addLateMove(movesGraph['pushups'])
     movesGraph['upwardPlank'].addLateMove(movesGraph['dips'])
+    movesGraph['lieOnBack'].addLateMove(movesGraph['crunch'], movesGraph['jackknife'], *movesGraph['obliqueCrunch'])
+    movesGraph['lieOnBack'].promoteLate(n=max(1, strength+difficulty))
     if strength + difficulty >= 3:
         Move.doubleAdd(movesGraph['eagle'], movesGraph['pistolSquats'], late=True)
         movesGraph['star'].addLateMove(movesGraph['jumpingSquats'])

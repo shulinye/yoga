@@ -46,21 +46,18 @@ class Move(object):
         else:
             self.kwargs["extended_time"] = times
 
-    def addOtherSide(self, otherside):
-        self.otherside = otherside
-
-    def addMove(self, *moves):
+    def addMove(self, *moves) -> None:
         self.nextMove.update(moves)
 
-    def removeMove(self, *moves):
+    def removeMove(self, *moves) -> None:
         self.nextMove.difference_update(moves)
         if "lateMove" in self.kwargs:
             self.kwargs["lateMove"].difference_update(moves)
 
-    def addLateMove(self, *moves):
+    def addLateMove(self, *moves) -> None:
         if "lateMove" not in self.kwargs:
             self.kwargs["lateMove"] = set()
-        self.kwargs["lateMove"].update(moves)
+        self.kwargs["lateMove"].update(moves).difference_update(self.nextMove)
 
     def notLast(self, prev=None) -> "Move":
         """Returns a move, trying to avoid
@@ -157,7 +154,7 @@ class Move(object):
         if "bind" in self.kwargs and self.kwargs["bind"]:
             utils.speak("Bind if you want to")
         if t > 5:
-            utils.speak(str(t) + "seconds")
+            utils.speak(str(t) + " seconds")
         utils.countdown(t)
         #record to file, if we were given a file
         if "f" in kwargs and kwargs["f"]:
@@ -175,6 +172,9 @@ class Move(object):
         return "Move(%s)" % self.title
 
     def __str__(self):
+        return self.title
+
+    def __unicode__(self):
         return self.title
 
     def __hash__(self):
@@ -221,8 +221,8 @@ class Move(object):
         else:
             R = Move(title + ", Right", 1, audio, time, *args, **kwargs)
             L = Move(title + ", Left", -1, audio, time, *args, **kwargs)
-        R.addOtherSide(L)
-        L.addOtherSide(R)
+        R.otherside = L
+        L.otherside = R
         return (R,L)
 
     @staticmethod
