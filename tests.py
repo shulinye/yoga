@@ -49,16 +49,26 @@ def checkChildType(move):
         log_isinstance(m, moves.Move, context=move)
 
 def checkGraph(movesGraph):
-    for i in movesGraph:
-        if isinstance(movesGraph[i], tuple):
-            for j in movesGraph[i]:
+    for i in movesGraph.values():
+        if isinstance(i, tuple):
+            for j in i:
                 if log_isinstance(j, moves.Move):
                    checkChildType(j)
-        elif log_isinstance(movesGraph[i], moves.Move):
-            checkChildType(movesGraph[i])
+        elif log_isinstance(i, moves.Move):
+            checkChildType(i)
         
 def checkConnected(movesGraph):
-    raise NotImplemented
+    allmoves = set()
+    linkedmoves = set()
+    for i in movesGraph.values():
+        if isinstance(i, tuple):
+            for j in i:
+                allmoves.add(j)
+                linkedmoves.update(j)
+        else:
+            allmoves.add(i)
+            linkedmoves.update(i)
+    return allmoves.difference(linkedmoves)
         
 def checkLog(filename):
     if os.path.isfile(filename):
@@ -74,4 +84,6 @@ if __name__== "__main__":
     movesGraph = generateAllMoves(**vars(args))
     print("Checking graph")
     checkGraph(movesGraph)
+    m = checkConnected(movesGraph)
+    logging.debug("There is no way to get to the following moves:\n    " + "\n    ".join(repr(i) for i in sorted(m)))
     checkLog(LOG_FILENAME)

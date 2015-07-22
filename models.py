@@ -57,7 +57,8 @@ class Move(object):
     def addLateMove(self, *moves) -> None:
         if "lateMove" not in self.kwargs:
             self.kwargs["lateMove"] = set()
-        self.kwargs["lateMove"].update(moves).difference_update(self.nextMove)
+        self.kwargs["lateMove"].update(moves)
+        self.kwargs["lateMove"].difference_update(self.nextMove)
 
     def notLast(self, prev=None) -> "Move":
         """Returns a move, trying to avoid
