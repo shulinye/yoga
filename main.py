@@ -5,7 +5,6 @@
 __version__="0.01"
 __author__="Shulin Ye"
 
-import argparse
 import collections
 import datetime
 import time
@@ -178,6 +177,7 @@ def main(**kwargs):
     return imbalance
 
 if __name__== "__main__":
+    import argparse
     parser = argparse.ArgumentParser(usage = "./main.py [options]")
     parser.add_argument("--version", action="version", version="yoga " + __version__)
     parser.add_argument("-t", "--time", help="time (in minutes)", default=30, type=int)
@@ -186,7 +186,7 @@ if __name__== "__main__":
     parser.add_argument("-d", "--difficulty", help="Difficulty: larger number=harder", default=1, type=int, choices=[-1,0,1,2])
     parser.add_argument("-w",  "--skip-warmup", action='store_false', dest="warmup", help="skips warmup period")
     parser.add_argument("-c", "--skip-cooldown", action='store_false', dest='cooldown', help='skips cooldown')
-    parser.add_argument("-i", "--initial-move", default="child", choices=["child", "seatedMeditation", "lieOnBack"])
+    parser.add_argument("-i", "--initial-move", default="child", choices=["child", "seatedMeditation", "lieOnBack", "mountain"])
     parser.add_argument("-v", "--verbose", action='count', default=0)
     parser.add_argument("--debug", action="store_true", help="Debug mode: all delays removed.")
     parser.add_argument("-m", "--memory", default=5, type=int, help="How many previous moves shall I remember? (default: 5)")

@@ -65,7 +65,7 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
         Move.doubleAdd(movesGraph['warrior3'], movesGraph['pistolSquats'], inverted = True, late=True)
         movesGraph['boat'].addMove(movesGraph['jackknife'], *movesGraph['obliqueCrunch'])
     movesGraph['mountain'].addLateMove(movesGraph['jumpingSquats'])
-    movesGraph['wideLegStance'].addLateMove(movesGraph['jumpingSquats'])
+    movesGraph['wideLegStance'].addLateMove(movesGraph['jumpingSquats'], movesGraph['balletSquat'])
     movesGraph['star'].addLateMove(movesGraph['sideLunges'])
     Move.doubleAdd(movesGraph['oneLeggedChair'], movesGraph['pistolSquats'])
     Move.doubleAdd(movesGraph['cresent'], movesGraph['aroundTheWorld'], late = True)

@@ -221,6 +221,7 @@ def generateMoves(difficulty = 1):
     movesGraph['catCow'].addMove(movesGraph['table'])
     movesGraph['mountain'].addMove(movesGraph['forwardFold'], movesGraph['chair'], *movesGraph['standingTwist'])
     movesGraph['mountain'].addMove(*movesGraph['standingSideStretch'])
+    movesGraph['mountain'].addMove(*movesGraph['standingTwist'])
     if difficulty >= 0:
         movesGraph['mountain'].addLateMove(*movesGraph['dancer'])
     movesGraph['backBend'].addMove(movesGraph['mountain'], movesGraph['forwardFold'], *movesGraph['standingSideStretch'])
@@ -365,6 +366,7 @@ def generateMoves(difficulty = 1):
     if difficulty >= 2:
         Move.doubleAdd(movesGraph['cresentTwist'], movesGraph['boundRevolvedHalfMoon'], late=True)
     Move.doubleAdd(movesGraph['balancingTableLegOnly'], movesGraph['balancingTable'])
+    Move.doubleAdd(movesGraph['balancingTable'], movesGraph['oneHandedTiger'])
     Move.doubleAdd(movesGraph['sideAngle'], movesGraph['reverseWarrior'], movesGraph['warrior2'])
     if difficulty >= 0:
         Move.doubleAdd(movesGraph['sideAngle'], movesGraph['sidePlank'], movesGraph['birdOfParadise'], movesGraph['halfMoon'])
@@ -458,11 +460,14 @@ def linkHarder(movesGraph, difficulty=1) -> None:
         Move.doubleAdd(movesGraph['runningMan'], movesGraph['chinStand'])
         Move.doubleAdd(movesGraph['triangle'], movesGraph['boundHalfMoon'], late=True)
         for i in movesGraph['cresent']: i.addLateMove(movesGraph['handstandHops'])
+        movesGraph['crow'].addLateMove(movesGraph['crane'])
     if difficulty >= 1:
         movesGraph['vinyasa'].time = max(0, movesGraph['vinyasa'].time - 1)
         movesGraph['forwardFold'].addMove(movesGraph['crow'])
         movesGraph['seatedMeditation'].addMove(movesGraph['frog'])
         movesGraph['staff'].addMove(movesGraph['frog'])
+        movesGraph['child'].addMove(movesGraph['supportedHeadstand'])
+        movesGraph['downwardDog'].addLateMove(movesGraph['supportedHeadstand'])
         Move.doubleAdd(movesGraph['threeLeggedDog'], movesGraph['pigeon'])
         for i in movesGraph['twoLeggedDog']: i.addLateMove(movesGraph['plank'])
     for i in ['warrior1', 'warrior2', 'standingLegLift4', 'threeLeggedDog']:

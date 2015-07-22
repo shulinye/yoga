@@ -37,10 +37,10 @@ class Move(object):
         elif "extended_time" in self.kwargs:
             del self.kwargs["extended_time"]
 
-    def updateKwargs(self, **kwargs):
+    def updateKwargs(self, **kwargs) -> None:
         self.kwargs.update(kwargs)
 
-    def addExtendedTime(self, *times):
+    def addExtendedTime(self, *times) -> None:
         if "exended_time" in self.kwargs:
             self.kwargs["extended_time"] += times
         else:
