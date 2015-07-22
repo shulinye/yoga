@@ -72,14 +72,14 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
         movesGraph['star'].addLateMove(movesGraph['jumpingSquats'])
         Move.doubleAdd(movesGraph['balancingTableLegOnly'], movesGraph['oneLeggedPlank'], late=True)
         Move.doubleAdd(movesGraph['oneLeggedChair'], movesGraph['pistolSquats'])
+        movesGraph['chair'].promoteLate(n=(strength + difficulty)//2)
     if difficulty >= 1:
         Move.doubleAdd(movesGraph['standingLegLift4'], movesGraph['pistolSquats'], late=True)
         Move.doubleAdd(movesGraph['standingLegLift1'], movesGraph['pistolSquats'], late=True)
 
 def linkStrengthHarder(movesGraph, difficulty=1, strength = 0) -> None:
     Move.moveReverse(movesGraph['pistolSquats'])
-    for i in range(max(0,difficulty)):
-        movesGraph['mountain'].promoteLate()
+    movesGraph['mountain'].promoteLate(n=max(1, difficulty+1))
 
 def linkStrengthCooldown(movesGraph, difficulty=1, strength = 0) -> None:
     movesGraph['pushups'].addMove(movesGraph['lieOnFront'])

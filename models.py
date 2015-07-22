@@ -71,14 +71,15 @@ class Move(object):
                 return c
         raise ValueError("No possible move found")
 
-    def promoteLate(self, move=None) -> None:
+    def promoteLate(self, move=None, *, n=1) -> None:
         """Promotes a late move up to the normal move pool, if possible.
         If no move given, promotes a random move"""
         if "lateMove" in self.kwargs:
             if move is None:
                 try:
-                    move = self.kwargs["lateMove"].pop()
-                    self.addMove(move)
+                    moves = random.sample(tuple(self.kwargs["lateMove"]), min(n,len(self.kwargs["lateMove"])))
+                    self.kwargs["lateMove"].difference_update(moves)
+                    self.addMove(*moves)
                 except KeyError:
                     pass
             elif move in self.kwargs["lateMove"]:
@@ -181,6 +182,22 @@ class Move(object):
 
     def __lt__(self, other):
         return self.title < other.title
+
+    def __contains__(self, other):
+        if other in self.nextMove: return True
+        if "lateMove" in self.kwargs and other in self.kwargs["lateMove"]: return True
+        return False
+
+    def __len__(self):
+        if "lateMove" in self.kwargs: return len(self.nextMove.union(self.kwargs['lateMove']))
+        return len(self.nextMove)
+    
+    def __iter__(self):
+        for i in self.nextMove:
+            yield i
+        if "lateMove" in self.kwargs:
+            for i in self.kwargs["lateMove"]:
+                yield i
 
     @staticmethod
     def twoSides(title : str , audio : str , time : int , *args, **kwargs):

@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+"""Various utils to check the integrity of the movesGraph"""
+
 import argparse
 import os.path
 import logging
@@ -18,9 +20,9 @@ def sloppyRun(func, *args, **kwargs):
     except:
         logging.exception(func.__name__ + str(args) + str(kwargs))
 
-def log_isinstance(ob, t, context=None, logfunc = logging.error):
+def log_isinstance(ob, t, context=None, level = logging.ERROR):
     if not isinstance(ob, t):
-        logfunc(repr(ob) + " is not " + repr(t) + (" :" + str(context) if context is not None else ""))
+        logging.log(level, repr(ob) + " is not " + repr(t) + (" :" + str(context) if context is not None else ""))
         return False
     return True
 
@@ -41,12 +43,10 @@ def generateAllMoves(d = 1, a = 0, s = 0):
     return movesGraph
 
 def checkChildType(move):
-    for m in move.nextMove:
+    if len(move.nextMove) == 0:
+        logging.error(str(move) + " has no children")
+    for m in move:
         log_isinstance(m, moves.Move, context=move)
-    if "lateMove" in move.kwargs:
-        for m in move.kwargs["lateMove"]:
-            log_isinstance(m, moves.Move, context=move)
-
 
 def checkGraph(movesGraph):
     for i in movesGraph:

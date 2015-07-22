@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+"""Application that reads out yoga moves to you."""
+
 __version__="0.01"
 __author__="Shulin Ye"
 

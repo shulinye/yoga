@@ -469,8 +469,7 @@ def linkHarder(movesGraph, difficulty=1) -> None:
         for j in movesGraph[i]: j.promoteLate()
     for i in ['star', 'mountain', 'downwardDog']:
         movesGraph[i].promoteLate()
-    for i in range(max(0,difficulty)):
-        movesGraph['mountain'].promoteLate()
+    movesGraph['mountain'].promoteLate(n=max(1, difficulty+1))
 
 
 def linkEnding(movesGraph) -> None:
