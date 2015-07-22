@@ -49,6 +49,7 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
             lateMove=set([movesGraph['vinyasa']]), countReps=True)
     movesGraph['dips'] = Move("Dips", 0, "Dips", 15 + 5*difficulty, movesGraph['vinyasa']) #//TODO: better description
     movesGraph['obliqueCrunch'] = Move.twoSides("Oblique Crunch", "Oblique Crunch, %(same)s side", 20 + 10*difficulty, movesGraph['lieOnBack'], countReps=True)
+    movesGraph['balletSquat'] = Move("Ballet Squats", 0, "Ballet Squats", 15 + 5*difficulty, movesGraph['mountain'], movesGraph['star'], countReps=True)
 
     #link moves
     movesGraph['downwardDog'].addLateMove(movesGraph['pushups'])

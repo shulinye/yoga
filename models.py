@@ -18,10 +18,24 @@ class Move(object):
         self.title = title
         self.side = side
         self.audio = audio
-        self.time = max(time,0)
+        self.time = max(time, 0)
         self.last = None
         self.nextMove = set(moves)
         self.kwargs = kwargs
+
+    @property
+    def times(self):
+        li = self.kwargs["extended_time"] if "extended_time" in self.kwargs else []
+        return [self.time] + li
+
+    @times.setter
+    def times(self, args):
+        args = sorted(args)
+        self.time = max(args[0], 0)
+        if len(args) > 1:
+            self.kwargs["extended_time"] = args[1:]
+        elif "extended_time" in self.kwargs:
+            del self.kwargs["extended_time"]
 
     def updateKwargs(self, **kwargs):
         self.kwargs.update(kwargs)
@@ -64,27 +78,23 @@ class Move(object):
                 return random.choice(tuple(movesCopy))
         if self.nextMove:
             return random.choice(tuple(self.nextMove))
-        else:
-            if "lateMove" in self.kwargs and self.kwargs["lateMove"]:
-                c = random.choice(tuple(self.kwargs["lateMove"]))
-                self.promoteLate(c)
-                return c
+        if "lateMove" in self.kwargs and self.kwargs["lateMove"]:
+            c = random.choice(tuple(self.kwargs["lateMove"]))
+            self.promoteLate(c)
+            return c
         raise ValueError("No possible move found")
 
-    def promoteLate(self, move=None, *, n=1) -> None:
+    def promoteLate(self, *args, n=1) -> None:
         """Promotes a late move up to the normal move pool, if possible.
         If no move given, promotes a random move"""
         if "lateMove" in self.kwargs:
-            if move is None:
-                try:
-                    moves = random.sample(tuple(self.kwargs["lateMove"]), min(n,len(self.kwargs["lateMove"])))
-                    self.kwargs["lateMove"].difference_update(moves)
-                    self.addMove(*moves)
-                except KeyError:
-                    pass
-            elif move in self.kwargs["lateMove"]:
-                self.addMove(move)
-                self.kwargs["lateMove"].discard(move)
+            if args:
+                self.addMove(*args)
+                self.kwargs['lateMove'].difference_update(args)
+            elif self.kwargs["lateMove"]:
+                moves = random.sample(tuple(self.kwargs["lateMove"]), min(n,len(self.kwargs["lateMove"])))
+                self.kwargs["lateMove"].difference_update(moves)
+                self.addMove(*moves)
 
     def repCount(self):
         if "countReps" in self.kwargs and self.kwargs["countReps"]:
@@ -125,11 +135,11 @@ class Move(object):
             nextMove = self.notLast(prev)
         if nextMove is not None:
             print("Next Move: " + nextMove.title)
+            self.last = nextMove
             if verbosity >= 1:
                 print(utils.color.DARKCYAN + "My options were: " + "; ".join(str(i) for i in self.nextMove) + utils.color.END)
                 if "lateMove" in self.kwargs and self.kwargs["lateMove"]:
                     print(utils.color.GREEN + "Latemoves: " + "; ".join(str(i) for i in self.kwargs["lateMove"]) + utils.color.END)
-            self.last = nextMove
         # Tell me what to do
         utils.speak(self.audio)
         time.sleep(0.2)
@@ -149,6 +159,7 @@ class Move(object):
         if t > 5:
             utils.speak(str(t) + "seconds")
         utils.countdown(t)
+        #record to file, if we were given a file
         if "f" in kwargs and kwargs["f"]:
             kwargs["f"].write(self.title + " " + str(t)+"\n")
             s = self.repCount()
@@ -157,7 +168,7 @@ class Move(object):
             kwargs["f"].flush()
         if "bind" in self.kwargs and self.kwargs["bind"]:
             utils.speak("Release bind")
-        self.promoteLate()  #Add in options for harder followup moves next time
+        self.promoteLate()  # Add in options for harder followup moves next time
         return nextMove
 
     def __repr__(self):

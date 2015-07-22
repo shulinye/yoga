@@ -57,10 +57,12 @@ def checkGraph(movesGraph):
         elif log_isinstance(movesGraph[i], moves.Move):
             checkChildType(movesGraph[i])
         
+def checkConnected(movesGraph):
+    raise NotImplemented
         
 def checkLog(filename):
     if os.path.isfile(filename):
-        print("Error file exists")
+        print("Error file exists:", filename)
 
 if __name__== "__main__":
     parser = argparse.ArgumentParser()
