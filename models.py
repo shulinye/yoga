@@ -180,32 +180,28 @@ class Move(object):
         return hash(self.title)
 
     def __eq__(self, other):
-        if other is None: return False
-        if isinstance(other, tuple): return False
+        if not isinstance(other, Move): return False
         return self.title == other.title
 
     def __ne__(self, other):
-        if other is None: return True
+        if not isinstance(other, Move): return True
         return self.title != other.title
 
     def __lt__(self, other):
+        if not isinstance(other, Move): raise TypeError("Unorderable types: Move() <= " + str(type(other)))
         return self.title < other.title
 
     def __contains__(self, other):
         if other in self.nextMove: return True
-        if "lateMove" in self.kwargs and other in self.kwargs["lateMove"]: return True
+        if other in self.lateMove: return True
         return False
 
     def __len__(self):
-        if "lateMove" in self.kwargs: return len(self.nextMove.union(self.kwargs['lateMove']))
-        return len(self.nextMove)
+        return len(self.nextMove.union(self.lateMove))
     
     def __iter__(self):
-        for i in self.nextMove:
+        for i in self.nextMove.union(self.lateMove):
             yield i
-        if "lateMove" in self.kwargs:
-            for i in self.kwargs["lateMove"].difference(self.nextMove):
-                yield i
 
     @staticmethod
     def twoSides(title : str , audio : str , time : int , *args, **kwargs):
