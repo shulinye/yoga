@@ -98,7 +98,7 @@ class Move(object):
         If no move given, promotes a random move"""
         if "lateMove" in self.kwargs:
             if args:
-                self.addMove(self.kwargs['lateMove'].intersection(args))
+                self.nextMove.update(self.kwargs['lateMove'].intersection(args))
                 self.kwargs['lateMove'].difference_update(args)
             elif self.kwargs["lateMove"]:
                 moves = random.sample(tuple(self.kwargs["lateMove"]), min(n,len(self.kwargs["lateMove"])))
