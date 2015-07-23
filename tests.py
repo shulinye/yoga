@@ -80,7 +80,7 @@ if __name__== "__main__":
     parser.add_argument("-s", "--strength", dest="s", help="Insert strength moves", action='count', default=0)
     parser.add_argument("-d", "--difficulty", dest="d", help="Difficulty: larger number=harder", default=1, type=int, choices=[-1,0,1,2])
     args = parser.parse_args()
-    logging.debug("Running with settings: " + str(vars(args)))
+    logging.info("Running with settings: " + str(vars(args)))
     print("Generating moves graph")
     movesGraph = generateAllMoves(**vars(args))
     print("Checking graph")

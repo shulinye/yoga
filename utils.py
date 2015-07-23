@@ -22,8 +22,9 @@ class color:
    UNDERLINE = '\033[4m'
    END = '\033[0m'
 
-
-def speak(text : str , wait = True):
+#fix annotation?
+def speak(text : str , wait = True) -> None:
+    if text is None: return
     f = subprocess.call if wait else subprocess.Popen
     f('espeak -v en-gb \"' + text + '\"', shell=True, stdin=None, stdout=None, stderr=None)
 
@@ -31,13 +32,12 @@ def sqrt_floor(i : int) -> int:
     return math.floor(math.sqrt(i))
 
 def countdown(n : int, incremental = None) -> None:
-    if n <= 1: return None
+    if n <= 1: return
     if incremental is None: incremental = n>30
     print(color.RED, end="")
     while n > 0:
         print(str(n) + "...", end="", flush=True)
-        if n < 4:
-            speak(str(n), wait=False)
+        if n < 4: speak(str(n), wait=False)
         elif incremental:
             if n in {15,30,45,60,75,90,105}:
                 speak(str(n) + " seconds remaining", wait=False)
@@ -47,8 +47,8 @@ def countdown(n : int, incremental = None) -> None:
 
 def prettyTime(time : int) -> str:
     """takes a time, in seconds, and formats it for display"""
-    h = time//3600
-    m = time//60 % 60
-    s = round(time % 60,2)
+    s, m = divmod(time, 60)
+    m, h = divmod(m, 60)
+    s = round(s, 2)
     if h: return "%s hour(s), %s minute(s), %s second(s)" % (h,m,s)
     else: return "%s minute(s), %s second(s)" % (m,s)

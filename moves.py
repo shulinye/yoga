@@ -21,7 +21,7 @@ def generateMoves(difficulty = 1):
                 15 + 2*difficulty, harder="Try to bring your knee up to your forearm!", extended_time=Move.reDifficultyTimes([20,30],3,difficulty)),
             }
     movesGraph['plank'] = Move("Plank", 0, "Plank. Hold", 25 + 5*difficulty, movesGraph['lowPlank'], \
-            extended_time=Move.reDifficultyTimes([40,60],5, difficulty), harder="Throw in a few pushups!")
+            extended_time=Move.reDifficultyTimes([40,60],5, difficulty), harder="Throw in a few pushups!", countdown=True)
     movesGraph['oneLeggedPlank'] = Move.twoSides("One Legged Plank", "Raise your %(same)s foot", 10 + difficulty, movesGraph['vinyasa'])
     movesGraph['twoPointPlank'] = Move.twoSides("Two Point Plank", "Now raise your %(other)s hand", 10 + difficulty, movesGraph['vinyasa'])
     movesGraph['catCow'] = Move("Cat Cow", 0, "Cat Cow", 10, movesGraph['plank'], *movesGraph['balancingTableLegOnly'], extended_time=[15])
@@ -223,6 +223,7 @@ def generateMoves(difficulty = 1):
     movesGraph['mountain'].addMove(*movesGraph['standingSideStretch'])
     movesGraph['mountain'].addMove(*movesGraph['standingTwist'])
     if difficulty >= 0:
+        movesGraph['mountain'].last = movesGraph['chair']
         movesGraph['mountain'].addLateMove(*movesGraph['dancer'])
     movesGraph['backBend'].addMove(movesGraph['mountain'], movesGraph['forwardFold'], *movesGraph['standingSideStretch'])
     movesGraph['staff'].addMove(movesGraph['lieOnBack'], movesGraph['butterflyStretch'], movesGraph['camel'], movesGraph['seatedMeditation'])

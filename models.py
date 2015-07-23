@@ -37,6 +37,14 @@ class Move(object):
         elif "extended_time" in self.kwargs:
             del self.kwargs["extended_time"]
 
+    @property
+    def lateMove(self):
+        return self.kwargs["lateMove"] if "lateMove" in self.kwargs else set()
+
+    @lateMove.setter
+    def lateMove(self, moves):
+        self.kwargs["lateMove"] = set(moves)
+
     def updateKwargs(self, **kwargs) -> None:
         self.kwargs.update(kwargs)
 
@@ -59,6 +67,9 @@ class Move(object):
             self.kwargs["lateMove"] = set()
         self.kwargs["lateMove"].update(moves)
         self.kwargs["lateMove"].difference_update(self.nextMove)
+
+    def __getattr__(self, name):
+        if name in self.kwargs: return self.kwargs[name]
 
     def notLast(self, prev=None) -> "Move":
         """Returns a move, trying to avoid
@@ -87,19 +98,17 @@ class Move(object):
         If no move given, promotes a random move"""
         if "lateMove" in self.kwargs:
             if args:
-                self.addMove(*args)
+                self.addMove(self.kwargs['lateMove'].intersection(args))
                 self.kwargs['lateMove'].difference_update(args)
             elif self.kwargs["lateMove"]:
                 moves = random.sample(tuple(self.kwargs["lateMove"]), min(n,len(self.kwargs["lateMove"])))
                 self.kwargs["lateMove"].difference_update(moves)
                 self.addMove(*moves)
 
-    def repCount(self):
-        if "countReps" in self.kwargs and self.kwargs["countReps"]:
+    def repCount(self) -> None:
+        if self.countReps:
             utils.speak("How many reps?")
             return input("How many reps? ")
-        else:
-            return None
 
     def __call__(self, imbalance=[], prev=None, verbosity=1, **kwargs) -> "Move":
         """Tells me which pose I'm supposed to do and how I'm supposed to do it.
@@ -107,56 +116,45 @@ class Move(object):
         print("\n" + utils.color.BOLD + self.title + utils.color.END)
         # Deal with imbalances
         if self.side:
-            if self in imbalance:
-                imbalance.remove(self)
-            else:
-                imbalance.append(self.otherside)
+            if self in imbalance: imbalance.remove(self)
+            else: imbalance.append(self.otherside)
         if verbosity >= 2:
             print(utils.color.BLUE + "Prev:", "; ".join(str(i) for i in prev) + utils.color.END)
             print(utils.color.PURPLE + "Imbalances:", "; ".join(str(i) for i in imbalance) + utils.color.END)
-        if prev is not None:
-            prev.append(self)
+        if prev is not None: prev.append(self)
         # What is my next move?
         if "nextMove" in kwargs:
             # Assume the caller knows what they're doing right now.
             # Should possibly assert that nextMove is a plausible nextMove
             nextMove = kwargs["nextMove"]
             self.promoteLate(nextMove)
-        elif imbalance:
+        else:
             for i in imbalance:
                 if i in self.nextMove:
                     nextMove = i
                     break
             else:
                 nextMove = self.notLast(prev)
-        else:
-            nextMove = self.notLast(prev)
         if nextMove is not None:
             print("Next Move: " + nextMove.title)
             self.last = nextMove
             if verbosity >= 1:
                 print(utils.color.DARKCYAN + "My options were: " + "; ".join(str(i) for i in self.nextMove) + utils.color.END)
-                if "lateMove" in self.kwargs and self.kwargs["lateMove"]:
-                    print(utils.color.GREEN + "Latemoves: " + "; ".join(str(i) for i in self.kwargs["lateMove"]) + utils.color.END)
+                print(utils.color.GREEN + "Latemoves: " + "; ".join(str(i) for i in self.lateMove) + utils.color.END)
         # Tell me what to do
         utils.speak(self.audio)
         time.sleep(0.2)
-        if "early" in kwargs and kwargs["early"] and "early" in self.kwargs:
-            utils.speak(self.kwargs["early"])
-        elif "harder" in kwargs and kwargs["harder"] and "harder" in self.kwargs:
-            utils.speak(self.kwargs["harder"])
+        if "early" in kwargs and kwargs["early"]: utils.speak(self.early)
+        elif "harder" in kwargs and kwargs["harder"]: utils.speak(self.harder)
         # How long am I supposed to do it?
-        if "time" in kwargs:
-            t = kwargs["time"]
-        elif "extended" in kwargs and kwargs["extended"] and "extended_time" in self.kwargs:
-            t = random.choice(self.kwargs["extended_time"])
-        else:
-            t = self.time
-        if "bind" in self.kwargs and self.kwargs["bind"]:
-            utils.speak("Bind if you want to")
-        if t > 5:
-            utils.speak(str(t) + " seconds")
-        utils.countdown(t)
+        if "time" in kwargs: t = kwargs["time"]
+        elif "extended" in kwargs and kwargs["extended"] and self.extended_time: t = random.choice(self.extended_time)
+        else: t = self.time
+        # Actually count down
+        if self.bind: utils.speak("Bind if you want to")
+        if t > 5: utils.speak(str(t) + " seconds")
+        if self.countdown: utils.countdown(t, incremental = True)
+        else: utils.countdown(t)
         #record to file, if we were given a file
         if "f" in kwargs and kwargs["f"]:
             kwargs["f"].write(self.title + " " + str(t)+"\n")
@@ -183,9 +181,7 @@ class Move(object):
 
     def __eq__(self, other):
         if other is None: return False
-        if type(other) == tuple:
-            print(other)
-            raise ValueError(str(other) + " is not a move")
+        if isinstance(other, tuple): return False
         return self.title == other.title
 
     def __ne__(self, other):
@@ -208,7 +204,7 @@ class Move(object):
         for i in self.nextMove:
             yield i
         if "lateMove" in self.kwargs:
-            for i in self.kwargs["lateMove"]:
+            for i in self.kwargs["lateMove"].difference(self.nextMove):
                 yield i
 
     @staticmethod

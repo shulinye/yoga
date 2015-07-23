@@ -94,7 +94,7 @@ def main(**kwargs):
             pose = pose(time=min(30,max(15, total_time//120+7)), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
             while time.time() - start < min(max(45,total_time//15),300):
                 pose = pose(imbalance=imbalance, extended=True, early=True, prev=prev, verbosity=defaults["verbose"], f=f) #start slower
-        #get me to table:
+        #get me to downwardDog:
         moves.linkMain(movesGraph, defaults["difficulty"])
         if defaults["aerobics"]:
             strengthaerobics.linkAerobics(movesGraph, defaults["difficulty"], defaults["aerobics"])
