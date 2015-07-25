@@ -26,20 +26,21 @@ class color:
 def speak(text : str , wait = True) -> None:
     if text is None: return
     f = subprocess.call if wait else subprocess.Popen
-    f('espeak -v en-gb \"' + text + '\"', shell=True, stdin=None, stdout=None, stderr=None)
+    f('espeak -v en-gb \"' + text + '\"', shell=True, stdin=None, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def sqrt_floor(i : int) -> int:
     return math.floor(math.sqrt(i))
 
 def countdown(n : int, incremental = None) -> None:
     if n <= 1: return
+    start = n
     if incremental is None: incremental = n>30
     print(color.RED, end="")
     while n > 0:
         print(str(n) + "...", end="", flush=True)
         if n < 4: speak(str(n), wait=False)
         elif incremental:
-            if n in {15,30,45,60,75,90,105}:
+            if n != start and not n % 15:
                 speak(str(n) + " seconds remaining", wait=False)
         if not DEBUG: time.sleep(1)
         n -= 1
@@ -47,8 +48,8 @@ def countdown(n : int, incremental = None) -> None:
 
 def prettyTime(time : int) -> str:
     """takes a time, in seconds, and formats it for display"""
-    s, m = divmod(time, 60)
-    m, h = divmod(m, 60)
+    m, s = divmod(time, 60)
+    h, m = divmod(m, 60)
     s = round(s, 2)
     if h: return "%s hour(s), %s minute(s), %s second(s)" % (h,m,s)
     else: return "%s minute(s), %s second(s)" % (m,s)

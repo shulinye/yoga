@@ -234,6 +234,7 @@ class Move(object):
     
     @staticmethod
     def moveReverse(*moves, late=False):
+        """Convenience method. Link a move to its .otherside, and also in reverse."""
         f = Move.addLateMove if late else Move.addMove
         for i in moves:
             f(i[0],i[1])

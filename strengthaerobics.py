@@ -4,10 +4,10 @@ from models import Move
 
 def linkAerobics(movesGraph, difficulty = 1, aerobics = 0):
     """Adds in aerobics moves"""
-    movesGraph['jumpingJacks'] = Move("Jumping Jacks", 0, "Jumping Jacks!", 40 + 20*difficulty, movesGraph['mountain'], countReps=True)
-    movesGraph['runInPlace'] = Move("Running In Place", 0, "Run In Place", 40 + 20*difficulty, movesGraph['mountain'], movesGraph['jumpingJacks'])
+    movesGraph['jumpingJacks'] = Move("Jumping Jacks", 0, "Jumping Jacks!", 40 + 20*difficulty, movesGraph['mountain'], countReps=True, countdown=True)
+    movesGraph['runInPlace'] = Move("Running In Place", 0, "Run In Place", 40 + 20*difficulty, movesGraph['mountain'], movesGraph['jumpingJacks'], countdown=True)
     movesGraph['burpies'] = Move("Burpies!", 0, "Burpies", 30+10*difficulty, movesGraph['vinyasa'], movesGraph['forwardFold'], movesGraph['plank'], \
-            extended=Move.reDifficultyTimes([60,75,90], 10, difficulty+aerobics), countReps=True)
+            extended=Move.reDifficultyTimes([60,75,90], 10, difficulty+aerobics), countReps=True, countdown=True)
     movesGraph['situps'] = Move("Situps", 0, "Situps", 30 + 10*difficulty, movesGraph['vinyasa'], extended=Move.reDifficultyTimes([40,50],10,difficulty + aerobics//2), \
             lateMove=set([movesGraph['boat']]), countReps=True)
     movesGraph['shuffle'] = Move("Shuffle", 0, "Shuffle", 30+10*difficulty, movesGraph['vinyasa']) #//TODO: better description
@@ -47,12 +47,13 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
     movesGraph['sideLunges'] = Move("Side Lunges", 0, "Side Lunges", 20 + 10*difficulty, movesGraph['wideLegStance'], countReps=True)
     movesGraph['aroundTheWorld'] = Move.twoSides("Around The World", "Around The World, %(same)s side", 20 + 10*difficulty, movesGraph['mountain'], \
             lateMove=set([movesGraph['vinyasa']]), countReps=True)
-    movesGraph['alternatingLunges'] = Move("Alternating Lunges", 0, "Alternating Lunges", 20+10*difficulty, movesGraph['mountain'], movesGraph['vinyasa'], *movesGraph['warrior1'])
+    movesGraph['alternatingLunges'] = Move("Alternating Lunges", 0, "Alternating Lunges", 20+10*difficulty, movesGraph['mountain'], \
+            movesGraph['vinyasa'], *movesGraph['warrior1'], countdown = True, countReps = True)
     movesGraph['dips'] = Move("Dips", 0, "Dips", 15 + 5*difficulty, movesGraph['vinyasa']) #//TODO: better description
     movesGraph['obliqueCrunch'] = Move.twoSides("Oblique Crunch", "Oblique Crunch, %(same)s side", 20 + 10*difficulty, movesGraph['lieOnBack'], countReps=True)
     movesGraph['balletSquat'] = Move("Ballet Squats", 0, "Ballet Squats", 15 + 5*difficulty, movesGraph['mountain'], movesGraph['star'], countReps=True)
-    movesGraph['crunch'] = Move("Crunch", 0, "Crunch", 15+5*difficulty, movesGraph['lieOnBack'], countReps=True)
-    movesGraph['jackknife'] = Move("Jack Knife", 0, "Jack Knife", 15+5*difficulty, movesGraph['lieOnBack'], countReps=True)
+    movesGraph['crunch'] = Move("Crunch", 0, "Crunch", 15+5*difficulty, movesGraph['lieOnBack'], countReps=True, countdown=True)
+    movesGraph['jackknife'] = Move("Jack Knife", 0, "Jack Knife", 15+5*difficulty, movesGraph['lieOnBack'], countReps=True, countdown=True)
 
     #link moves
     movesGraph['downwardDog'].addLateMove(movesGraph['pushups'])

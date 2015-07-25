@@ -72,12 +72,12 @@ def main(**kwargs):
         f.write(str(defaults) + "\n")
     else:
         f = None
-    utils.speak("Beginning in")
-    if defaults["verbose"] >= 2:
-        print(defaults)
-    elif defaults["verbose"] >= 1:
-        print("Workout length:", defaults['time'], "minutes.", "Beginning in:")
+    utils.speak('Beginning in')
     utils.countdown(3)
+
+    if defaults["verbose"] >= 2: print(defaults)
+    elif defaults["verbose"] >= 1: print("Workout length:", defaults['time'], "minutes.", "Beginning in:")
+    # setup
     total_time = defaults['time']*60
     movesGraph = moves.generateMoves(difficulty=defaults["difficulty"])
     start = time.time()
@@ -88,13 +88,14 @@ def main(**kwargs):
         pose = movesGraph[defaults['initial_move']]
     except KeyError:
         pose = movesGraph['child']
+
     try:
         #warmup
         if defaults["warmup"]:
             pose = pose(time=min(30,max(15, total_time//120+7)), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
             while time.time() - start < min(max(45,total_time//15),300):
                 pose = pose(imbalance=imbalance, extended=True, early=True, prev=prev, verbosity=defaults["verbose"], f=f) #start slower
-        #get me to downwardDog:
+        #get me to my target:
         moves.linkMain(movesGraph, defaults["difficulty"])
         if defaults["aerobics"]:
             strengthaerobics.linkAerobics(movesGraph, defaults["difficulty"], defaults["aerobics"])
@@ -102,14 +103,17 @@ def main(**kwargs):
             strengthaerobics.linkStrength(movesGraph, defaults["difficulty"], defaults["strength"])
             if defaults["aerobics"]:
                 strengthaerobics.linkStrengthAerobics(movesGraph, defaults["difficulty"], defaults["strength"], defaults["aerobics"])
-        pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12), prev=prev, verbosity=defaults["verbose"], f=f)
-        pose = routine(dijkstras.dijkstra(pose, movesGraph['downwardDog'], imbalance=imbalance), imbalance=imbalance, playLast=False, prev=prev, verbosity=defaults["verbose"], f=f) #get me to downwards dog
+        if defaults["warmup"]:
+            pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12), prev=prev, verbosity=defaults["verbose"], f=f)
         imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance, difficulty=defaults["difficulty"])
         try:
-            pose = routine(dijkstras.dijkstra(pose,movesGraph[defaults['target']], imbalance=imbalance), imbalance=imbalance, prev=prev,verbosity=defaults["verbose"], f=f)
-        except (dijkstras.TimeExceededError, KeyError, ValueError):
+            target = movesGraph[defaults['target']]
+        except KeyError:
+            target = movesGraph['plank']
+        try:
+            pose = routine(dijkstras.dijkstra(pose, target, imbalance=imbalance), imbalance=imbalance, playLast=False, prev=prev, verbosity=defaults["verbose"], f=f)
+        except (dijkstras.TimeExceededError, ValueError):
             pass
-        pose = pose(nextMove=movesGraph['plank'], prev=prev, verbosity=defaults["verbose"], f=f)
         if defaults["warmup"]:
             print("Warmup Over: " + utils.prettyTime(time.time() - start))
             if f: f.write("Warmup Over: " + utils.prettyTime(time.time() - start) + '\n\n')
@@ -141,9 +145,10 @@ def main(**kwargs):
             pose = pose(harder=True if defaults["difficulty"] >=1 else False, imbalance = imbalance, extended=extended, prev=prev, verbosity=defaults["verbose"], f=f)
         moves.linkEnding(movesGraph)
         while time.time() < (end - max(60, total_time//10)):
-            pose = fixImbalance(pose, imbalance, maxImbalance=6 + total_time//800, maxTime=max(120, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
+            pose = fixImbalance(pose, imbalance, maxImbalance=total_time//800, maxTime=max(120, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
             pose = pose(imbalance = imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
         if defaults["cooldown"]:
+            pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(75, total_time//10+15), prev=prev, verbosity=defaults["verbose"], f=f)
             print("Cooldown begins: " + utils.prettyTime(time.time() - start))
             if f: f.write("Cooldown begins: " + utils.prettyTime(time.time() - start)+'\n\n')
             utils.speak("Cooldown begins")
