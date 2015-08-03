@@ -172,7 +172,7 @@ def main(**kwargs):
         if f:
             f.write('Total Time: %s\n\n' % final_time)
             f.close()
-        utils.speak('Done! Total time was' % final_time.replace('(','').replace(')',''))
+        utils.speak('Done! Total time was %s' % final_time.replace('(','').replace(')',''))
         sys.stdout.write(utils.color.END)
         print('\nTotal Time: %s' % final_time)
         print(imbalance)
