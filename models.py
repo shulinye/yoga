@@ -119,14 +119,14 @@ class Move(object):
             if self in imbalance: imbalance.remove(self)
             else: imbalance.append(self.otherside)
         if verbosity >= 2:
-            print(utils.color.BLUE + "Prev:", "; ".join(str(i) for i in prev) + utils.color.END)
-            print(utils.color.PURPLE + "Imbalances:", "; ".join(str(i) for i in imbalance) + utils.color.END)
+            print(utils.color.BLUE + 'Prev:', '; '.join(map(str, prev)) + utils.color.END)
+            print(utils.color.PURPLE + 'Imbalances:', '; '.join(map(str,imbalance)) + utils.color.END)
         if prev is not None: prev.append(self)
         # What is my next move?
-        if "nextMove" in kwargs:
+        if 'nextMove' in kwargs:
             # Assume the caller knows what they're doing right now.
             # Should possibly assert that nextMove is a plausible nextMove
-            nextMove = kwargs["nextMove"]
+            nextMove = kwargs['nextMove']
             self.promoteLate(nextMove)
         else:
             for i in imbalance:
@@ -136,19 +136,19 @@ class Move(object):
             else:
                 nextMove = self.notLast(prev)
         if nextMove is not None:
-            print("Next Move: " + nextMove.title)
+            print('Next Move: ' + nextMove.title)
             self.last = nextMove
             if verbosity >= 1:
-                print(utils.color.DARKCYAN + "My options were: " + "; ".join(str(i) for i in self.nextMove) + utils.color.END)
-                print(utils.color.GREEN + "Latemoves: " + "; ".join(str(i) for i in self.lateMove) + utils.color.END)
+                print(utils.color.DARKCYAN + 'My options were:', '; '.join(str(i) for i in self.nextMove) + utils.color.END)
+                print(utils.color.GREEN + 'Latemoves:', '; '.join(str(i) for i in self.lateMove) + utils.color.END)
         # Tell me what to do
         utils.speak(self.audio)
         time.sleep(0.2)
-        if "early" in kwargs and kwargs["early"]: utils.speak(self.early)
-        elif "harder" in kwargs and kwargs["harder"]: utils.speak(self.harder)
+        if 'early' in kwargs and kwargs['early']: utils.speak(self.early)
+        elif 'harder' in kwargs and kwargs['harder']: utils.speak(self.harder)
         # How long am I supposed to do it?
-        if "time" in kwargs: t = kwargs["time"]
-        elif "extended" in kwargs and kwargs["extended"] and self.extended_time: t = random.choice(self.extended_time)
+        if 'time' in kwargs: t = kwargs['time']
+        elif 'extended' in kwargs and kwargs['extended'] and self.extended_time: t = random.choice(self.extended_time)
         else: t = self.time
         # Actually count down
         if self.bind: utils.speak("Bind if you want to")
@@ -156,19 +156,19 @@ class Move(object):
         if self.countdown: utils.countdown(t, incremental = True)
         else: utils.countdown(t)
         #record to file, if we were given a file
-        if "f" in kwargs and kwargs["f"]:
-            kwargs["f"].write(self.title + " " + str(t)+"\n")
+        if 'f' in kwargs and kwargs['f']:
+            kwargs['f'].write('%s: %d' % (self.title, str(t)))
             s = self.repCount()
-            if s: kwargs["f"].write(str(s) + " reps\n")
-            kwargs["f"].write("\n")
-            kwargs["f"].flush()
-        if "bind" in self.kwargs and self.kwargs["bind"]:
-            utils.speak("Release bind")
+            if s: kwargs['f'].write('%s reps' % s)
+            kwargs['f'].write('\n')
+            kwargs['f'].flush()
+        if 'bind' in self.kwargs and self.kwargs['bind']:
+            utils.speak('Release bind')
         self.promoteLate()  # Add in options for harder followup moves next time
         return nextMove
 
     def __repr__(self):
-        return "Move(%s)" % self.title
+        return 'Move(%s)' % self.title
 
     def __str__(self):
         return self.title

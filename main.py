@@ -17,24 +17,20 @@ import moves
 import stretches
 import strengthaerobics
 
-def routine(li : list, imbalance, playLast = True, **kwargs) -> "Move":
+def routine(li : list, imbalance : list, playLast=True, **kwargs) -> "Move":
     """Plays a list of moves. if playLast = False, returns last move instead of playing it
     If KeyboardInterrupt, tries to return the move it's currently on"""
-    li_copy = li.copy()
     try:
         for i in range(len(li)-1):
-            current_pose, next_pose = li_copy[i], li_copy[i+1]
+            current_pose, next_pose = li[i], li[i+1]
             current_pose(imbalance=imbalance, nextMove=next_pose, **kwargs)
     except KeyboardInterrupt:
         sys.stdout.write(utils.color.END)
-        try:
-            return next_pose
-        except NameError:
-            return li[0]
-    if not playLast: return li_copy[-1]
-    return li_copy[-1](imbalance=imbalance,**kwargs)
+        return next_pose if "next_pose" in locals() else li[0]
+    if not playLast: return li[-1]
+    return li[-1](imbalance=imbalance,**kwargs)
 
-def fixImbalance(pose, imbalance, maxImbalance=1, maxTime = 60, **kwargs) -> "Move":
+def fixImbalance(pose : "Move", imbalance : list, maxImbalance=1, maxTime=60, **kwargs) -> "Move":
     """Might try to fix the imbalance. Might not. Depends on how big the imbalance is.
     (Set maxImbalance to 1 to ensure imbalance gets fixed)
     if KeyboardInterrupt: Immediately return whatever pose it was on."""
@@ -96,15 +92,15 @@ def main(**kwargs):
             while time.time() - start < min(max(45,total_time//15),300):
                 pose = pose(imbalance=imbalance, extended=True, early=True, prev=prev, verbosity=defaults["verbose"], f=f) #start slower
         #get me to my target:
-        moves.linkMain(movesGraph, defaults["difficulty"])
-        if defaults["aerobics"]:
+        moves.linkMain(movesGraph, defaults['difficulty'])
+        if defaults['aerobics']:
             strengthaerobics.linkAerobics(movesGraph, defaults["difficulty"], defaults["aerobics"])
-        if defaults["strength"]:
+        if defaults['strength']:
             strengthaerobics.linkStrength(movesGraph, defaults["difficulty"], defaults["strength"])
-            if defaults["aerobics"]:
+            if defaults['aerobics']:
                 strengthaerobics.linkStrengthAerobics(movesGraph, defaults["difficulty"], defaults["strength"], defaults["aerobics"])
-        if defaults["warmup"]:
-            pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12), prev=prev, verbosity=defaults["verbose"], f=f)
+        if defaults['warmup']:
+            pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12), prev=prev, verbosity=defaults['verbose'], f=f)
         imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance, difficulty=defaults["difficulty"])
         try:
             target = movesGraph[defaults['target']]
@@ -138,7 +134,7 @@ def main(**kwargs):
             if f: f.write("Halfway point: " + utils.prettyTime(time.time()-start) + '\n\n')
             utils.speak("We have reached the halfway point")
         #end adding harder poses
-        while time.time() < (end - max(60, total_time//5)) if defaults["cooldown"] else end:
+        while time.time() < (end - max(60, total_time//5)) if defaults['cooldown'] else end:
             extendedChance = (time.time() - start)/total_time
             extended = random.random() < extendedChance
             pose = fixImbalance(pose, imbalance, maxImbalance=8 + total_time//800, maxTime=max(110,total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
@@ -156,47 +152,48 @@ def main(**kwargs):
             if defaults["strength"]: strengthaerobics.linkStrengthCooldown(movesGraph,difficulty=defaults["difficulty"], strength = defaults["strength"])
             if defaults["aerobics"]: strengthaerobics.linkAerobicsCooldown(movesGraph,difficulty=defaults["difficulty"], aerobics = defaults["aerobics"])
             try:
-                pose = routine(dijkstras.dijkstra(pose, movesGraph["wheel"], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
+                pose = routine(dijkstras.dijkstra(pose, movesGraph['wheel'], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults['verbose'], f=f)
             except (dijkstras.TimeExceededError, ValueError):
                 pass
-        pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
+        pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults['verbose'], f=f)
         while time.time() < (end-max(30, total_time//10)) if defaults["cooldown"] else end:
-            pose = pose(imbalance=imbalance, extended=True, prev=prev, verbosity=defaults["verbose"], f=f)
-            pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
-        if defaults["cooldown"]:
-            moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])
-            pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
-            pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
+            pose = pose(imbalance=imbalance, extended=True, prev=prev, verbosity=defaults['verbose'], f=f)
+            pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbosity=defaults['verbose'], f=f)
+        if defaults['cooldown']:
+            moves.linkSavasana(movesGraph, difficulty=defaults['difficulty'])
+            pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbosity=defaults['verbose'], f=f)
+            pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults['verbose'], f=f)
     except (KeyboardInterrupt, BrokenPipeError):
-        moves.linkSavasana(movesGraph, difficulty=defaults["difficulty"])
-        pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance = imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
+        moves.linkSavasana(movesGraph, difficulty=defaults['difficulty'])
+        pose = routine(dijkstras.dijkstra(pose, movesGraph['savasana'], imbalance = imbalance), imbalance=imbalance, prev=prev, verbosity=defaults['verbose'], f=f)
         return imbalance
     finally:
+        final_time = utils.prettyTime(time.time() - start)
         if f:
-            f.write("Total Time: " + utils.prettyTime(time.time()-start) + '\n\n')
+            f.write('Total Time: %s\n\n' % final_time)
             f.close()
-        utils.speak("Done!")
+        utils.speak('Done! Total time was' % final_time.replace('(','').replace(')',''))
         sys.stdout.write(utils.color.END)
-        print("\nTotal Time: " + utils.prettyTime(time.time()-start))
+        print('\nTotal Time: %s' % final_time)
         print(imbalance)
     return imbalance
 
-if __name__== "__main__":
+if __name__== '__main__':
     import argparse
-    parser = argparse.ArgumentParser(usage = "./main.py [options]")
-    parser.add_argument("--version", action="version", version="yoga " + __version__)
-    parser.add_argument("-t", "--time", help="time (in minutes)", default=30, type=int)
-    parser.add_argument("-a", "--aerobics", help="Insert aerobics moves", action='count', default=0)
-    parser.add_argument("-s", "--strength", help="Insert strength moves", action='count', default=0)
-    parser.add_argument("-d", "--difficulty", help="Difficulty: larger number=harder", default=1, type=int, choices=[-1,0,1,2])
-    parser.add_argument("-w",  "--skip-warmup", action='store_false', dest="warmup", help="skips warmup period")
-    parser.add_argument("-c", "--skip-cooldown", action='store_false', dest='cooldown', help='skips cooldown')
-    parser.add_argument("-i", "--initial-move", default="child", choices=["child", "seatedMeditation", "lieOnBack", "mountain"])
-    parser.add_argument("-v", "--verbose", action='count', default=0)
-    parser.add_argument("--debug", action="store_true", help="Debug mode: all delays removed.")
-    parser.add_argument("-m", "--memory", default=5, type=int, help="How many previous moves shall I remember? (default: 5)")
-    parser.add_argument("--target", default="plank", choices=["plank", "boat"])
-    parser.add_argument("-o", "--outfile", help="File to write log to")
+    parser = argparse.ArgumentParser(usage = './main.py [options]')
+    parser.add_argument('--version', action='version', version='yoga %s' % __version__)
+    parser.add_argument('-t', '--time', help='time (in minutes)', default=30, type=int)
+    parser.add_argument('-a', '--aerobics', help='Insert aerobics moves', action='count', default=0)
+    parser.add_argument('-s', '--strength', help='Insert strength moves', action='count', default=0)
+    parser.add_argument('-d', '--difficulty', help='Difficulty: larger number=harder', default=1, type=int, choices=[-1,0,1,2])
+    parser.add_argument('-w', '--skip-warmup', action='store_false', dest='warmup', help='skips warmup period')
+    parser.add_argument('-c', '--skip-cooldown', action='store_false', dest='cooldown', help='skips cooldown')
+    parser.add_argument('-i', '--initial-move', default='child', choices=['child', 'seatedMeditation', 'lieOnBack', 'mountain'])
+    parser.add_argument('-v', '--verbose', action='count', default=0)
+    parser.add_argument('--debug', action='store_true', help='Debug mode: all delays removed.')
+    parser.add_argument('-m', '--memory', default=5, type=int, help='How many previous moves shall I remember? (default: 5)')
+    parser.add_argument('--target', default='plank', choices=['plank', 'boat'])
+    parser.add_argument('-o', '--outfile', help='File to write log to')
     args = parser.parse_args()
-    utils.DEBUG = vars(args)["debug"]
+    utils.DEBUG = args.debug
     main(**vars(args))

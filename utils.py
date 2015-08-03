@@ -51,5 +51,5 @@ def prettyTime(time : int) -> str:
     m, s = divmod(time, 60)
     h, m = divmod(m, 60)
     s = round(s, 2)
-    if h: return "%s hour(s), %s minute(s), %s second(s)" % (h,m,s)
-    else: return "%s minute(s), %s second(s)" % (m,s)
+    if h: return "%s hour(s), %s minute(s), %s second(s)" % (int(h),int(m),s)
+    else: return "%s minute(s), %s second(s)" % (int(m),s)
