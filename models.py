@@ -219,17 +219,17 @@ class Move(object):
         return (R,L)
 
     @staticmethod
-    def doubleAdd(move, *args, inverted=False, late=False):
+    def doubleAdd(move, *moves, inverted=False, late=False):
         """Convenience method to help link moves that have sides
         inverted: if True, causes L to be linked to R and R to be linked to L
         late: if True, causes move to be linked as a late move"""
         f = Move.addLateMove if late else Move.addMove
         if inverted:
-            f(move[0], *[i[1] for i in args])
-            f(move[1], *[i[0] for i in args])
+            f(move[0], *[i[1] for i in moves])
+            f(move[1], *[i[0] for i in moves])
         else:
-            f(move[0], *[i[0] for i in args])
-            f(move[1], *[i[1] for i in args])
+            f(move[0], *[i[0] for i in moves])
+            f(move[1], *[i[1] for i in moves])
 
     
     @staticmethod
