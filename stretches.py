@@ -24,6 +24,7 @@ def linkCooldown(movesGraph, difficulty = 1) -> None:
     movesGraph['seatedMeditation'].addMove(*movesGraph['seatedTwist'])
     movesGraph['seatedMeditation'].addMove(*movesGraph['twistedHeadToKnee'])
     movesGraph['mountain'].addMove(movesGraph['backBend'], *movesGraph['standingSideStretch'])
+    movesGraph['mountain'].addMove(*movesGraph['standingTwist'])
     movesGraph['backBend'].removeMove(*movesGraph['standingSideStretch'])
     movesGraph['crow'].addMove(movesGraph['child'])
     movesGraph['lieOnBack'].addMove(*movesGraph['preztel'])

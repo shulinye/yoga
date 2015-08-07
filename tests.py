@@ -86,5 +86,5 @@ if __name__== "__main__":
     print("Checking graph")
     checkGraph(movesGraph)
     m = checkConnected(movesGraph)
-    logging.debug("There is no way to get to the following moves:\n    " + "\n    ".join(repr(i) for i in sorted(m)))
+    if m: logging.debug("There is no way to get to the following moves:\n    " + "\n    ".join(repr(i) for i in sorted(m)))
     checkLog(LOG_FILENAME)

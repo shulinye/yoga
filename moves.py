@@ -139,7 +139,7 @@ def generateMoves(difficulty = 1):
             extended_time=Move.reDifficultyTimes([20,30],4,difficulty))
     movesGraph['revolvedOneLeggedChair'] = Move.twoSides("Revolved One Legged Chair", "Shift all your weight to your %(other)s foot. Grab your %(same)s foot with \
             your %(other)s hand. Raise %(same)s foot", 15 + 2*difficulty, movesGraph['vinyasa'], movesGraph['chair'], \
-            extended_time=Move.reDifficultyTimes([20,30],4,difficulty))
+            extended_time=Move.reDifficultyTimes([20,30],4,difficulty), lateMove = set(movesGraph['twistedStandingLegLift']))
     movesGraph['crow'] = Move("Crow Pose", 0, "Crow Pose", 30, movesGraph['vinyasa'])
     movesGraph['crane'] = Move("Crane Pose", 0, "Crane Pose", 30, movesGraph['vinyasa'])
     movesGraph['sideCrow'] = Move.twoSides("Side Crow", "Side Crow, %(same)s Side", 30, movesGraph['vinyasa'])
@@ -310,9 +310,11 @@ def generateMoves(difficulty = 1):
     for i in movesGraph['threadTheNeedle']: i.addLateMove(movesGraph['child'])
     for i in movesGraph['fallenStar']: i.addMove(movesGraph['table'])
     for i in movesGraph['sidePlankLegUp']: i.addMove(movesGraph['plank'])
+    for i in movesGraph['twistedStandingLegLift']: i.addMove(movesGraph['forwardFold'])
     if difficulty < 2:
         for i in movesGraph['sidePlankLegUp']: i.addLateMove(movesGraph['lieOnFront'])
     if difficulty < 0:
+        for i in movesGraph['twistedStandingLegLift']: i.addLateMove(movesGraph['mountain'], movesGraph['vinyasa'])
         for j in range(1,4):
             for i in movesGraph['standingLegLift' + str(j)]: i.addLateMove(movesGraph['mountain'])
 
