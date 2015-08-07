@@ -7,12 +7,6 @@ LATEPENALTY = 40
 IMBALANCE_BOUNTY = 3
 LAST_MOVE_PENALTY = 10
 
-class TimeExceededError(Exception):
-    """Dijkstras Algorithm did not give path that would end
-    in time limit given."""
-    def __init__(self, value):
-        self.value = value
-
 def bounty(node : "Move", imbalance : list , cost : int ) -> int:
     """Awards a bounty to a node that's currently in the imbalanced list"""
     if node is None: return 1000 #Not a move, just set my value insanely high
@@ -22,7 +16,7 @@ def dijkstra(start : "node" , *goal, limit=None, imbalance=[]) -> list:
     """Uses dijkstra's algorithm to find the shortest path to a target move.
     If multiple targets are entered, use the first one found.
     raises: ValueError if frontier is ever empty or node becomes None
-    raises: TimeExceededError if time exceeded"""
+    raises: TimeoutError if time exceeded"""
     if start in goal: return [start]
     node = start
     frontier = [(0, start)]
@@ -34,7 +28,7 @@ def dijkstra(start : "node" , *goal, limit=None, imbalance=[]) -> list:
             raise ValueError("frontier is empty")
         cost, node = heapq.heappop(frontier)
         if limit and cost > limit:
-            raise TimeExceededError("Time exceeded. No match found")
+            raise TimeoutError("Time exceeded. No match found")
         if node is None:
             raise ValueError("Node is None")
         new_cost = cost + node.time

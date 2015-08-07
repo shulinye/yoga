@@ -61,6 +61,8 @@ def generateMoves(difficulty = 1):
             Standing Leg Lift. Hold", 15 + 3*difficulty, extended_time=Move.reDifficultyTimes([30,45,60], 5, difficulty))
     movesGraph['standingLegLift2'] = Move.twoSides("Standing Leg Lift, Leg to Side", "Now take your %(same)s foot and move it out to the side. Hold", \
             20 + 5*difficulty, extended_time=Move.reDifficultyTimes([30,45,60], 5, difficulty))
+    movesGraph['twistedStandingLegLift'] = Move.twoSides("Standing Leg Lift, Twisted", "Take your %(same)s foot with your %(other)s hand and twist to the %(other)s side.", \
+            20+5*difficulty, extended_time = Move.reDifficultyTimes([30,45,60],5, difficulty))
     movesGraph['standingLegLift3'] = Move.twoSides("Standing Leg Lift, Both Hands", "Return %(same)s foot to center. \
             Grab with both hands, head to knee or chin to shin. Hold.", 20, extended_time=Move.reDifficultyTimes([30,45,60], 5, difficulty))
     movesGraph['standingLegLift4'] = Move.twoSides("Standing Leg Lift, No Hands", "Release %(same)s foot. Hold foot up towards ceiling.", \
@@ -300,6 +302,7 @@ def generateMoves(difficulty = 1):
     for i in movesGraph['warrior1']: i.addMove(movesGraph['star'])
     for i in movesGraph['warrior2']: i.addMove(movesGraph['star'])
     for i in movesGraph['seatedTwist']: i.addMove(movesGraph['seatedMeditation'])
+    for i in movesGraph['standingTwist']: i.addLateMove(movesGraph['forwardFold'])
     for i in movesGraph['dancer']: i.addMove(movesGraph['forwardFold'])
     for i in movesGraph['warrior3']: i.addMove(movesGraph['forwardFold'])
     for i in movesGraph['headToKnee']: i.addLateMove(movesGraph['hero'])
@@ -318,6 +321,8 @@ def generateMoves(difficulty = 1):
     Move.moveReverse(movesGraph['headToKnee'], movesGraph['cowFace'])
 
     Move.doubleAdd(movesGraph['standingSideStretch'], movesGraph['standingTwist'])
+    Move.doubleAdd(movesGraph['standingTwist'], movesGraph['standingSideStretch'])
+    Move.doubleAdd(movesGraph['standingTwist'], movesGraph['standingLegLift1'], late=True)
     Move.doubleAdd(movesGraph['oneLeggedChair'], movesGraph['standingLegLift1'])
     Move.doubleAdd(movesGraph['sidePlank'], movesGraph['sideAngle'], movesGraph['sidePlankLegUp'])
     Move.doubleAdd(movesGraph['sidePlank'], movesGraph['cresentTwist'], late=True, inverted=True)

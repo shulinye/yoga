@@ -40,7 +40,7 @@ def fixImbalance(pose : "Move", imbalance : list, maxImbalance=1, maxTime=60, **
         while imbalance and time.time() < end:
             try:
                 pose = routine(dijkstras.dijkstra(pose,*imbalance,imbalance=imbalance), imbalance=imbalance, **kwargs)
-            except (dijkstras.TimeExceededError, ValueError):
+            except (TimeoutError, ValueError):
                 break
             except KeyboardInterrupt:
                 sys.stdout.write(utils.color.END)
@@ -108,7 +108,7 @@ def main(**kwargs):
             target = movesGraph['plank']
         try:
             pose = routine(dijkstras.dijkstra(pose, target, imbalance=imbalance), imbalance=imbalance, playLast=False, prev=prev, verbosity=defaults["verbose"], f=f)
-        except (dijkstras.TimeExceededError, ValueError):
+        except (TimeoutError, ValueError):
             pass
         if defaults["warmup"]:
             print("Warmup Over: " + utils.prettyTime(time.time() - start))
@@ -127,7 +127,7 @@ def main(**kwargs):
         pose = fixImbalance(pose, imbalance, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
         try:
             pose = routine(dijkstras.dijkstra(pose, movesGraph[defaults['target']], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
-        except (dijkstras.TimeExceededError, KeyError, ValueError):
+        except (TimeoutError, KeyError, ValueError):
             pass
         if defaults["verbose"] >= 1:
             print("Halfway point: " + utils.prettyTime(time.time()-start))
@@ -153,7 +153,7 @@ def main(**kwargs):
             if defaults["aerobics"]: strengthaerobics.linkAerobicsCooldown(movesGraph,difficulty=defaults["difficulty"], aerobics = defaults["aerobics"])
             try:
                 pose = routine(dijkstras.dijkstra(pose, movesGraph['wheel'], imbalance=imbalance), imbalance=imbalance, prev=prev, verbosity=defaults['verbose'], f=f)
-            except (dijkstras.TimeExceededError, ValueError):
+            except (TimeoutError, ValueError):
                 pass
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults['verbose'], f=f)
         while time.time() < (end-max(30, total_time//10)) if defaults["cooldown"] else end:
