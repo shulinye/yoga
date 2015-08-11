@@ -120,7 +120,7 @@ def main(**kwargs):
         pose = pose(imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
         #starting main part of workout
         while time.time() - start < total_time//2 - 30:
-            pose = fixImbalance(pose,imbalance,maxImbalance=10 + total_time//600,maxTime=max(60,total_time//12), prev=prev, verbosity=defaults["verbose"], f=f)
+            pose = fixImbalance(pose, imbalance, maxImbalance=10 + total_time//600, maxTime=max(60,total_time//12), prev=prev, verbosity=defaults["verbose"], f=f)
             pose = pose(imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
         #add harder poses in here
         if defaults["difficulty"] >= 1:
@@ -140,11 +140,11 @@ def main(**kwargs):
         while time.time() < (end - max(60, total_time//5)) if defaults['cooldown'] else end:
             extendedChance = (time.time() - start)/total_time
             extended = random.random() < extendedChance
-            pose = fixImbalance(pose, imbalance, maxImbalance=8 + total_time//800, maxTime=max(110,total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
+            pose = fixImbalance(pose, imbalance, maxImbalance=8+total_time//800, maxTime=max(110,total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
             pose = pose(harder=True if defaults["difficulty"] >=1 else False, imbalance = imbalance, extended=extended, prev=prev, verbosity=defaults["verbose"], f=f)
         moves.linkEnding(movesGraph)
         while time.time() < (end - max(60, total_time//10)):
-            pose = fixImbalance(pose, imbalance, maxImbalance=total_time//800, maxTime=max(120, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
+            pose = fixImbalance(pose, imbalance, maxImbalance=max(1,total_time//800), maxTime=max(120, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
             pose = pose(imbalance = imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
         if defaults["cooldown"]:
             pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(75, total_time//10+15), prev=prev, verbosity=defaults["verbose"], f=f)

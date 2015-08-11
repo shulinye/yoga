@@ -161,7 +161,7 @@ class Move(object):
         if 'f' in kwargs and kwargs['f']:
             kwargs['f'].write('%s: %d' % (self.title, t))
             s = self.repCount()
-            if s: kwargs['f'].write('%s reps' % s)
+            if s: kwargs['f'].write(' - %s reps' % s)
             kwargs['f'].write('\n')
             kwargs['f'].flush()
         if 'bind' in self.kwargs and self.kwargs['bind']:

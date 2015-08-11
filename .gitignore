@@ -1,4 +1,4 @@
-outfile
+outfile*
 *.png
 venv/
 __pycache__/
