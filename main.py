@@ -6,6 +6,7 @@ __version__="0.01"
 __author__="Shulin Ye"
 
 import collections
+import colorama
 import datetime
 import time
 import sys
@@ -17,6 +18,8 @@ import moves
 import stretches
 import strengthaerobics
 
+colorama.init()
+
 def routine(li : list, imbalance : list, playLast=True, **kwargs) -> "Move":
     """Plays a list of moves. if playLast = False, returns last move instead of playing it
     If KeyboardInterrupt, tries to return the move it's currently on"""
@@ -25,7 +28,7 @@ def routine(li : list, imbalance : list, playLast=True, **kwargs) -> "Move":
             current_pose, next_pose = li[i], li[i+1]
             current_pose(imbalance=imbalance, nextMove=next_pose, **kwargs)
     except KeyboardInterrupt:
-        sys.stdout.write(utils.color.END)
+        sys.stdout.write(colorama.Style.RESET_ALL)
         return next_pose if "next_pose" in locals() else li[0]
     if not playLast: return li[-1]
     return li[-1](imbalance=imbalance,**kwargs)
@@ -43,7 +46,7 @@ def fixImbalance(pose : "Move", imbalance : list, maxImbalance=1, maxTime=60, **
             except (TimeoutError, ValueError):
                 break
             except KeyboardInterrupt:
-                sys.stdout.write(utils.color.END)
+                sys.stdout.write(colorama.Style.RESET_ALL)
                 return pose
     return pose
 
@@ -156,7 +159,7 @@ def main(**kwargs):
             except (TimeoutError, ValueError):
                 pass
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults['verbose'], f=f)
-        while time.time() < (end-max(30, total_time//10)) if defaults["cooldown"] else end:
+        while time.time() < (end-max(30, total_time//15)) if defaults["cooldown"] else end:
             pose = pose(imbalance=imbalance, extended=True, prev=prev, verbosity=defaults['verbose'], f=f)
             pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbosity=defaults['verbose'], f=f)
         if defaults['cooldown']:
@@ -173,7 +176,7 @@ def main(**kwargs):
             f.write('Total Time: %s\n\n' % final_time)
             f.close()
         utils.speak('Done! Total time was %s' % final_time.replace('(','').replace(')',''))
-        sys.stdout.write(utils.color.END)
+        sys.stdout.write(colorama.Style.RESET_ALL)
         print('\nTotal Time: %s' % final_time)
         print(imbalance)
     return imbalance

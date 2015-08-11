@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 
+import colorama
 import random
 import time
 import utils
 
+colorama.init()
 
 class Meta(type):
     def __repr__(cls):
@@ -113,14 +115,14 @@ class Move(object):
     def __call__(self, imbalance=[], prev=None, verbosity=1, **kwargs) -> "Move":
         """Tells me which pose I'm supposed to do and how I'm supposed to do it.
         Also figures out next pose and deals with adding late moves"""
-        print("\n" + utils.color.BOLD + self.title + utils.color.END)
+        print("\n" + colorama.Style.BRIGHT + self.title + colorama.Style.NORMAL)
         # Deal with imbalances
         if self.side:
             if self in imbalance: imbalance.remove(self)
             else: imbalance.append(self.otherside)
         if verbosity >= 2:
-            print(utils.color.BLUE + 'Prev:', '; '.join(map(str, prev)) + utils.color.END)
-            print(utils.color.PURPLE + 'Imbalances:', '; '.join(map(str,imbalance)) + utils.color.END)
+            print(colorama.Fore.BLUE + 'Prev:', '; '.join(map(str, prev)))
+            print(colorama.Fore.MAGENTA + 'Imbalances:', '; '.join(map(str,imbalance)) + colorama.Fore.RESET)
         if prev is not None: prev.append(self)
         # What is my next move?
         if 'nextMove' in kwargs:
@@ -139,8 +141,8 @@ class Move(object):
             print('Next Move: ' + nextMove.title)
             self.last = nextMove
             if verbosity >= 1:
-                print(utils.color.DARKCYAN + 'My options were:', '; '.join(str(i) for i in self.nextMove) + utils.color.END)
-                print(utils.color.GREEN + 'Latemoves:', '; '.join(str(i) for i in self.lateMove) + utils.color.END)
+                print(colorama.Fore.CYAN + 'My options were:', '; '.join(str(i) for i in self.nextMove))
+                print(colorama.Fore.GREEN + 'Latemoves:', '; '.join(str(i) for i in self.lateMove) + colorama.Fore.RESET)
         # Tell me what to do
         utils.speak(self.audio)
         time.sleep(0.2)
@@ -157,7 +159,7 @@ class Move(object):
         else: utils.countdown(t)
         #record to file, if we were given a file
         if 'f' in kwargs and kwargs['f']:
-            kwargs['f'].write('%s: %d' % (self.title, str(t)))
+            kwargs['f'].write('%s: %d' % (self.title, t))
             s = self.repCount()
             if s: kwargs['f'].write('%s reps' % s)
             kwargs['f'].write('\n')
