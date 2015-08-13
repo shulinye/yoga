@@ -28,6 +28,7 @@ def log_isinstance(ob, t, context=None, level = logging.ERROR):
 
 def generateAllMoves(d = 1, a = 0, s = 0):
     movesGraph = moves.generateMoves(d)
+    sloppyRun(stretches.defineStretches, movesGraph, difficulty=d)
     sloppyRun(moves.linkMain, movesGraph, difficulty=d)
     if a: sloppyRun(strengthaerobics.linkAerobics, movesGraph, d, a)
     if s: sloppyRun(strengthaerobics.linkStrength, movesGraph, d, s)
@@ -40,6 +41,7 @@ def generateAllMoves(d = 1, a = 0, s = 0):
     if s: sloppyRun(strengthaerobics.linkStrengthCooldown, movesGraph, d, s)
     if a: sloppyRun(strengthaerobics.linkAerobicsCooldown, movesGraph, d, a)
     sloppyRun(moves.linkSavasana, movesGraph, difficulty = d)
+    print("%d moves discovered" % len(movesGraph))
     return movesGraph
 
 def checkChildType(move):

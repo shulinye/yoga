@@ -10,7 +10,6 @@ import colorama
 import datetime
 import random
 import sys
-from textwrap import fill
 import time
 
 import dijkstras
@@ -29,15 +28,15 @@ def routine(li : list, imbalance : list, playLast=True, **kwargs) -> "Move":
             li[i](imbalance=imbalance, nextMove=li[i+1], **kwargs)
     except KeyboardInterrupt:
         sys.stdout.write(colorama.Style.RESET_ALL)
-        return next_pose if "next_pose" in locals() else li[0]
+        return li[i+1] if "i" in locals() else li[0]
     if not playLast: return li[-1]
     return li[-1](imbalance=imbalance,**kwargs)
 
 def get_me_to(pose, *moves, imbalance, **kwargs):
     try:
         pose = routine(dijkstras.dijkstra(pose, *moves, imbalance=imbalance), imbalance=imbalance, **kwargs)
-    except (TimeoutError, ValueError):
-        pass
+    except (TimeoutError, ValueError, KeyboardInterrupt):
+        sys.stdout.write(colorama.Style.RESET_ALL)
     return pose
 
 def fixImbalance(pose : "Move", imbalance : list, maxImbalance=1, maxTime=60, **kwargs) -> "Move":
@@ -80,12 +79,13 @@ def main(**kwargs):
     utils.countdown(3)
 
     if defaults["verbose"] >= 2:
-        print(fill(str(defaults)))
+        print(utils.wrapper.fill(str(defaults)))
     elif defaults["verbose"] >= 1:
         print("Workout length:", defaults['time'], "minutes.", "Beginning in:")
     # setup
     total_time = defaults['time']*60
     movesGraph = moves.generateMoves(difficulty=defaults["difficulty"])
+    stretches.defineStretches(movesGraph, difficulty=defaults["difficulty"])
     start = time.time()
     end = start + total_time
     imbalance = []
@@ -164,13 +164,13 @@ def main(**kwargs):
             pose = get_me_to(pose, movesGraph['savasana'], imbalance=imbalance, prev=prev, verbosity=defaults['verbose'], f=f)
     except (KeyboardInterrupt, BrokenPipeError):
         moves.linkSavasana(movesGraph, difficulty=defaults['difficulty'])
-        pose = get_me_to(pose, movesGraph['savasana', imbalance=imbalance, prev=prev, verbosity=defaults['verbose'], f=f)
+        pose = get_me_to(pose, movesGraph['savasana'], imbalance=imbalance, prev=prev, verbosity=defaults['verbose'], f=f)
     finally:
         final_time = utils.prettyTime(time.time() - start)
         utils.tee('\nTotal Time: %s' % final_time, f=f, say='Done! Total time was %s' % final_time.replace('(','').replace(')',''))
-        f.close()
+        if f: f.close()
         sys.stdout.write(colorama.Style.RESET_ALL)
-        print(fill(str(imbalance)))
+        print(utils.wrapper.fill(str(imbalance)))
     return imbalance
 
 if __name__== '__main__':

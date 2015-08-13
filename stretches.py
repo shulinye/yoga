@@ -1,7 +1,13 @@
 #!/usr/bin/python3
 
-from moves import Move
+from models import Move
 
+def defineStretches(movesGraph, difficulty = 1) -> None:
+    """Add in a few stretches?"""
+    movesGraph['upwardDogStretches'] = Move.twoSides('Upward Dog Stretch', 'Push your %(same)s shoulder forward', 10, movesGraph['upwardDog'])
+    Move.moveReverse(movesGraph['upwardDogStretches'])
+    if difficulty < 1:
+        movesGraph['upwardDog'].addMove(*movesGraph['upwardDogStretches'])
 
 def linkEasy(movesGraph, difficulty = -1) -> None:
     raise NotImplemented
