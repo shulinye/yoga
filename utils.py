@@ -19,6 +19,12 @@ def speak(text : str , wait = True) -> None:
     f = subprocess.call if wait else subprocess.Popen
     f('espeak -v en-gb \"' + text + '\"', shell=True, stdin=None, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
+def tee(text : str, f, say=None):
+    print(text)
+    if say is None: utils.speak(text)
+    else: utils.speak(say)
+    if f: f.write(text + '\n\n')
+
 def sqrt_floor(i : int) -> int:
     return math.floor(math.sqrt(i))
 

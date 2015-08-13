@@ -2,6 +2,7 @@
 
 import colorama
 import random
+from textwrap import fill
 import time
 import utils
 
@@ -121,8 +122,8 @@ class Move(object):
             if self in imbalance: imbalance.remove(self)
             else: imbalance.append(self.otherside)
         if verbosity >= 2:
-            print(colorama.Fore.BLUE + 'Prev:', '; '.join(map(str, prev)))
-            print(colorama.Fore.MAGENTA + 'Imbalances:', '; '.join(map(str,imbalance)) + colorama.Fore.RESET)
+            print(colorama.Fore.BLUE + fill('Prev: ' + '; '.join(map(str, prev))))
+            print(colorama.Fore.MAGENTA + fill('Imbalances: ' + '; '.join(map(str,imbalance))) + colorama.Fore.RESET)
         if prev is not None: prev.append(self)
         # What is my next move?
         if 'nextMove' in kwargs:
@@ -141,8 +142,8 @@ class Move(object):
             print('Next Move: ' + nextMove.title)
             self.last = nextMove
             if verbosity >= 1:
-                print(colorama.Fore.CYAN + 'My options were:', '; '.join(str(i) for i in self.nextMove))
-                print(colorama.Fore.GREEN + 'Latemoves:', '; '.join(str(i) for i in self.lateMove) + colorama.Fore.RESET)
+                print(colorama.Fore.CYAN + fill('My options were: ' + '; '.join(str(i) for i in self.nextMove)))
+                print(colorama.Fore.GREEN + fill('Latemoves: ' + '; '.join(str(i) for i in self.lateMove)) + colorama.Fore.RESET)
         # Tell me what to do
         utils.speak(self.audio)
         time.sleep(0.2)

@@ -397,6 +397,7 @@ def generateMoves(difficulty = 1):
         Move.doubleAdd(movesGraph['standingLotusSquat'], movesGraph['toestand'])
     if difficulty >= 2:
         Move.doubleAdd(movesGraph['standingLotusSquat'], movesGraph['flyingPigeon'])
+        Move.doubleAdd(movesGraph['standingLegLift2'], movesGraph['birdOfParadise'])
     Move.doubleAdd(movesGraph['standingLegLift1'], movesGraph['warrior3'], inverted=True)
     Move.doubleAdd(movesGraph['standingLegLift2'], movesGraph['standingLegLift3'])
     if difficulty < 1:

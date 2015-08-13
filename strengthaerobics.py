@@ -41,7 +41,7 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
     #New moves
     movesGraph['pushups'] = Move("Pushups", 0, "Pushups", 15 + 5*difficulty, movesGraph['vinyasa'], extended=Move.reDifficultyTimes([20,30],5,difficulty), \
             lateMove=set((movesGraph['plank'],) + movesGraph['sidePlank']), countReps=True)
-    movesGraph['pistolSquats'] = Move.twoSides("Pistol Squats", "Pistol Squats, %(same)s foot up", 15+5*difficulty, movesGraph['mountain'], countReps=True) #//TODO: better description
+    movesGraph['pistolSquats'] = Move.twoSides("Pistol Squats", "Pistol Squats, %(same)s foot up", 15+5*difficulty, movesGraph['mountain'], countReps=True, countdown=True) #//TODO: better description
     movesGraph['jumpingSquats'] = Move("Jumping Squats", 0, "Jumping Squats", 30, movesGraph['chair'], \
             movesGraph['forwardFold'], lateMove=set([movesGraph['mountain']]), countReps=True)
     movesGraph['jumpingLunges'] = Move("Jumping Lunges", 0, "Jumping Lunges", 20 + 10*difficulty + 10*strength, movesGraph['vinyasa'], countReps=True)
@@ -93,6 +93,7 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
 def linkStrengthHarder(movesGraph, difficulty=1, strength = 0) -> None:
     Move.moveReverse(movesGraph['pistolSquats'])
     movesGraph['mountain'].promoteLate(n=max(1, difficulty+1))
+    movesGraph['plank'].time += 5
 
 def linkStrengthCooldown(movesGraph, difficulty=1, strength = 0) -> None:
     movesGraph['pushups'].addMove(movesGraph['lieOnFront'])
