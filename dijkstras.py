@@ -7,10 +7,22 @@ LATEPENALTY = 40
 IMBALANCE_BOUNTY = 3
 LAST_MOVE_PENALTY = 10
 
+__all_ = ['dijkstra']
+
 def bounty(node : "Move", imbalance : list , cost : int ) -> int:
     """Awards a bounty to a node that's currently in the imbalanced list"""
     if node is None: return 1000 #Not a move, just set my value insanely high
     return max(1,cost - IMBALANCE_BOUNTY) if node in imbalance else cost
+
+def decrease_key(frontier, old_cost, new_cost, move):
+    index = frontier.index((old_cost, move))
+    if index == len(frontier) - 1:
+        frontier[index] = (new_cost, move)
+        heapq._siftdown(frontier, 0, len(frontier) - 1)
+    else:
+        frontier[index] = frontier.pop()
+        heapq._siftup(frontier, index)
+        heapq.heappush(frontier,(new_cost, move))
 
 def dijkstra(start : "node" , *goal, limit=None, imbalance=[]) -> list:
     """Uses dijkstra's algorithm to find the shortest path to a target move.
@@ -51,17 +63,14 @@ def dijkstra(start : "node" , *goal, limit=None, imbalance=[]) -> list:
                     my_cost = bounty(j, imbalance, new_cost)
                     if node.last and j == node.last: my_cost += LAST_MOVE_PENALTY
                     if i > my_cost:
-                        frontier.remove((i,j))
-                        frontier.append((new_cost, j))
+                        decrease_key(frontier, i, my_cost, j)
                         prev[j] = node
                 elif has_late and j in node.kwargs["lateMove"]:
                     my_cost = bounty(j, imbalance, late_cost)
                     if node.last and j == node.last: my_cost += LAST_MOVE_PENALTY
                     if i > late_cost:
-                        frontier.remove((i,j))
-                        frontier.append((late_cost,j))
+                        decrease_key(frontier, i, late_cost, j)
                         prev[j] = node
-        heapq.heapify(frontier)
         for i in not_seen:
             my_cost = bounty(i, imbalance, new_cost)
             if node.last and i == node.last: my_cost += LAST_MOVE_PENALTY
