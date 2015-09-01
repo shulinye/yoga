@@ -31,8 +31,8 @@ def routine(li : list, imbalance : list, playLast=True, **kwargs) -> "Move":
     except KeyboardInterrupt:
         sys.stdout.write(colorama.Style.RESET_ALL)
         return current
-    if not playLast: return nextmove
-    return nextmove(imbalance=imbalance,**kwargs)
+    if not playLast: return current
+    return current(imbalance=imbalance,**kwargs)
 
 def get_me_to(pose, *moves, imbalance = None, **kwargs):
     if imbalance is None: imbalance = []

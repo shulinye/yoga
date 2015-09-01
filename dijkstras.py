@@ -55,8 +55,8 @@ def dijkstra(start : "node" , *goal, limit=None, imbalance=None) -> list:
             return li[::-1]
         explored.add(node)
         not_seen = node.nextMove.difference(seen).difference(explored)
-        has_late = "lateMove" in node.kwargs
-        late_not_seen = node.kwargs["lateMove"].difference(seen).difference(explored) if has_late else set()
+        has_late = bool(node.lateMove)
+        late_not_seen = node.lateMove.difference(seen).difference(explored) if has_late else set()
         frontier_copy = frontier.copy()
         for i,j in frontier_copy:
             if j not in explored:
@@ -66,7 +66,7 @@ def dijkstra(start : "node" , *goal, limit=None, imbalance=None) -> list:
                     if i > my_cost:
                         decrease_key(frontier, i, my_cost, j)
                         prev[j] = node
-                elif has_late and j in node.kwargs["lateMove"]:
+                elif has_late and j in node.lateMove:
                     my_cost = bounty(j, imbalance, late_cost)
                     if node.last and j == node.last: my_cost += LAST_MOVE_PENALTY
                     if i > late_cost:

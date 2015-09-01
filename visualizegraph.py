@@ -12,8 +12,8 @@ def addMove(move, graph):
         if i is not None:
             if i not in graph: graph.add_node(i, name=i.title)
             graph.add_edge(move, i)
-    if "lateMove" in move.kwargs:
-        for i in move.kwargs["lateMove"]:
+    for i in move.lateMove:
+        if i is not None:
             if i not in graph: graph.add_node(i, name=i.title)
             graph.add_edge(move, i, color="green")
 

@@ -23,55 +23,37 @@ class Move(object):
         self.time = max(time, 0)
         self.last = None
         self.nextMove = set(moves)
-        self.kwargs = kwargs
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+        if "lateMove" not in kwargs:
+            self.lateMove = set()
+        if "extended_time" not in kwargs:
+            self.extended_time = []
 
     @property
     def times(self):
-        li = self.kwargs["extended_time"] if "extended_time" in self.kwargs else []
-        return [self.time] + li
+        return [self.time] + self.extended_time
 
     @times.setter
     def times(self, args):
         args = sorted(args)
         self.time = max(args[0], 0)
-        if len(args) > 1:
-            self.kwargs["extended_time"] = args[1:]
-        elif "extended_time" in self.kwargs:
-            del self.kwargs["extended_time"]
-
-    @property
-    def lateMove(self):
-        return self.kwargs["lateMove"] if "lateMove" in self.kwargs else set()
-
-    @lateMove.setter
-    def lateMove(self, moves):
-        self.kwargs["lateMove"] = set(moves)
+        self.extended_time = args[1:]
 
     def updateKwargs(self, **kwargs) -> None:
-        self.kwargs.update(kwargs)
-
-    def addExtendedTime(self, *times) -> None:
-        if "exended_time" in self.kwargs:
-            self.kwargs["extended_time"] += times
-        else:
-            self.kwargs["extended_time"] = times
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
     def addMove(self, *moves) -> None:
         self.nextMove.update(moves)
 
     def removeMove(self, *moves) -> None:
         self.nextMove.difference_update(moves)
-        if "lateMove" in self.kwargs:
-            self.kwargs["lateMove"].difference_update(moves)
+        self.lateMove.difference_update(moves)
 
     def addLateMove(self, *moves) -> None:
-        if "lateMove" not in self.kwargs:
-            self.kwargs["lateMove"] = set()
-        self.kwargs["lateMove"].update(moves)
-        self.kwargs["lateMove"].difference_update(self.nextMove)
-
-    def __getattr__(self, name):
-        if name in self.kwargs: return self.kwargs[name]
+        self.lateMove.update(moves)
+        self.lateMove.difference_update(self.nextMove)
 
     def notLast(self, prev=None) -> "Move":
         """Returns a move, trying to avoid
@@ -89,8 +71,8 @@ class Move(object):
                 return random.choice(tuple(movesCopy))
         if self.nextMove:
             return random.choice(tuple(self.nextMove))
-        if "lateMove" in self.kwargs and self.kwargs["lateMove"]:
-            c = random.choice(tuple(self.kwargs["lateMove"]))
+        if self.lateMove:
+            c = random.choice(tuple(self.lateMove))
             self.promoteLate(c)
             return c
         raise ValueError("No possible move found")
@@ -98,14 +80,13 @@ class Move(object):
     def promoteLate(self, *args, n=1) -> None:
         """Promotes a late move up to the normal move pool, if possible.
         If no move given, promotes a random move"""
-        if "lateMove" in self.kwargs:
-            if args:
-                self.nextMove.update(self.kwargs['lateMove'].intersection(args))
-                self.kwargs['lateMove'].difference_update(args)
-            elif self.kwargs["lateMove"]:
-                moves = random.sample(tuple(self.kwargs["lateMove"]), min(n,len(self.kwargs["lateMove"])))
-                self.kwargs["lateMove"].difference_update(moves)
-                self.addMove(*moves)
+        if args:
+            self.nextMove.update(self.lateMove.intersection(args))
+            self.lateMove.difference_update(args)
+        elif self.lateMove:
+            moves = random.sample(tuple(self.lateMove), min(n,len(self.lateMove)))
+            self.lateMove.difference_update(moves)
+            self.addMove(*moves)
 
     def repCount(self) -> None:
         if self.countReps:
@@ -146,16 +127,16 @@ class Move(object):
         # Tell me what to do
         utils.speak(self.audio)
         time.sleep(0.2)
-        if 'early' in kwargs and kwargs['early']: utils.speak(self.early)
-        elif 'harder' in kwargs and kwargs['harder']: utils.speak(self.harder)
+        for i in ('early', 'harder'):
+            if i in kwargs and kwargs[i]: utils.speak(getattr(self, i, None))
         # How long am I supposed to do it?
         if 'time' in kwargs: t = kwargs['time']
         elif 'extended' in kwargs and kwargs['extended'] and self.extended_time: t = random.choice(self.extended_time)
         else: t = self.time
         # Actually count down
-        if self.bind: utils.speak("Bind if you want to")
+        if getattr(self, 'bind', None): utils.speak("Bind if you want to")
         if t > 5: utils.speak(str(t) + " seconds")
-        if self.countdown: utils.countdown(t, incremental = True)
+        if getattr(self, 'countdown', None): utils.countdown(t, incremental = True)
         else: utils.countdown(t)
         #record to file, if we were given a file
         if 'f' in kwargs and kwargs['f']:
@@ -164,8 +145,7 @@ class Move(object):
             if s: kwargs['f'].write(' - %s reps' % s)
             kwargs['f'].write('\n')
             kwargs['f'].flush()
-        if 'bind' in self.kwargs and self.kwargs['bind']:
-            utils.speak('Release bind')
+        if getattr(self, 'bind', None): utils.speak('Release bind')
         self.promoteLate()  # Add in options for harder followup moves next time
         return nextMove
 
@@ -202,8 +182,7 @@ class Move(object):
         return len(self.nextMove.union(self.lateMove))
     
     def __iter__(self):
-        for i in self.nextMove.union(self.lateMove):
-            yield i
+        yield from self.nextMove.union(self.lateMove)
 
     @staticmethod
     def twoSides(title : str , audio : str , time : int , *args, **kwargs):
