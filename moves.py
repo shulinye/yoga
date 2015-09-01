@@ -477,7 +477,7 @@ def linkHarder(movesGraph, difficulty=1) -> None:
         movesGraph['forwardFold'].addMove(movesGraph['crow'])
         movesGraph['seatedMeditation'].addMove(movesGraph['frog'])
         movesGraph['staff'].addMove(movesGraph['frog'])
-        movesGraph['child'].addMove(movesGraph['supportedHeadstand'])
+        movesGraph['child'].addLateMove(movesGraph['supportedHeadstand'])
         movesGraph['downwardDog'].addLateMove(movesGraph['supportedHeadstand'])
         Move.doubleAdd(movesGraph['threeLeggedDog'], movesGraph['pigeon'])
         for i in movesGraph['twoLeggedDog']: i.addLateMove(movesGraph['plank'])

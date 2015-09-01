@@ -112,7 +112,7 @@ class Move(object):
             utils.speak("How many reps?")
             return input("How many reps? ")
 
-    def __call__(self, imbalance=[], prev=None, verbosity=1, **kwargs) -> "Move":
+    def __call__(self, imbalance=[], prev=None, verbose=1, **kwargs) -> "Move":
         """Tells me which pose I'm supposed to do and how I'm supposed to do it.
         Also figures out next pose and deals with adding late moves"""
         print("\n" + colorama.Style.BRIGHT + self.title + colorama.Style.NORMAL)
@@ -120,7 +120,7 @@ class Move(object):
         if self.side:
             if self in imbalance: imbalance.remove(self)
             else: imbalance.append(self.otherside)
-        if verbosity >= 2:
+        if verbose >= 2:
             print(colorama.Fore.BLUE + utils.wrapper.fill('Prev: ' + '; '.join(map(str, prev))))
             print(colorama.Fore.MAGENTA + utils.wrapper.fill('Imbalances: ' + '; '.join(map(str,imbalance))) + colorama.Fore.RESET)
         if prev is not None: prev.append(self)
@@ -140,7 +140,7 @@ class Move(object):
         if nextMove is not None:
             print('Next Move: ' + nextMove.title)
             self.last = nextMove
-            if verbosity >= 1:
+            if verbose >= 1:
                 print(colorama.Fore.CYAN + utils.wrapper.fill('My options were: ' + '; '.join(str(i) for i in self.nextMove)))
                 print(colorama.Fore.GREEN + utils.wrapper.fill('Latemoves: ' + '; '.join(str(i) for i in self.lateMove)) + colorama.Fore.RESET)
         # Tell me what to do

@@ -24,12 +24,13 @@ def decrease_key(frontier, old_cost, new_cost, move):
         heapq._siftup(frontier, index)
         heapq.heappush(frontier,(new_cost, move))
 
-def dijkstra(start : "node" , *goal, limit=None, imbalance=[]) -> list:
+def dijkstra(start : "node" , *goal, limit=None, imbalance=None) -> list:
     """Uses dijkstra's algorithm to find the shortest path to a target move.
     If multiple targets are entered, use the first one found.
     raises: ValueError if frontier is ever empty or node becomes None
     raises: TimeoutError if time exceeded"""
     if start in goal: return [start]
+    if imbalance is None: imbalance = []
     node = start
     frontier = [(0, start)]
     seen = set()

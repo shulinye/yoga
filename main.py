@@ -24,15 +24,18 @@ def routine(li : list, imbalance : list, playLast=True, **kwargs) -> "Move":
     """Plays a list of moves. if playLast = False, returns last move instead of playing it
     If KeyboardInterrupt, tries to return the move it's currently on"""
     try:
-        for i in range(len(li)-1):
-            li[i](imbalance=imbalance, nextMove=li[i+1], **kwargs)
+        li = iter(li)
+        current = next(li)
+        for nextmove in li:
+            current = current(imbalance=imbalance, nextMove=nextmove, **kwargs)
     except KeyboardInterrupt:
         sys.stdout.write(colorama.Style.RESET_ALL)
-        return li[i+1] if "i" in locals() else li[0]
-    if not playLast: return li[-1]
-    return li[-1](imbalance=imbalance,**kwargs)
+        return current
+    if not playLast: return nextmove
+    return nextmove(imbalance=imbalance,**kwargs)
 
-def get_me_to(pose, *moves, imbalance, **kwargs):
+def get_me_to(pose, *moves, imbalance = None, **kwargs):
+    if imbalance is None: imbalance = []
     try:
         pose = routine(dijkstras.dijkstra(pose, *moves, imbalance=imbalance), imbalance=imbalance, **kwargs)
     except (TimeoutError, ValueError, KeyboardInterrupt):
@@ -98,9 +101,9 @@ def main(**kwargs):
     try:
         #warmup
         if defaults["warmup"]:
-            pose = pose(time=min(30,max(15, total_time//120+7)), imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
+            pose = pose(time=min(30,max(15, total_time//120+7)), imbalance=imbalance, prev=prev, verbose=defaults["verbose"], f=f)
             while time.time() - start < min(max(45,total_time//15),300):
-                pose = pose(imbalance=imbalance, extended=True, early=True, prev=prev, verbosity=defaults["verbose"], f=f) #start slower
+                pose = pose(imbalance=imbalance, extended=True, early=True, prev=prev, verbose=defaults["verbose"], f=f) #start slower
         #get me to my target:
         moves.linkMain(movesGraph, defaults['difficulty'])
         if defaults['aerobics']:
@@ -110,28 +113,28 @@ def main(**kwargs):
             if defaults['aerobics']:
                 strengthaerobics.linkStrengthAerobics(movesGraph, defaults["difficulty"], defaults["strength"], defaults["aerobics"])
         if defaults['warmup']:
-            pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12), prev=prev, verbosity=defaults['verbose'], f=f)
+            pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12), prev=prev, verbose=defaults['verbose'], f=f)
         imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance, difficulty=defaults["difficulty"])
         try:
             target = movesGraph[defaults['target']]
         except KeyError:
             target = movesGraph['plank']
-        pose = get_me_to(pose, target, imbalance=imbalance, playLast=False, prev=prev, verbosity=defaults["verbose"], f=f)
+        pose = get_me_to(pose, target, imbalance=imbalance, playLast=False, prev=prev, verbose=defaults["verbose"], f=f)
         if defaults["warmup"]:
             utils.tee("Warmup Over: " + utils.prettyTime(time.time() - start), f, say="Alright, warmup over.")
-        pose = pose(imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
+        pose = pose(imbalance=imbalance, prev=prev, verbose=defaults["verbose"], f=f)
         #starting main part of workout
         while time.time() - start < total_time//2 - 30:
-            pose = fixImbalance(pose, imbalance, maxImbalance=10 + total_time//600, maxTime=max(60,total_time//12), prev=prev, verbosity=defaults["verbose"], f=f)
-            pose = pose(imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
+            pose = fixImbalance(pose, imbalance, maxImbalance=10 + total_time//600, maxTime=max(60,total_time//12), prev=prev, verbose=defaults["verbose"], f=f)
+            pose = pose(imbalance=imbalance, prev=prev, verbose=defaults["verbose"], f=f)
         #add harder poses in here
         if defaults["difficulty"] >= 1:
             moves.linkHarder(movesGraph, defaults["difficulty"])
             if defaults["strength"]:
                 strengthaerobics.linkStrengthHarder(movesGraph, defaults["difficulty"], defaults["strength"])
-        pose = fixImbalance(pose, imbalance, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
+        pose = fixImbalance(pose, imbalance, maxTime=max(60, total_time//10), prev=prev, verbose=defaults["verbose"], f=f)
         try:
-            pose = get_me_to(pose, movesGraph[defaults['target']], imbalance=imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
+            pose = get_me_to(pose, movesGraph[defaults['target']], imbalance=imbalance, prev=prev, verbose=defaults["verbose"], f=f)
         except KeyError:
             pass
         if defaults["verbose"] >= 1:
@@ -141,30 +144,30 @@ def main(**kwargs):
         while time.time() < (end - max(60, total_time//5)) if defaults['cooldown'] else end:
             extendedChance = (time.time() - start)/total_time
             extended = random.random() < extendedChance
-            pose = fixImbalance(pose, imbalance, maxImbalance=8+total_time//800, maxTime=max(110,total_time//10), prev=prev, verbosity=defaults["verbose"], f=f, harder=harder)
-            pose = pose(harder=harder, imbalance = imbalance, extended=extended, prev=prev, verbosity=defaults["verbose"], f=f)
+            pose = fixImbalance(pose, imbalance, maxImbalance=8+total_time//800, maxTime=max(110,total_time//10), prev=prev, verbose=defaults["verbose"], f=f, harder=harder)
+            pose = pose(harder=harder, imbalance = imbalance, extended=extended, prev=prev, verbose=defaults["verbose"], f=f)
         moves.linkEnding(movesGraph)
         while time.time() < (end - max(60, total_time//10)):
-            pose = fixImbalance(pose, imbalance, maxImbalance=max(1,total_time//800), maxTime=max(120, total_time//10), prev=prev, verbosity=defaults["verbose"], f=f)
-            pose = pose(imbalance = imbalance, prev=prev, verbosity=defaults["verbose"], f=f)
+            pose = fixImbalance(pose, imbalance, maxImbalance=max(1,total_time//800), maxTime=max(120, total_time//10), prev=prev, verbose=defaults["verbose"], f=f)
+            pose = pose(imbalance = imbalance, prev=prev, verbose=defaults["verbose"], f=f)
         if defaults["cooldown"]:
-            pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(75, total_time//10+15), prev=prev, verbosity=defaults["verbose"], f=f)
+            pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(75, total_time//10+15), prev=prev, verbose=defaults["verbose"], f=f)
             utils.tee("Cooldown begins: " + utils.prettyTime(time.time() - start), f, say="Cooldown begins")
             stretches.linkCooldown(movesGraph, difficulty=defaults["difficulty"])
             if defaults["strength"]: strengthaerobics.linkStrengthCooldown(movesGraph,difficulty=defaults["difficulty"], strength = defaults["strength"])
             if defaults["aerobics"]: strengthaerobics.linkAerobicsCooldown(movesGraph,difficulty=defaults["difficulty"], aerobics = defaults["aerobics"])
-            pose = get_me_to(pose, movesGraph['wheel'], imbalance=imbalance, prev=prev, verbosity=defaults['verbose'], f=f)
-        pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), prev=prev, verbosity=defaults['verbose'], f=f)
+            pose = get_me_to(pose, movesGraph['wheel'], imbalance=imbalance, prev=prev, verbose=defaults['verbose'], f=f)
+        pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), prev=prev, verbose=defaults['verbose'], f=f)
         while time.time() < (end-max(30, total_time//15)) if defaults["cooldown"] else end:
-            pose = pose(imbalance=imbalance, extended=True, prev=prev, verbosity=defaults['verbose'], f=f)
-            pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbosity=defaults['verbose'], f=f)
+            pose = pose(imbalance=imbalance, extended=True, prev=prev, verbose=defaults['verbose'], f=f)
+            pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbose=defaults['verbose'], f=f)
         if defaults['cooldown']:
             moves.linkSavasana(movesGraph, difficulty=defaults['difficulty'])
-            pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbosity=defaults['verbose'], f=f)
-            pose = get_me_to(pose, movesGraph['savasana'], imbalance=imbalance, prev=prev, verbosity=defaults['verbose'], f=f)
+            pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbose=defaults['verbose'], f=f)
+            pose = get_me_to(pose, movesGraph['savasana'], imbalance=imbalance, prev=prev, verbose=defaults['verbose'], f=f)
     except (KeyboardInterrupt, BrokenPipeError):
         moves.linkSavasana(movesGraph, difficulty=defaults['difficulty'])
-        pose = get_me_to(pose, movesGraph['savasana'], imbalance=imbalance, prev=prev, verbosity=defaults['verbose'], f=f)
+        pose = get_me_to(pose, movesGraph['savasana'], imbalance=imbalance, prev=prev, verbose=defaults['verbose'], f=f)
     finally:
         final_time = utils.prettyTime(time.time() - start)
         utils.tee('\nTotal Time: %s' % final_time, f=f, say='Done! Total time was %s' % final_time.replace('(','').replace(')',''))
