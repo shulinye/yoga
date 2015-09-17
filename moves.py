@@ -318,6 +318,8 @@ def generateMoves(difficulty = 1):
         for j in range(1,4):
             for i in movesGraph['standingLegLift' + str(j)]: i.addLateMove(movesGraph['mountain'])
 
+    movesGraph['vinyasa'].last = movesGraph['downwardDog']
+
     Move.moveReverse(movesGraph['seatedTwist'], movesGraph['childsPoseSideStretch'], movesGraph['threadTheNeedle'])
     Move.moveReverse(movesGraph['standingSideStretch'], movesGraph['standingTwist'])
     Move.moveReverse(movesGraph['headToKnee'], movesGraph['cowFace'])

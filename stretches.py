@@ -35,6 +35,7 @@ def linkCooldown(movesGraph, difficulty = 1) -> None:
     movesGraph['crow'].addMove(movesGraph['child'])
     movesGraph['lieOnBack'].addMove(*movesGraph['preztel'])
     movesGraph['supportedShoulderStand'].addMove(*movesGraph['four'])
+    for i in movesGraph['birdOfParadise']: i.addMove(movesGraph['mountain'])
     for i in movesGraph['sidePlank']: i.addMove(movesGraph['lieOnFront'])
     for i in movesGraph['sidePlankLegUp']: i.addMove(movesGraph['lieOnFront'])
     for i in movesGraph['standingLegLift1']: i.addMove(movesGraph['mountain'])

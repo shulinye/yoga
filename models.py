@@ -89,7 +89,7 @@ class Move(object):
             self.addMove(*moves)
 
     def repCount(self) -> None:
-        if self.countReps:
+        if getattr(self, 'countReps', None):
             utils.speak("How many reps?")
             return input("How many reps? ")
 
@@ -136,7 +136,7 @@ class Move(object):
         # Actually count down
         if getattr(self, 'bind', None): utils.speak("Bind if you want to")
         if t > 5: utils.speak(str(t) + " seconds")
-        if getattr(self, 'countdown', None): utils.countdown(t, incremental = True)
+        if getattr(self, 'countdown', None): utils.countdown(t, incremental=True)
         else: utils.countdown(t)
         #record to file, if we were given a file
         if 'f' in kwargs and kwargs['f']:
