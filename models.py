@@ -184,27 +184,27 @@ class Move(object):
     def __iter__(self):
         yield from self.nextMove.union(self.lateMove)
 
-    @staticmethod
-    def twoSides(title : str , audio : str , time : int , *args, **kwargs):
+    @classmethod
+    def twoSides(cls, title : str , audio : str , time : int , *args, **kwargs):
         """Hey, you have two legs. Convenience method to generate both left and right sides for a move"""
         dicR = {"same": "Right", "other": "Left"}
         dicL = {"same": "Left", "other": "Right"}
         if "%" in audio:
-            R = Move(title + ", Right", 1, audio % dicR, time, *args, **kwargs)
-            L = Move(title + ", Left", -1, audio % dicL, time, *args, **kwargs)
+            R = cls(title + ", Right", 1, audio % dicR, time, *args, **kwargs)
+            L = cls(title + ", Left", -1, audio % dicL, time, *args, **kwargs)
         else:
-            R = Move(title + ", Right", 1, audio, time, *args, **kwargs)
-            L = Move(title + ", Left", -1, audio, time, *args, **kwargs)
+            R = cls(title + ", Right", 1, audio, time, *args, **kwargs)
+            L = cls(title + ", Left", -1, audio, time, *args, **kwargs)
         R.otherside = L
         L.otherside = R
         return (R,L)
 
-    @staticmethod
-    def doubleAdd(move, *moves, inverted=False, late=False):
+    @classmethod
+    def doubleAdd(cls, move, *moves, inverted=False, late=False):
         """Convenience method to help link moves that have sides
         inverted: if True, causes L to be linked to R and R to be linked to L
         late: if True, causes move to be linked as a late move"""
-        f = Move.addLateMove if late else Move.addMove
+        f = cls.addLateMove if late else cls.addMove
         if inverted:
             f(move[0], *[i[1] for i in moves])
             f(move[1], *[i[0] for i in moves])
@@ -213,10 +213,10 @@ class Move(object):
             f(move[1], *[i[1] for i in moves])
 
     
-    @staticmethod
-    def moveReverse(*moves, late=False):
+    @classmethod
+    def moveReverse(cls, *moves, late=False):
         """Convenience method. Link a move to its .otherside, and also in reverse."""
-        f = Move.addLateMove if late else Move.addMove
+        f = cls.addLateMove if late else cls.addMove
         for i in moves:
             f(i[0],i[1])
             f(i[1],i[0])
