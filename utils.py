@@ -1,4 +1,4 @@
-#/usr/bin/python3
+#!/usr/bin/env python3
 
 import colorama
 import math
@@ -61,3 +61,7 @@ def prettyTime(time : int) -> str:
     s = round(s, 2)
     if h: return "%s hour(s), %s minute(s), %s second(s)" % (int(h),int(m),s)
     else: return "%s minute(s), %s second(s)" % (int(m),s)
+
+if __name__ == "__main__":
+    import sys
+    countdown(int(sys.argv[1]))

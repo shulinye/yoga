@@ -129,6 +129,7 @@ def generateMoves(difficulty = 1):
     movesGraph['cresent'] = Move.twoSides("Cresent Lunge", "Cresent Lunge, %(same)s foot forward", 10-difficulty, \
             early="Feel free to lower your other knee down to the ground", extended_time=Move.reDifficultyTimes([20,30],2,difficulty),\
             lateMove=set([movesGraph['vinyasa']]))
+    movesGraph['cresentStretch'] = Move.twoSides("Cresent Stretch", "Bring your %(other)s knee down", 10-difficulty)
     movesGraph['cresentTwist'] = Move.twoSides("Cresent Twist", "Cresent Twist. Twist to the %(same)s side.", 15, bind=True,\
             lateMove=set([movesGraph['vinyasa']]))
     movesGraph['chairTwist'] = Move.twoSides("Chair Twist", "Chair Twist. Twist to the %(same)s side", 15, bind=True)
@@ -444,8 +445,10 @@ def linkMain(movesGraph, difficulty=1) -> None:
         movesGraph['table'].addLateMove(movesGraph['lowPlank'])
         movesGraph['catCow'].addLateMove(movesGraph['lowPlank'])
         movesGraph['lieOnFront'].addLateMove(movesGraph['lowPlank'])
+    movesGraph['forwardFoldShoulderStretch'].addLateMove(movesGraph['vinyasa'])
 
 def unlinkWarmup(movesGraph, imbalance=[], difficulty=1) -> list:
+    """Unlinks warmup moves, removes moves that are no longer possible to get to from imbalance"""
     movesGraph['mountain'].removeMove(*movesGraph['standingTwist'])
     movesGraph['lieOnBack'].removeMove(movesGraph['seatedMeditation'])
     movesGraph['mountain'].removeMove(movesGraph['backBend'], *movesGraph['standingSideStretch'])
@@ -468,6 +471,7 @@ def unlinkWarmup(movesGraph, imbalance=[], difficulty=1) -> list:
 def linkHarder(movesGraph, difficulty=1) -> None:
     """Links some harder moves."""
     if difficulty >= 2:
+        for i in movesGraph['revolvedHalfMoon']: i.time += 5
         movesGraph['downwardDog'].addLateMove(movesGraph['handstandHops'])
         movesGraph['vinyasa'].addMove(movesGraph['forwardFold'])
         Move.doubleAdd(movesGraph['runningMan'], movesGraph['chinStand'])
@@ -475,7 +479,14 @@ def linkHarder(movesGraph, difficulty=1) -> None:
         for i in movesGraph['cresent']: i.addLateMove(movesGraph['handstandHops'])
         movesGraph['crow'].addLateMove(movesGraph['crane'])
     if difficulty >= 1:
-        movesGraph['vinyasa'].time = max(0, movesGraph['vinyasa'].time - 1)
+        movesGraph['vinyasa'].time = max(0, movesGraph['vinyasa'].time - 2)
+        movesGraph['mountain'].time = max(0, movesGraph['mountain'].time - 2)
+        for i in movesGraph['warrior3']: i.time += 5
+        for i in movesGraph['eagle']: i.time += 5
+        for i in movesGraph['halfMoon']: i.time += 5
+        movesGraph['star'].time += 5
+        movesGraph['chair'].time += 5
+        for i in movesGraph['chairTwist']: i.time += 5
         movesGraph['forwardFold'].addMove(movesGraph['crow'])
         movesGraph['seatedMeditation'].addMove(movesGraph['frog'])
         movesGraph['staff'].addMove(movesGraph['frog'])
