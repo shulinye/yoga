@@ -91,6 +91,7 @@ def generateMoves(difficulty = 1):
             30, movesGraph['wideLegForwardFold'])
     movesGraph['standingLegStretch'] = Move.twoSides("Standing Leg Stretch", "Reach for your %(same)s foot", \
             10, movesGraph['wideLegStance'], movesGraph['wideLegForwardFold'])
+    Move.moveReverse(movesGraph['standingLegStretch'])
     movesGraph['mountain'] = Move("Mountain Pose", 0, "Mountain Pose", 5 - difficulty, movesGraph['backBend'], movesGraph['wideLegStance'], \
             *movesGraph['standingLegLift1'], extended_time=[10])
     movesGraph['standingSideStretch'] = Move.twoSides("Standing Side Stretch", "Lean to the %(same)s side", \
@@ -422,7 +423,8 @@ def generateMoves(difficulty = 1):
     Move.doubleAdd(movesGraph['revolvedHalfMoon'], movesGraph['halfMoon'], movesGraph['warrior3'], movesGraph['warrior1'], movesGraph['cresent'])
     Move.doubleAdd(movesGraph['revolvedTriangle'], movesGraph['revolvedHalfMoon'], movesGraph['pyramid'], movesGraph['cresentTwist'])
     Move.doubleAdd(movesGraph['sideCrow'], movesGraph['revolvedRunningMan'], late=True)
-    Move.doubleAdd(movesGraph['dancer'], movesGraph['standingLegLift1'], movesGraph['standingSplits'], movesGraph['warrior3'])
+    Move.doubleAdd(movesGraph['dancer'], movesGraph['standingLegLift1'], movesGraph['standingSplits'])
+    Move.doubleAdd(movesGraph['dancer'], movesGraph['warrior3'], inverted=True)
     if difficulty >= 0:
         Move.doubleAdd(movesGraph['dancer'], movesGraph['eagle'], late=True)
     return movesGraph
