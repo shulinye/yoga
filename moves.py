@@ -22,7 +22,8 @@ def generateMoves(difficulty = 1):
             }
     movesGraph['plank'] = Move("Plank", 0, "Plank. Hold", 25 + 5*difficulty, movesGraph['lowPlank'], \
             extended_time=Move.reDifficultyTimes([40,60],5, difficulty), harder="Throw in a few pushups!", countdown=True)
-    movesGraph['oneLeggedPlank'] = Move.twoSides("One Legged Plank", "Raise your %(same)s foot", 10 + difficulty, movesGraph['vinyasa'])
+    movesGraph['oneLeggedPlank'] = Move.twoSides("One Legged Plank", "Raise your %(same)s foot", 10 + difficulty*2, movesGraph['vinyasa'], \
+            extended_time=Move.reDifficultyTimes([15,20], 3, difficulty))
     movesGraph['twoPointPlank'] = Move.twoSides("Two Point Plank", "Now raise your %(other)s hand", 10 + difficulty, movesGraph['vinyasa'])
     movesGraph['catCow'] = Move("Cat Cow", 0, "Cat Cow", 10, movesGraph['plank'], *movesGraph['balancingTableLegOnly'], extended_time=[15])
     movesGraph['table'] = Move("Table Pose", 0, "Table Pose", 5-difficulty, movesGraph['catCow'], *movesGraph['balancingTableLegOnly'], \
@@ -483,11 +484,12 @@ def linkHarder(movesGraph, difficulty=1) -> None:
     if difficulty >= 1:
         movesGraph['vinyasa'].time = max(0, movesGraph['vinyasa'].time - 2)
         movesGraph['mountain'].time = max(0, movesGraph['mountain'].time - 2)
-        for i in movesGraph['warrior3']: i.time += 5
         for i in movesGraph['eagle']: i.time += 5
         for i in movesGraph['halfMoon']: i.time += 5
         movesGraph['star'].time += 5
         movesGraph['chair'].time += 5
+        for i in movesGraph['warrior1']: i.time -= 2
+        for i in movesGraph['warrior2']: i.time -= 2
         for i in movesGraph['chairTwist']: i.time += 5
         movesGraph['forwardFold'].addMove(movesGraph['crow'])
         movesGraph['seatedMeditation'].addMove(movesGraph['frog'])
@@ -496,6 +498,8 @@ def linkHarder(movesGraph, difficulty=1) -> None:
         movesGraph['downwardDog'].addLateMove(movesGraph['supportedHeadstand'])
         Move.doubleAdd(movesGraph['threeLeggedDog'], movesGraph['pigeon'])
         for i in movesGraph['twoLeggedDog']: i.addLateMove(movesGraph['plank'])
+        Move.moveReverse(movesGraph['sidePlank'])
+    for i in movesGraph['warrior3']: i.time += 5*max(difficulty,0)
     for i in ['warrior1', 'warrior2', 'standingLegLift4', 'threeLeggedDog']:
         for j in movesGraph[i]: j.promoteLate()
     for i in ['star', 'mountain', 'downwardDog']:
@@ -506,7 +510,8 @@ def linkHarder(movesGraph, difficulty=1) -> None:
 def linkEnding(movesGraph) -> None:
     #Allow me to just go from one arm balance to the opposite side, to increase the chances I get balanced
     Move.moveReverse(movesGraph['runningMan'], movesGraph['sideCrow'], movesGraph['flyingPigeon'], \
-            movesGraph['revolvedRunningMan'], movesGraph['chinStand'], movesGraph['twoLeggedDog'])
+            movesGraph['revolvedRunningMan'], movesGraph['chinStand'], movesGraph['twoLeggedDog'], \
+            movesGraph['oneLeggedPlank'], movesGraph['warrior1'], movesGraph['warrior2'])
     for i in movesGraph['runningMan']: i.addMove(movesGraph['child'])
     for i in movesGraph['revolvedRunningMan']: i.addMove(movesGraph['child'])
     for i in movesGraph['sideCrow']: i.addMove(movesGraph['child'])
