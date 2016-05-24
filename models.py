@@ -126,7 +126,7 @@ class Move(object):
                 print(colorama.Fore.GREEN + utils.wrapper.fill('Latemoves: ' + '; '.join(str(i) for i in self.lateMove)) + colorama.Fore.RESET)
         # Tell me what to do
         utils.speak(self.audio)
-        time.sleep(0.2)
+        time.sleep(0.3)
         for i in ('early', 'harder'):
             if i in kwargs and kwargs[i]: utils.speak(getattr(self, i, None))
         # How long am I supposed to do it?

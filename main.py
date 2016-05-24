@@ -124,7 +124,7 @@ def main(**kwargs):
             utils.tee("Warmup Over: " + utils.prettyTime(time.time() - start), f, say="Alright, warmup over.")
         pose = pose(imbalance=imbalance, prev=prev, verbose=defaults["verbose"], f=f)
         #starting main part of workout
-        while time.time() - start < total_time//2 - 30:
+        while time.time() - start < total_time//2.1 - 30:
             pose = fixImbalance(pose, imbalance, maxImbalance=10 + total_time//600, maxTime=max(60,total_time//12), prev=prev, verbose=defaults["verbose"], f=f)
             pose = pose(imbalance=imbalance, prev=prev, verbose=defaults["verbose"], f=f)
         #add harder poses in here
