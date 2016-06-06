@@ -38,7 +38,7 @@ class Move(object):
     def times(self, args):
         args = sorted(args)
         self.time = max(args[0], 0)
-        self.extended_time = args[1:]
+        self.extended_time = [max(0, i) for i in args[1:]]
 
     def updateKwargs(self, **kwargs) -> None:
         for k, v in kwargs.items():
@@ -62,13 +62,20 @@ class Move(object):
         if self.last and len(self.nextMove) > 1:
             movesCopy = self.nextMove.copy()
             try:
+                movesCopy.remove(self.side)
+                if len(movesCopy) == 1: return s.pop()
                 movesCopy.remove(self.last)
+                if len(movesCopy) == 1: return s.pop()
             except KeyError:
                 pass
             if prev is not None:
                 movesCopy = movesCopy.difference(prev)
             if movesCopy:
                 return random.choice(tuple(movesCopy))
+            if prev is not None:
+                movesCopy = self.nextMove.intersection(prev)
+                if movesCopy:
+                    return random.choice(tuple(movesCopy))
         if self.nextMove:
             return random.choice(tuple(self.nextMove))
         if self.lateMove:
@@ -103,7 +110,8 @@ class Move(object):
             else: imbalance.append(self.otherside)
         if verbose >= 2:
             print(colorama.Fore.BLUE + utils.wrapper.fill('Prev: ' + '; '.join(map(str, prev))))
-            print(colorama.Fore.MAGENTA + utils.wrapper.fill('Imbalances: ' + '; '.join(map(str,imbalance))) + colorama.Fore.RESET)
+            print(colorama.Fore.MAGENTA + utils.wrapper.fill('Imbalances (%d): %s' % (len(imbalance), '; '.join(map(str,imbalance))))\
+                    + colorama.Fore.RESET)
         if prev is not None: prev.append(self)
         # What is my next move?
         if 'nextMove' in kwargs:

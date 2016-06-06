@@ -98,7 +98,7 @@ def generateMoves(difficulty = 1):
     movesGraph['standingSideStretch'] = Move.twoSides("Standing Side Stretch", "Lean to the %(same)s side", \
             10, movesGraph['backBend'], movesGraph['mountain'])
     movesGraph['standingTwist'] = Move.twoSides("Standing Twist", "Bring your arms up to shoulder level and twist to the %(same)s", \
-            15, movesGraph['mountain'])
+            15, movesGraph['mountain'], lateMove=set([movesGraph['backBend']]))
     movesGraph['forwardFoldShoulderStretch'] = Move("Forward Fold, Shoulder Stretch", 0, \
             "Clasp your hands together behind your head and allow gravity to drag your pinkies towards the floor", \
             10, movesGraph['mountain'], extended_time=[15,20])
@@ -520,3 +520,5 @@ def linkEnding(movesGraph) -> None:
     for i in movesGraph['threeLeggedDog']:
         i.addMove(movesGraph['plank'])
         i.time += 1
+    for i in movesGraph['pyramid']: i.addMove(movesGraph['wideLegForwardFold'])
+    movesGraph['wideLegForwardFold'].addMove(*movesGraph['pyramid'])

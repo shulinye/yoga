@@ -3,6 +3,7 @@
 """Various utils to check the integrity of the movesGraph"""
 
 import argparse
+import datetime
 import os.path
 import logging
 LOG_FILENAME = '/tmp/yoga.log'
@@ -83,6 +84,7 @@ if __name__== "__main__":
     parser.add_argument("-d", "--difficulty", dest="d", help="Difficulty: larger number=harder", default=1, type=int, choices=[-1,0,1,2])
     args = parser.parse_args()
     logging.info("Running with settings: " + str(vars(args)))
+    logging.info(datetime.datetime.now().strftime('%a, %d %b %Y %H:%M:%S'))
     print("Generating moves graph")
     movesGraph = generateAllMoves(**vars(args))
     print("Checking graph")

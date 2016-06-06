@@ -30,7 +30,7 @@ def routine(li : list, imbalance : list, playLast=True, **kwargs) -> "Move":
             current = current(imbalance=imbalance, nextMove=nextmove, **kwargs)
     except KeyboardInterrupt:
         sys.stdout.write(colorama.Style.RESET_ALL)
-        return current
+        raise
     if not playLast: return current
     return current(imbalance=imbalance,**kwargs)
 
@@ -38,11 +38,13 @@ def get_me_to(pose, *moves, imbalance = None, **kwargs):
     if imbalance is None: imbalance = []
     try:
         pose = routine(dijkstras.dijkstra(pose, *moves, imbalance=imbalance), imbalance=imbalance, **kwargs)
-    except (TimeoutError, ValueError, KeyboardInterrupt):
+    except (TimeoutError, ValueError):
+        sys.stdout.write(colorama.Style.RESET_ALL)
+    except KeyboardInterrupt:
         sys.stdout.write(colorama.Style.RESET_ALL)
     return pose
 
-def fixImbalance(pose : "Move", imbalance : list, maxImbalance=1, maxTime=60, **kwargs) -> "Move":
+def fixImbalance(pose : "Move", imbalance : list, maxImbalance : int = 2, maxTime=60, **kwargs) -> "Move":
     """Might try to fix the imbalance. Might not. Depends on how big the imbalance is.
     (Set maxImbalance to 1 to ensure imbalance gets fixed)
     if KeyboardInterrupt: Immediately return whatever pose it was on."""
@@ -113,7 +115,7 @@ def main(**kwargs):
             if defaults['aerobics']:
                 strengthaerobics.linkStrengthAerobics(movesGraph, defaults["difficulty"], defaults["strength"], defaults["aerobics"])
         if defaults['warmup']:
-            pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12), prev=prev, verbose=defaults['verbose'], f=f)
+            pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12.5), prev=prev, verbose=defaults['verbose'], f=f)
         imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance, difficulty=defaults["difficulty"])
         try:
             target = movesGraph[defaults['target']]
@@ -124,7 +126,7 @@ def main(**kwargs):
             utils.tee("Warmup Over: " + utils.prettyTime(time.time() - start), f, say="Alright, warmup over.")
         pose = pose(imbalance=imbalance, prev=prev, verbose=defaults["verbose"], f=f)
         #starting main part of workout
-        while time.time() - start < total_time//2.1 - 30:
+        while time.time() - start < total_time//2.3 - 30:
             pose = fixImbalance(pose, imbalance, maxImbalance=10 + total_time//600, maxTime=max(60,total_time//12), prev=prev, verbose=defaults["verbose"], f=f)
             pose = pose(imbalance=imbalance, prev=prev, verbose=defaults["verbose"], f=f)
         #add harder poses in here
@@ -144,7 +146,8 @@ def main(**kwargs):
         while time.time() < (end - max(60, total_time//5)) if defaults['cooldown'] else end:
             extendedChance = (time.time() - start)/total_time
             extended = random.random() < extendedChance
-            pose = fixImbalance(pose, imbalance, maxImbalance=8+total_time//800, maxTime=max(110,total_time//10), prev=prev, verbose=defaults["verbose"], f=f, harder=harder)
+            pose = fixImbalance(pose, imbalance, maxImbalance=8+total_time//800, maxTime=max(110,total_time//10), prev=prev, verbose=defaults["verbose"], \
+                    f=f, harder=harder)
             pose = pose(harder=harder, imbalance = imbalance, extended=extended, prev=prev, verbose=defaults["verbose"], f=f)
         moves.linkEnding(movesGraph)
         while time.time() < (end - max(60, total_time//10)):
