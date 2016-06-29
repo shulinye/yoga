@@ -36,6 +36,7 @@ def generateMoves(difficulty = 1):
     movesGraph['flyingStaff'] = Move("Flying Staff Pose", 0, "Press down on the ground. Try to lift your body off the ground", \
             20, movesGraph['vinyasa'])
     movesGraph['staff'] = Move("Staff Pose", 0, "Staff Pose", 10, movesGraph['vinyasa'], movesGraph['seatedForwardFold'])
+    movesGraph['jumpThru'] = Move("Jump Thru", 0, "Jump Thru", 1, movesGraph['staff'])
     if difficulty >= 1: movesGraph['staff'].addLateMove(movesGraph['flyingStaff'])
     movesGraph['archer'] = Move.twoSides("Archer Pose", "Grab each foot with hand. Try to straighten the %(same)s leg and bend \
             the %(other)s leg, lifting both legs off the ground. Archer Pose.", 30, movesGraph['staff'], movesGraph['vinyasa'])
@@ -110,7 +111,7 @@ def generateMoves(difficulty = 1):
             extended_time=[40 + 5*difficulty])
     if difficulty >= 1: movesGraph['dolphin'].addLateMove(movesGraph['forearmBalance'])
     movesGraph['downwardDog'] = Move("Downwards Dog", 0, "Downwards Dog", 4 - 2*difficulty, movesGraph['forwardFold'], \
-            movesGraph['staff'], movesGraph['plank'], movesGraph['dolphin'], *movesGraph['threeLeggedDog'], extended_time=[10])
+            movesGraph['jumpThru'], movesGraph['plank'], movesGraph['dolphin'], *movesGraph['threeLeggedDog'], extended_time=[10])
     movesGraph['upwardDog'] = Move("Upward Dog", 0, "Upward Dog", 3-difficulty, movesGraph['downwardDog'], extended_time=[10,20])
     movesGraph['humbleWarrior'] = Move.twoSides("Humble Warrior", "Intertwine your hands behind you. Lean forward. Humble Warrior", \
             5 - difficulty, movesGraph['vinyasa'])
@@ -160,7 +161,7 @@ def generateMoves(difficulty = 1):
             extended_time=Move.reDifficultyTimes([20,25],4,difficulty))
     movesGraph['sidePlank'] = Move.twoSides("Side Plank", "Side Plank, %(same)s side", 11 + 4*difficulty, movesGraph['plank'], movesGraph['vinyasa'], \
             extended_time=Move.reDifficultyTimes([30,40],4,difficulty))
-    movesGraph['sidePlankLegUp'] = Move.twoSides("Side Plank, Leg Up", "Now raise your %(other)s leg up and hold", 10 + 4*difficulty, \
+    movesGraph['sidePlankLegUp'] = Move.twoSides("Side Plank, Leg Up", "Side Plank, Leg Up, %(same)s side", 10 + 4*difficulty, \
             extended_time=Move.reDifficultyTimes([20,25,30],4,difficulty), lateMove=set([movesGraph['vinyasa']]))
     movesGraph['triangle'] = Move.twoSides("Triangle Pose", "Triangle Pose, %(same)s side", 15, movesGraph['vinyasa'], bind=True)
     movesGraph['pyramid'] = Move.twoSides("Pyramid Pose", "Pyramid Pose, %(same)s side", 15, movesGraph['vinyasa'])
@@ -216,10 +217,10 @@ def generateMoves(difficulty = 1):
 
     #Begin linking moves to each other
     movesGraph['wideLegStance'].addMove(movesGraph['mountain'], movesGraph['star'], movesGraph['wideLegForwardFold'], *movesGraph['warrior2'])
+    movesGraph['wheelPushup'].addMove(movesGraph['lieOnBack'])
     if difficulty >= 0:
         movesGraph['wideLegStance'].addLateMove(movesGraph['armPressurePose'], *movesGraph['cresent'])
     if difficulty >= 1:
-        movesGraph['wheelPushup'].addMove(movesGraph['lieOnBack'])
         movesGraph['wheel'].addLateMove(movesGraph['wheelPushup'])
     movesGraph['vinyasa'].addMove(movesGraph['downwardDog'])
     movesGraph['table'].addMove(*movesGraph['threadTheNeedle'])
@@ -415,6 +416,8 @@ def generateMoves(difficulty = 1):
         Move.doubleAdd(movesGraph['triangle'], movesGraph['halfMoon'], late=True)
     Move.doubleAdd(movesGraph['pyramid'], movesGraph['revolvedTriangle'])
     Move.doubleAdd(movesGraph['standingLegStretch'], movesGraph['pyramid'])
+    if difficulty <= 0:
+        Move.doubleAdd(movesGraph['pyramid'], movesGraph['lowLunge'], late = True)
     Move.doubleAdd(movesGraph['chairTwist'], movesGraph['sideCrow'], late = True)
     if difficulty >= 1:
         Move.doubleAdd(movesGraph['lizard'], movesGraph['runningMan'], late=True)
@@ -448,6 +451,8 @@ def linkMain(movesGraph, difficulty=1) -> None:
         movesGraph['table'].addLateMove(movesGraph['lowPlank'])
         movesGraph['catCow'].addLateMove(movesGraph['lowPlank'])
         movesGraph['lieOnFront'].addLateMove(movesGraph['lowPlank'])
+    else:
+        movesGraph['forwardFold'].addLateMove(*movesGraph['lowLunge'])
     movesGraph['forwardFoldShoulderStretch'].addLateMove(movesGraph['vinyasa'])
 
 def unlinkWarmup(movesGraph, imbalance=[], difficulty=1) -> list:
@@ -522,3 +527,4 @@ def linkEnding(movesGraph) -> None:
         i.time += 1
     for i in movesGraph['pyramid']: i.addMove(movesGraph['wideLegForwardFold'])
     movesGraph['wideLegForwardFold'].addMove(*movesGraph['pyramid'])
+    movesGraph['forwardFold'].addMove(*movesGraph['lowLunge'])

@@ -36,6 +36,7 @@ def linkAerobics(movesGraph, difficulty = 1, aerobics = 0):
 def linkAerobicsCooldown(movesGraph, difficulty=1, aerobics = 0) -> None:
     movesGraph['runInPlace'].addMove(movesGraph['lieOnBack'])
     movesGraph['burpies'].addMove(movesGraph['lieOnFront'])
+    movesGraph['situps'].addMove(movesGraph['lieOnBack'])
 
 def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
     #New moves
@@ -90,6 +91,7 @@ def linkStrength(movesGraph, difficulty=1, strength = 0) -> None:
     if difficulty >= 1:
         Move.doubleAdd(movesGraph['standingLegLift4'], movesGraph['pistolSquats'], late=True)
         Move.doubleAdd(movesGraph['standingLegLift1'], movesGraph['pistolSquats'], late=True)
+    movesGraph['plank'].time += difficulty
 
 def linkStrengthHarder(movesGraph, difficulty=1, strength = 0) -> None:
     Move.moveReverse(movesGraph['pistolSquats'])
@@ -103,4 +105,4 @@ def linkStrengthCooldown(movesGraph, difficulty=1, strength = 0) -> None:
 def linkStrengthAerobics(movesGraph, difficulty=1, strength = 0, aerobics = 0) -> None:
     movesGraph['runInPlace'].addMove(movesGraph['jumpingSquats'], movesGraph['plank'])
     movesGraph['jumpingSquats'].addMove(movesGraph['runInPlace'])
-
+    movesGraph['pushups'].addLateMove(movesGraph['burpies'])
