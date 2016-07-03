@@ -6,18 +6,20 @@ def defineStretches(movesGraph, difficulty = 1) -> None:
     """Add in a few stretches?"""
     movesGraph['upwardDogStretches'] = Move.twoSides('Upward Dog Stretch', 'Push your %(same)s shoulder forward', 10, movesGraph['upwardDog'])
     Move.moveReverse(movesGraph['upwardDogStretches'])
+    movesGraph['halfSplits'] = Move.twoSides('Half Splits', 'Half Splits', 10) #add better description?
+    movesGraph['splits'] = Move.twoSides('Splits', 'Splits, %(same)s foot forward', 10)
     if difficulty < 1:
         movesGraph['upwardDog'].addMove(*movesGraph['upwardDogStretches'])
 
-def linkEasy(movesGraph, difficulty = -1) -> None:
+def linkStretchesMain(movesGraph, difficulty = -1) -> None:
     raise NotImplemented
 
 def linkCooldown(movesGraph, difficulty = 1) -> None:
     """Links cooldown moves in."""
     movesGraph['twistedHeadToKnee'] = Move.twoSides("Twisted Head To Knee", "Take your %(same)s hand and grab the inside of your %(same)s foot.\
             Lean sideways over your %(same)s leg.", 30, movesGraph['seatedMeditation'], movesGraph['staff'], movesGraph['lieOnBack'])
-    movesGraph['preztel'] = Move.twoSides("Preztel", "Take your %(same)s foot and put it in front of your %(other)s knee. Pull your %(other)s knee \
-            towards you", 30, movesGraph['lieOnBack'])
+    movesGraph['preztel'] = Move.twoSides("Preztel", "Take your %(same)s foot and put it in front of your %(other)s knee. Pull your \
+            %(other)s knee towards you", 30, movesGraph['lieOnBack'])
     movesGraph['four'] = Move.twoSides("Four", "Four pose, %(same)s side", 30, movesGraph['supportedShoulderStand'])
     for i in movesGraph['four']: i.addLateMove(movesGraph['lieOnBack'])
     Move.moveReverse(movesGraph['four'], movesGraph['preztel'], movesGraph['twistedHeadToKnee'])

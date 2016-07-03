@@ -12,7 +12,7 @@ def generateMoves(difficulty = 1):
                 10, harder="Want a challenge? Extend the same arm."),
             'balancingTableLegOnly': Move.twoSides("Balancing Table, Leg Only", "Extend %(same)s leg behind you", 5 - difficulty),
             'fallenStar': Move.twoSides("Fallen Star","Fallen Star, %(same)s side", 15), #TODO better instructions
-            'lowLunge': Move.twoSides("Low Lunge", "Bring your %(same)s foot down and set it between your hands. Low Lunge", max(4 - 2*difficulty,0)),
+            'lowLunge': Move.twoSides("Low Lunge", "Low Lunge, %(same)s foot forward", max(4 - 2*difficulty,0)),
             'threeLeggedDog': Move.twoSides("Three Legged Dog", "Raise your %(same)s foot up. Three Legged Dog", \
                 max(5 - 2*difficulty,0), extended_time=Move.reDifficultyTimes([15,30],3,difficulty)),
             'kneeToNose': Move.twoSides("Knee To Nose", "Take your %(same)s knee and bring it towards your nose. Hold.", \
@@ -404,6 +404,7 @@ def generateMoves(difficulty = 1):
     if difficulty >= 2:
         Move.doubleAdd(movesGraph['standingLotusSquat'], movesGraph['flyingPigeon'])
         Move.doubleAdd(movesGraph['standingLegLift2'], movesGraph['birdOfParadise'])
+        Move.doubleAssignLast(movesGraph['standingLegLift2'], movesGraph['birdOfParadise'])
     Move.doubleAdd(movesGraph['standingLegLift1'], movesGraph['warrior3'], inverted=True)
     Move.doubleAdd(movesGraph['standingLegLift2'], movesGraph['standingLegLift3'])
     if difficulty < 1:

@@ -220,6 +220,15 @@ class Move(object):
             f(move[0], *[i[0] for i in moves])
             f(move[1], *[i[1] for i in moves])
 
+    @staticmethod
+    def doubleAssignLast(move, lastmove, inverted = False):
+        """Convience method to 'fake' the last move for side-specific moves"""
+        if inverted:
+            move[0].last = lastmove[1]
+            move[1].last = lastmove[0]
+        else:
+            move[0].last = lastmove[0]
+            move[1].last = lastmove[1]
     
     @classmethod
     def moveReverse(cls, *moves, late=False):
