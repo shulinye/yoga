@@ -126,7 +126,7 @@ def main(**kwargs):
             utils.tee("Warmup Over: " + utils.prettyTime(time.time() - start), f, say="Alright, warmup over.")
         pose = pose(imbalance=imbalance, prev=prev, verbose=defaults["verbose"], f=f)
         #starting main part of workout
-        while time.time() - start < total_time//2.3 - 30:
+        while time.time() - start < total_time//2.4 - 30:
             pose = fixImbalance(pose, imbalance, maxImbalance=10 + total_time//600, maxTime=max(60,total_time//12), prev=prev, verbose=defaults["verbose"], f=f)
             pose = pose(imbalance=imbalance, prev=prev, verbose=defaults["verbose"], f=f)
         #add harder poses in here
@@ -151,7 +151,7 @@ def main(**kwargs):
             pose = pose(harder=harder, imbalance = imbalance, extended=extended, prev=prev, verbose=defaults["verbose"], f=f)
         moves.linkEnding(movesGraph)
         while time.time() < (end - max(60, total_time//10)):
-            pose = fixImbalance(pose, imbalance, maxImbalance=max(1,total_time//800), maxTime=max(120, total_time//10), prev=prev, verbose=defaults["verbose"], f=f)
+            pose = fixImbalance(pose, imbalance, maxImbalance=max(1,total_time//800), maxTime=max(120, total_time//8), prev=prev, verbose=defaults["verbose"], f=f)
             pose = pose(imbalance = imbalance, prev=prev, verbose=defaults["verbose"], f=f)
         if defaults["cooldown"]:
             pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(75, total_time//10+15), prev=prev, verbose=defaults["verbose"], f=f)
@@ -161,8 +161,8 @@ def main(**kwargs):
             if defaults["aerobics"]: strengthaerobics.linkAerobicsCooldown(movesGraph,difficulty=defaults["difficulty"], aerobics = defaults["aerobics"])
             pose = get_me_to(pose, movesGraph['wheel'], imbalance=imbalance, prev=prev, verbose=defaults['verbose'], f=f)
         pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(60, total_time//10), prev=prev, verbose=defaults['verbose'], f=f)
-        while time.time() < (end-max(30, total_time//15)) if defaults["cooldown"] else end:
-            pose = pose(imbalance=imbalance, extended=True, prev=prev, verbose=defaults['verbose'], f=f)
+        while time.time() < (end-max(30, total_time//10)) if defaults["cooldown"] else end:
+            #pose = pose(imbalance=imbalance, extended=True, prev=prev, verbose=defaults['verbose'], f=f)
             pose = fixImbalance(pose, imbalance, maxImbalance=1, maxTime=max(30, total_time//10), prev=prev, verbose=defaults['verbose'], f=f)
         if defaults['cooldown']:
             moves.linkSavasana(movesGraph, difficulty=defaults['difficulty'])

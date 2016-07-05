@@ -41,3 +41,4 @@ def linkCooldown(movesGraph, difficulty = 1) -> None:
     for i in movesGraph['sidePlank']: i.addMove(movesGraph['lieOnFront'])
     for i in movesGraph['sidePlankLegUp']: i.addMove(movesGraph['lieOnFront'])
     for i in movesGraph['standingLegLift1']: i.addMove(movesGraph['mountain'])
+    if difficulty >= 1: movesGraph['wheel'].promoteLate()

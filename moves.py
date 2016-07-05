@@ -177,8 +177,8 @@ def generateMoves(difficulty = 1):
     movesGraph['wheelPushup'] = Move("Wheel Pushup", 0, "Wheel Pushup", 15)
     if difficulty >= 1:
         movesGraph['wheel'].addLateMove(*movesGraph['wheelWithRaisedLeg'])
-    if difficulty >= 2:
-        movesGraph['wheel'].addLateMove(movesGraph['mountain'])
+    #if difficulty >= 2:
+    #    movesGraph['wheel'].addLateMove(movesGraph['mountain'])
     movesGraph['camel'] = Move("Camel Pose", 0, "Camel Pose", 30, movesGraph['vinyasa'])
     movesGraph['superMan'] = Move("Super Man", 0, "Raise both your hands and your feet off the ground at the same time. Hold", \
             13+2*difficulty, movesGraph['vinyasa'], extended_time=[26 + 4*difficulty])
