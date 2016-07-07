@@ -8,6 +8,7 @@ __author__="Shulin Ye"
 import collections
 import colorama
 import datetime
+from enum import Enum
 import random
 import sys
 import time
@@ -39,6 +40,7 @@ def get_me_to(pose, *moves, imbalance = None, **kwargs):
     try:
         pose = routine(dijkstras.dijkstra(pose, *moves, imbalance=imbalance), imbalance=imbalance, **kwargs)
     except (TimeoutError, ValueError):
+        pose = pose(imbalance = imbalance, **kwargs)
         sys.stdout.write(colorama.Style.RESET_ALL)
     except KeyboardInterrupt:
         sys.stdout.write(colorama.Style.RESET_ALL)
@@ -74,6 +76,7 @@ def main(**kwargs):
             "outfile": None,
             }
     defaults.update(kwargs)
+
     if defaults["outfile"]:
         f = open(defaults["outfile"], "a")
         f.write(str(datetime.datetime.now()) + "\n")
@@ -93,6 +96,13 @@ def main(**kwargs):
     stretches.defineStretches(movesGraph, difficulty=defaults["difficulty"])
     start = time.time()
     end = start + total_time
+
+    class Times(Enum):
+        warmup_end = start + min(max(45,total_time//15),300)
+        halfway = start + total_time//2.4 - 30
+        cooldown_begin = (end - max(60, total_time//5)) if defaults['cooldown'] else end
+
+
     imbalance = []
     prev = collections.deque([],defaults["memory"])
     try:
@@ -104,7 +114,7 @@ def main(**kwargs):
         #warmup
         if defaults["warmup"]:
             pose = pose(time=min(30,max(15, total_time//120+7)), imbalance=imbalance, prev=prev, verbose=defaults["verbose"], f=f)
-            while time.time() - start < min(max(45,total_time//15),300):
+            while time.time() < Times.warmup_end.value:
                 pose = pose(imbalance=imbalance, extended=True, early=True, prev=prev, verbose=defaults["verbose"], f=f) #start slower
         #get me to my target:
         moves.linkMain(movesGraph, defaults['difficulty'])
@@ -115,7 +125,7 @@ def main(**kwargs):
             if defaults['aerobics']:
                 strengthaerobics.linkStrengthAerobics(movesGraph, defaults["difficulty"], defaults["strength"], defaults["aerobics"])
         if defaults['warmup']:
-            pose = fixImbalance(pose,imbalance,maxTime=max(45,total_time//12.5), prev=prev, verbose=defaults['verbose'], f=f)
+            pose = fixImbalance(pose, imbalance, maxTime=max(45,total_time//12.5), prev=prev, verbose=defaults['verbose'], f=f)
         imbalance = moves.unlinkWarmup(movesGraph, imbalance=imbalance, difficulty=defaults["difficulty"])
         try:
             target = movesGraph[defaults['target']]
@@ -126,7 +136,7 @@ def main(**kwargs):
             utils.tee("Warmup Over: " + utils.prettyTime(time.time() - start), f, say="Alright, warmup over.")
         pose = pose(imbalance=imbalance, prev=prev, verbose=defaults["verbose"], f=f)
         #starting main part of workout
-        while time.time() - start < total_time//2.4 - 30:
+        while time.time() < Times.halfway.value:
             pose = fixImbalance(pose, imbalance, maxImbalance=10 + total_time//600, maxTime=max(60,total_time//12), prev=prev, verbose=defaults["verbose"], f=f)
             pose = pose(imbalance=imbalance, prev=prev, verbose=defaults["verbose"], f=f)
         #add harder poses in here
@@ -143,7 +153,7 @@ def main(**kwargs):
             utils.tee("Halfway point: " + utils.prettyTime(time.time()-start), f, say="We have reached the halway point")
         #end adding harder poses
         harder = defaults["difficulty"] >= 1
-        while time.time() < (end - max(60, total_time//5)) if defaults['cooldown'] else end:
+        while time.time() < Times.cooldown_begin.value:
             extendedChance = (time.time() - start)/total_time
             extended = random.random() < extendedChance
             pose = fixImbalance(pose, imbalance, maxImbalance=8+total_time//800, maxTime=max(110,total_time//10), prev=prev, verbose=defaults["verbose"], \
