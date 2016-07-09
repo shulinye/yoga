@@ -149,7 +149,7 @@ def generateMoves(difficulty = 1):
     movesGraph['sideCrow'] = Move.twoSides("Side Crow", "Side Crow, %(same)s Side", 30, movesGraph['vinyasa'])
     movesGraph['boat'] = Move("Boat Pose", 0, "Boat Pose", 30, movesGraph['staff'], extended_time=[45,60])
     movesGraph['boatLift'] = Move("Boat Lift", 0, "Cross one ankle over the other, plant your hands and lift", 10, movesGraph['boat'])
-    movesGraph['boatTwist'] = Move("Boat Twist", 0, "Point your fingers towards the right and your ankles towards the left. Now reverse. Repeat", \
+    movesGraph['boatTwist'] = Move.twoSides("Boat Twist", "Point your fingers towards the %(same)s and your ankles towards the %(other)s. Now reverse. Repeat", \
             20, movesGraph['boat'], movesGraph['staff'], movesGraph['vinyasa'], extended_time=[30,40])
     movesGraph['lowBoat'] = Move("Low Boat Pose", 0, "Lower down into Low Boat Pose", \
             15, movesGraph['boat'], movesGraph['vinyasa'], extended_time=[20,30])
@@ -265,7 +265,7 @@ def generateMoves(difficulty = 1):
     movesGraph['child'].addMove(*movesGraph['childsPoseSideStretch'])
     movesGraph['child'].addLateMove(movesGraph['seatedMeditation'])
     if difficulty >= 1:
-        movesGraph['boat'].addMove(movesGraph['lowBoat'], movesGraph['boatLift'], movesGraph['boatTwist'])
+        movesGraph['boat'].addMove(movesGraph['lowBoat'], movesGraph['boatLift'], *movesGraph['boatTwist'])
         movesGraph['boatLift'].addMove(movesGraph['staff'])
         movesGraph['boatLift'].addLateMove(movesGraph['yogaBicycles'])
     movesGraph['lowBoat'].addMove(movesGraph['yogaBicycles'])
